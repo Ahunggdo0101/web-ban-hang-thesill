@@ -1,0 +1,91 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  avatar    String?
+  role      String   @default("user") // "user" | "admin"
+  googleId  String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orders    Order[]
+  wishlists Wishlist[]
+
+  @@index([email])
+}
+
+model Product {
+  id            String      @id
+  name          String
+  botanicalName String
+  price         Float
+  description   String
+  category      String
+  image         String
+  images        String[] // Array of gallery image URLs
+  colorImages   Json?      // Color key to image URL mapping
+  light         String      // "low" | "medium" | "bright"
+  petFriendly   Boolean
+  difficulty    String      // "easy" | "moderate" | "care"
+  size          String      // "small" | "medium" | "large"
+  rating        Float       @default(5.0)
+  reviewsCount  Int         @default(0)
+  careDetails   Json?       // Details for light, water, toxicity
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  orderItems    OrderItem[]
+  wishlists     Wishlist[]
+
+  @@index([category])
+  @@index([price])
+}
+
+model Order {
+  id            String      @id @default(uuid())
+  userId        String?
+  user          User?       @relation(fields: [userId], references: [id])
+  customerName  String
+  customerEmail String
+  totalAmount   Float
+  discount      Float       @default(0)
+  shippingCost  Float       @default(0)
+  status        String      @default("pending") // "pending" | "processing" | "completed" | "cancelled"
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  items         OrderItem[]
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  potStyle  String
+  potColor  String
+  quantity  Int
+  price     Float   // Price at the time of purchase
+}
+
+model Wishlist {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@index([userId])
+}
+

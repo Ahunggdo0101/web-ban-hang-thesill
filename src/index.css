@@ -1,0 +1,225 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+:root {
+  --brand-forest: #0D231A;
+  --brand-green: #1F3E35;
+  --brand-sage: #5F746C;
+  --brand-moss: #E8EBE9;
+  --brand-cream: #FAF8F5;
+  --brand-white: #FFFFFF;
+  --brand-beige: #F4F1EC;
+  --brand-sand: #EAE5DE;
+  --brand-clay: #C59680;
+  --brand-charcoal: #1C1C1C;
+  --brand-slate: #737373;
+}
+
+.dark {
+  --brand-forest: #E2ECE7;
+  --brand-green: #2A654E;
+  --brand-sage: #829C90;
+  --brand-moss: #1C2B23;
+  --brand-cream: #0F1A14;
+  --brand-white: #162016;
+  --brand-beige: #11221B;
+  --brand-sand: #203429;
+  --brand-clay: #D2A690;
+  --brand-charcoal: #E2ECE7;
+  --brand-slate: #A5B6AD;
+}
+
+@theme {
+  --color-brand-forest: var(--brand-forest);
+  --color-brand-green: var(--brand-green);
+  --color-brand-sage: var(--brand-sage);
+  --color-brand-moss: var(--brand-moss);
+  --color-brand-cream: var(--brand-cream);
+  --color-brand-white: var(--brand-white);
+  --color-brand-beige: var(--brand-beige);
+  --color-brand-sand: var(--brand-sand);
+  --color-brand-clay: var(--brand-clay);
+  --color-brand-charcoal: var(--brand-charcoal);
+  --color-brand-slate: var(--brand-slate);
+  
+  --font-serif: "Lora", Georgia, serif;
+  --font-sans: "Montserrat", system-ui, sans-serif;
+  
+  --animate-fade-in: fade-in 0.4s cubic-bezier(0.25, 1, 0.5, 1) both;
+  --animate-slide-up: slide-up 0.5s cubic-bezier(0.25, 1, 0.5, 1) both;
+  --animate-slide-left: slide-left 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-slide-right: slide-right 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-scale-in: scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes slide-left {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0);    }
+}
+
+@keyframes slide-right {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0);     }
+}
+
+@keyframes scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+/* ─── Base Styles ─── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* GPU hint: smooth font rendering toàn hệ thống */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-brand-cream);
+  color: var(--color-brand-charcoal);
+  font-family: var(--font-sans);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, .font-serif-title {
+  font-family: var(--font-serif);
+}
+
+/* ─── Custom Scrollbar ─── */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--color-brand-cream); }
+::-webkit-scrollbar-thumb { background: var(--color-brand-sand); border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-brand-sage); }
+
+/* ─── GPU-Accelerated Transition Defaults ─── */
+/* Drawer, Modal và Image containers dùng transform + opacity — 
+   được composite layer riêng biệt, KHÔNG trigger layout reflow */
+.cart-drawer-panel {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.modal-panel {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* Image zoom — composite only */
+.img-zoom {
+  will-change: transform;
+  overflow: hidden;
+}
+.img-zoom img {
+  transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.img-zoom:hover img {
+  transform: scale(1.05);
+}
+
+/* ─── Premium Button Styles ─── */
+.btn-premium {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-premium::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-premium:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* ─── Animated Underline ─── */
+.hover-underline {
+  position: relative;
+}
+.hover-underline::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 1.5px;
+  bottom: -3px;
+  left: 0;
+  background-color: var(--color-brand-forest);
+  transform-origin: right;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hover-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* ─── Misc Utilities ─── */
+.thin-border { border: 1px solid var(--color-brand-sand); }
+.text-spacing-wide { letter-spacing: 0.12em; }
+
+/* ─── Custom Select ─── */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%231C1C1C' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.25' d='M5 8.5l5 5 5-5'/%3E%3C/svg%3E");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25em 1.25em;
+  padding-right: 2rem;
+}
+
+/* ─── Skeleton Shimmer ─── */
+.shimmer {
+  background: linear-gradient(90deg,
+    var(--color-brand-beige) 25%,
+    var(--color-brand-sand)  50%,
+    var(--color-brand-beige) 75%
+  );
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── Product Card ─── */
+/* Cô lập stacking context để hover transform không ảnh hưởng layout xung quanh */
+.product-card {
+  isolation: isolate;
+  contain: layout style;
+}
+
+/* ─── Focus Visible (Accessibility) ─── */
+:focus-visible {
+  outline: 2px solid var(--color-brand-clay);
+  outline-offset: 2px;
+}
