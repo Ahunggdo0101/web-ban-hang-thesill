@@ -1,8 +1,12 @@
+import * as dns from 'dns';
+dns.setDefaultResultOrder('ipv4first');
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
