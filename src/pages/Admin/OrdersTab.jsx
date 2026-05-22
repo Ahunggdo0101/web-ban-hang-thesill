@@ -166,6 +166,12 @@ export default function OrdersTab({ fetchWithAuth }) {
                       <td colSpan={6} className="px-6 py-4">
                         <div className="space-y-2">
                           <p className="text-[10px] uppercase tracking-widest font-bold text-brand-sage">Chi tiết đơn hàng</p>
+                          {/* Thông tin giao hàng COD */}
+                          <div className="bg-white border border-brand-sand p-3 space-y-1 text-brand-charcoal">
+                            <p className="text-[10px] uppercase tracking-widest font-bold text-brand-clay mb-1">Thông Tin Giao Hàng</p>
+                            <p>Số điện thoại: <span className="font-bold text-brand-forest">{order.phone || 'N/A'}</span></p>
+                            <p>Địa chỉ nhận: <span className="font-semibold">{order.address || 'N/A'}, {order.district || 'N/A'}, {order.city || 'N/A'}</span></p>
+                          </div>
                           <div className="space-y-2">
                             {(order.items || []).map(item => (
                               <div key={item.id} className="flex items-center gap-3 bg-white border border-brand-sand p-3">

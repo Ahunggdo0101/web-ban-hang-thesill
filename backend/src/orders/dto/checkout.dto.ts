@@ -36,6 +36,26 @@ export class CheckoutDto {
   @IsEmail()
   customerEmail: string;
 
+  @ApiProperty({ description: 'Phone number of the customer', example: '0901234567' })
+  @IsNotEmpty()
+  @IsString()
+  phone: string;
+
+  @ApiProperty({ description: 'Detailed shipping address', example: '123 ABC Street' })
+  @IsNotEmpty()
+  @IsString()
+  address: string;
+
+  @ApiProperty({ description: 'Shipping district', example: 'District 1' })
+  @IsNotEmpty()
+  @IsString()
+  district: string;
+
+  @ApiProperty({ description: 'Shipping city/province', example: 'HCMC' })
+  @IsNotEmpty()
+  @IsString()
+  city: string;
+
   @ApiProperty({ description: 'List of products in the shopping cart', type: [OrderItemDto] })
   @IsArray()
   @ValidateNested({ each: true })

@@ -106,26 +106,6 @@ export default function CheckoutPage() {
     if (!city.trim()) newErrors.city = 'Vui lòng chọn hoặc nhập Tỉnh/Thành phố';
     if (!district.trim()) newErrors.district = 'Vui lòng nhập Quận/Huyện/Xã';
 
-    // 3. Payment Card validation (mockup)
-    const cleanCard = cardNumber.replace(/\s/g, '');
-    if (!cardNumber) {
-      newErrors.cardNumber = 'Vui lòng nhập số thẻ thanh toán';
-    } else if (!/^\d{16}$/.test(cleanCard)) {
-      newErrors.cardNumber = 'Số thẻ thanh toán phải chứa 16 chữ số';
-    }
-
-    if (!expDate) {
-      newErrors.expDate = 'Vui lòng nhập hạn dùng (MM/YY)';
-    } else if (!/^\d{2}\/\d{2}$/.test(expDate)) {
-      newErrors.expDate = 'Hạn dùng phải đúng định dạng MM/YY';
-    }
-
-    if (!cvv) {
-      newErrors.cvv = 'Vui lòng nhập mã CVV';
-    } else if (!/^\d{3,4}$/.test(cvv)) {
-      newErrors.cvv = 'Mã CVV phải chứa 3-4 chữ số';
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -147,6 +127,10 @@ export default function CheckoutPage() {
       const payload = {
         customerName: fullName,
         customerEmail: email,
+        phone: phone,
+        address: address,
+        district: district,
+        city: city,
         items: cartItems.map((item) => ({
           productId: item.product.id,
           potStyle: item.potStyle,
@@ -410,86 +394,32 @@ export default function CheckoutPage() {
             <h2 className="font-serif text-xl font-light text-brand-forest border-b border-brand-sand pb-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="w-5 h-5 rounded-full bg-brand-forest text-brand-white flex items-center justify-center text-xs font-serif font-bold">3</span>
-                Thanh Toán Bằng Thẻ Tín Dụng
+                Phương Thức Thanh Toán
               </div>
               <div className="flex gap-1.5 text-brand-slate">
-                <CreditCard size={18} />
-                <Lock size={15} className="mt-0.5" />
+                <CheckCircle2 size={18} className="text-brand-forest" />
               </div>
             </h2>
 
-            <div className="bg-brand-white border border-brand-sand p-4 text-[10px] text-brand-slate font-medium leading-relaxed italic mb-2">
-              Lưu ý: Đây là cổng thanh toán mô phỏng thử nghiệm. Hãy nhập 16 chữ số bất kỳ làm số thẻ để hoàn tất.
-            </div>
-
-            <div>
-              <label htmlFor="cardNumber" className="block text-[10px] font-bold uppercase tracking-widest text-brand-forest mb-2">
-                Số Thẻ (16 chữ số)
-              </label>
-              <input
-                id="cardNumber"
-                name="cardNumber"
-                type="text"
-                maxLength="19" // bao gồm khoảng trắng
-                value={cardNumber}
-                onChange={(e) => handleCardNumberChange(e.target.value)}
-                placeholder="4000 1234 5678 9010"
-                className={`w-full bg-brand-white border px-4 py-3 text-xs text-brand-charcoal focus:border-brand-forest focus:outline-none transition-colors rounded-none placeholder-brand-sand/50 ${
-                  errors.cardNumber ? 'border-red-500' : 'border-brand-sand'
-                }`}
-              />
-              {errors.cardNumber && (
-                <p className="text-red-500 text-[10px] mt-1.5 font-bold tracking-wide flex items-center gap-1">
-                  <AlertCircle size={10} /> {errors.cardNumber}
-                </p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="expDate" className="block text-[10px] font-bold uppercase tracking-widest text-brand-forest mb-2">
-                  Ngày Hết Hạn (MM/YY)
-                </label>
+            <div className="bg-brand-white border border-brand-sand p-6 space-y-4">
+              <div className="flex items-start gap-3">
                 <input
-                  id="expDate"
-                  name="expDate"
-                  type="text"
-                  maxLength="5"
-                  value={expDate}
-                  onChange={(e) => handleExpDateChange(e.target.value)}
-                  placeholder="12/28"
-                  className={`w-full bg-brand-white border px-4 py-3 text-xs text-brand-charcoal focus:border-brand-forest focus:outline-none transition-colors rounded-none placeholder-brand-sand/50 ${
-                    errors.expDate ? 'border-red-500' : 'border-brand-sand'
-                  }`}
+                  type="radio"
+                  id="cod"
+                  name="paymentMethod"
+                  checked={true}
+                  readOnly
+                  className="mt-1 text-brand-forest focus:ring-brand-forest"
                 />
-                {errors.expDate && (
-                  <p className="text-red-500 text-[10px] mt-1.5 font-bold tracking-wide flex items-center gap-1">
-                    <AlertCircle size={10} /> {errors.expDate}
+                <div>
+                  <label htmlFor="cod" className="block text-xs font-bold uppercase tracking-wider text-brand-forest">
+                    Thanh toán khi giao hàng (COD)
+                  </label>
+                  <p className="text-[11px] text-brand-slate mt-1.5 leading-relaxed">
+                    Bạn sẽ thanh toán tiền mặt trực tiếp cho nhân viên giao hàng sau khi nhận và kiểm tra sản phẩm.
+                    Nhân viên Admin sẽ liên hệ qua Số điện thoại bạn đã cung cấp để xác nhận đơn hàng trước khi chuyển đi.
                   </p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="cvv" className="block text-[10px] font-bold uppercase tracking-widest text-brand-forest mb-2">
-                  Mã CVV (3-4 số)
-                </label>
-                <input
-                  id="cvv"
-                  name="cvv"
-                  type="password"
-                  maxLength="4"
-                  value={cvv}
-                  onChange={(e) => setCvv(e.target.value.replace(/\D/g, ''))}
-                  placeholder="•••"
-                  className={`w-full bg-brand-white border px-4 py-3 text-xs text-brand-charcoal focus:border-brand-forest focus:outline-none transition-colors rounded-none placeholder-brand-sand/50 ${
-                    errors.cvv ? 'border-red-500' : 'border-brand-sand'
-                  }`}
-                />
-                {errors.cvv && (
-                  <p className="text-red-500 text-[10px] mt-1.5 font-bold tracking-wide flex items-center gap-1">
-                    <AlertCircle size={10} /> {errors.cvv}
-                  </p>
-                )}
+                </div>
               </div>
             </div>
           </div>

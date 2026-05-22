@@ -53,6 +53,10 @@ model Order {
   user          User?       @relation(fields: [userId], references: [id])
   customerName  String
   customerEmail String
+  phone         String?
+  address       String?
+  district      String?
+  city          String?
   totalAmount   Float
   discount      Float       @default(0)
   shippingCost  Float       @default(0)
