@@ -24,6 +24,15 @@ export class AppController {
         productCount: count,
       };
     } catch (error: any) {
+      let host = 'unknown';
+      let port = 'unknown';
+      try {
+        const dbUrl = process.env.DATABASE_URL || '';
+        const parsed = new URL(dbUrl.replace('postgresql://', 'http://'));
+        host = parsed.hostname;
+        port = parsed.port;
+      } catch (e) {}
+
       return {
         success: false,
         message: 'Database connection failed!',
@@ -31,9 +40,11 @@ export class AppController {
         stack: error.stack,
         envDatabaseUrlExists: !!process.env.DATABASE_URL,
         databaseUrlLength: process.env.DATABASE_URL ? process.env.DATABASE_URL.length : 0,
-        databaseUrlPrefix: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 15) : '',
+        parsedHost: host,
+        parsedPort: port,
       };
     }
   }
+
 }
 
