@@ -263,14 +263,16 @@ const productsData = [
 ];
 
 async function main() {
-  console.log('Start seeding products...');
+  console.log('Checking database status before seeding...');
 
-  // Xóa các dữ liệu cũ theo thứ tự khóa ngoại để tránh conflict
-  await prisma.orderItem.deleteMany({});
-  await prisma.wishlist.deleteMany({});
-  await prisma.order.deleteMany({});
-  await prisma.user.deleteMany({});
-  await prisma.product.deleteMany({});
+  // Kiểm tra xem cơ sở dữ liệu đã có sản phẩm nào chưa
+  const productCount = await prisma.product.count();
+  if (productCount > 0) {
+    console.log('Database already has products. Skipping seed to prevent data loss!');
+    return;
+  }
+
+  console.log('Database is empty. Starting to seed default products...');
 
   // Seed sản phẩm
   for (const product of productsData) {
