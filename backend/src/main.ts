@@ -41,7 +41,7 @@ async function bootstrap() {
   const allowedOriginsEnv = configService.get<string>('ALLOWED_ORIGINS', '');
   const allowedOrigins = allowedOriginsEnv
     ? allowedOriginsEnv.split(',').map(o => o.trim())
-    : ['http://localhost:5173', 'https://web-ban-hang-the-sill.vercel.app'];
+    : ['http://localhost:5173', 'https://web-ban-hang-the-sill.vercel.app', 'https://caycanhnamdien.vercel.app'];
 
   app.enableCors({
     origin: (origin: string, callback: (err: Error | null, allow?: boolean) => void) => {
