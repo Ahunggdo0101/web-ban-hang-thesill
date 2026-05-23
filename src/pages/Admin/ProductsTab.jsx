@@ -177,6 +177,9 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
     setIsSubmitting(true);
     const imagesArray = formData.images ? formData.images.split(',').map(u => u.trim()).filter(Boolean) : [formData.image];
     const payload = { id: formData.id.trim(), name: formData.name.trim(), botanicalName: formData.botanicalName.trim(), price: Number(formData.price), description: formData.description.trim(), category: formData.category, image: formData.image.trim(), images: imagesArray, light: formData.light, petFriendly: formData.petFriendly, difficulty: formData.difficulty, size: formData.size, careDetails: { light: formData.careDetails.light.trim(), water: formData.careDetails.water.trim(), toxicity: formData.careDetails.toxicity.trim() } };
+    if (modalType !== 'create') {
+      delete payload.id;
+    }
     try {
       const url = modalType === 'create' ? `${API}/products` : `${API}/products/${selectedId}`;
       const method = modalType === 'create' ? 'POST' : 'PATCH';
