@@ -1,10 +1,11 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Search, ArrowLeft } from 'lucide-react';
-import { products } from '../data/products';
 import ProductCard from '../components/ProductCard';
+import SkeletonProductCard from '../components/SkeletonProductCard';
 import { useCart } from '../context/CartContext';
 import useDocumentTitle from '../hooks/useDocumentTitle';
+import { API_BASE_URL } from '../config';
 
 const potColorsInfo = [
   { name: "Terracotta", value: "#D77A61" },
@@ -33,15 +34,32 @@ export default function SearchPage() {
     }));
   }, []);
 
-  // Lọc sản phẩm theo query
-  const filteredProducts = useMemo(() => {
-    if (!query.trim()) return [];
-    const lowerQuery = query.toLowerCase().trim();
-    return products.filter(product => 
-      product.name.toLowerCase().includes(lowerQuery) || 
-      (product.botanicalName && product.botanicalName.toLowerCase().includes(lowerQuery)) ||
-      (product.category && product.category.toLowerCase().includes(lowerQuery))
-    );
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!query.trim()) {
+      setFilteredProducts([]);
+      return;
+    }
+    const fetchSearchResults = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`${API_BASE_URL}/products?search=${encodeURIComponent(query.trim())}&limit=50`);
+        if (!res.ok) throw new Error('Không thể kết nối máy chủ dữ liệu');
+        const data = await res.json();
+        setFilteredProducts(data.items || []);
+      } catch (err) {
+        console.error('Lỗi tìm kiếm:', err);
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSearchResults();
   }, [query]);
 
   return (
@@ -65,15 +83,23 @@ export default function SearchPage() {
           {query ? `Kết quả cho “${query}”` : "Tìm kiếm sản phẩm"}
         </h1>
         <p className="text-xs sm:text-sm text-brand-slate max-w-xl mt-3 font-medium">
-          {filteredProducts.length > 0 
-            ? `Tìm thấy ${filteredProducts.length} sản phẩm phù hợp với từ khóa của bạn.`
-            : "Nhập từ khóa tìm kiếm để khám phá các sản phẩm cây cảnh độc đáo."
+          {isLoading 
+            ? "Đang tìm kiếm sản phẩm..."
+            : filteredProducts.length > 0 
+              ? `Tìm thấy ${filteredProducts.length} sản phẩm phù hợp với từ khóa của bạn.`
+              : "Nhập từ khóa tìm kiếm để khám phá các sản phẩm cây cảnh độc đáo."
           }
         </p>
       </div>
 
       {/* Grid kết quả */}
-      {filteredProducts.length > 0 ? (
+      {isLoading ? (
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
+          {[...Array(4)].map((_, i) => (
+            <SkeletonProductCard key={i} />
+          ))}
+        </div>
+      ) : filteredProducts.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
           {filteredProducts.map((plant) => (
             <ProductCard
