@@ -63,7 +63,7 @@ const Footer = memo(function Footer() {
           <div className="lg:col-span-4 space-y-6 text-left">
             <h3 className="font-serif text-3xl font-light text-brand-white leading-tight">
               Tham gia bản tin <br />
-              <span className="italic font-normal text-brand-clay">Cây Cảnh Nam Định Club</span>
+              <span className="italic font-normal text-brand-clay">Đỗ Xuân Hùng Garden Club</span>
             </h3>
             <p className="text-xs text-brand-beige/70 leading-relaxed font-medium">
               Nhận ngay mã giảm giá **10%** cho đơn hàng đầu tiên, cộng với các mẹo chăm sóc cây độc quyền hàng tuần.
@@ -142,7 +142,7 @@ const Footer = memo(function Footer() {
               <p className="text-[10px] text-brand-beige/50 leading-relaxed font-semibold uppercase tracking-widest">
                 Showroom: Số 150 Điện Biên, TP. Nam Định<br />
                 Hotline: 1900 8888<br />
-                Email: support@caycanhnamdinh.vn
+                Email: doxuanhung@caycanhnamdinh.vn
               </p>
             </div>
           </div>
@@ -150,7 +150,7 @@ const Footer = memo(function Footer() {
         </div>
 
         <div className="border-t border-[#1A372C] mt-20 pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] text-brand-beige/40 font-bold uppercase tracking-widest space-y-4 md:space-y-0">
-          <p>© 2026 Cây Cảnh Nam Định. Đại diện pháp luật: Ông Đỗ Xuân Hùng.</p>
+          <p>© 2026 Cây Cảnh Đỗ Xuân Hùng. Giám tuyển nghệ thuật bởi Nghệ nhân Đỗ Xuân Hùng.</p>
           <div className="flex space-x-6">
             <Link to="/privacy" className="hover:text-brand-cream transition-colors">Bảo mật</Link>
             <Link to="/shipping" className="hover:text-brand-cream transition-colors">Vận chuyển</Link>

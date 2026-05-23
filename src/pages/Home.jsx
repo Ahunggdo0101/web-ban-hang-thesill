@@ -148,11 +148,11 @@ export default function Home() {
           
           <div className="md:col-span-6 space-y-8 text-left">
             <span className="text-[10px] uppercase tracking-[0.2em] text-brand-clay font-bold block">
-              CÂY CẢNH NAM ĐỊNH • THƯƠNG HIỆU UY TÍN HÀNG ĐẦU
+              ĐỖ XUÂN HÙNG • NGHỆ THUẬT CÂY CẢNH NỔI TIẾNG NAM ĐỊNH
             </span>
             <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl text-brand-forest font-light leading-[1.08] tracking-tight">
-              Cây xanh mang lại <br />
-              <span className="italic text-brand-clay font-normal">sự tươi mới</span> cho không gian
+              Tinh hoa cây cảnh <br />
+              <span className="italic text-brand-clay font-normal">Đỗ Xuân Hùng</span> nghệ thuật
             </h1>
             <p className="text-xs sm:text-sm text-[#555] leading-relaxed max-w-md font-medium">
               Kiến tạo tổ ấm xanh mát với các loài cây dễ chăm sóc được chọn lọc kỹ lưỡng, kết hợp cùng các dòng chậu gốm thủ công tinh xảo. Đóng gói chuyên nghiệp và vận chuyển trực tiếp đến cửa nhà bạn.
@@ -287,7 +287,7 @@ export default function Home() {
       {/* 5. Why The Sill Section - Editorial features grid */}
       <section ref={whyRef} className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 transition-all duration-700 ${whyVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
         <div className="text-center max-w-xl mx-auto space-y-2">
-          <span className="text-[10px] uppercase tracking-[0.2em] text-brand-clay font-bold">Cam kết từ Cây Cảnh Nam Định</span>
+          <span className="text-[10px] uppercase tracking-[0.2em] text-brand-clay font-bold">Cam kết từ Đỗ Xuân Hùng</span>
           <h2 className="font-serif text-3xl sm:text-4xl text-brand-forest font-light">Mang thiên nhiên về nhà thật đơn giản</h2>
         </div>
 
@@ -318,20 +318,23 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. Testimonials - Customer favorites quotes */}
+      {/* 6. Testimonials - Thư ngỏ từ nhà sáng lập Đỗ Xuân Hùng */}
       <section ref={testimonialsRef} className={`bg-brand-beige border-y border-brand-sand py-20 transition-all duration-700 ${testimonialsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
         <div className="max-w-4xl mx-auto px-6 text-center space-y-8">
-          <div className="flex justify-center space-x-1 text-amber-500">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} size={16} fill="currentColor" />
-            ))}
+          <div className="w-16 h-16 rounded-full overflow-hidden mx-auto border-2 border-brand-clay shadow-sm bg-brand-white">
+            <img 
+              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80" 
+              alt="Đỗ Xuân Hùng" 
+              className="w-full h-full object-cover" 
+            />
           </div>
+          <span className="text-[10px] uppercase tracking-[0.2em] text-brand-clay font-bold block">Thư ngỏ từ người sáng lập</span>
           <blockquote className="font-serif text-2xl sm:text-3xl text-brand-forest font-light italic leading-relaxed">
-            "Tôi thực sự bị ấn tượng bởi sự cẩn thận của Cây Cảnh Nam Định trong quy trình đóng gói. Cây cảnh giao đến nơi có lá xanh mướt, hoàn toàn nguyên vẹn và chậu gốm nghệ thuật của họ trông cực kỳ sang trọng trong phòng khách."
+            "Mỗi tác phẩm cây cảnh gửi đến tay quý khách không chỉ là một sản phẩm thương mại đơn thuần, mà là một sinh linh xanh chứa đựng tình yêu thiên nhiên sâu sắc và cả tâm huyết kiến tạo của tôi cùng các cộng sự tại mảnh đất Nam Định."
           </blockquote>
           <div className="space-y-1">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-brand-charcoal">Hồng Nhung, Đà Nẵng</p>
-            <p className="text-[10px] text-brand-slate font-medium">Khách hàng đã mua hàng</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-brand-charcoal">Nghệ nhân Đỗ Xuân Hùng</p>
+            <p className="text-[10px] text-brand-clay font-bold uppercase tracking-wider">Chủ doanh nghiệp & Nhà sáng lập Cây Cảnh Đỗ Xuân Hùng</p>
           </div>
         </div>
       </section>

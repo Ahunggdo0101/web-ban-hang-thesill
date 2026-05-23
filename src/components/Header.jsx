@@ -224,7 +224,7 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
               className="flex items-center text-brand-forest focus:outline-none cursor-pointer group pointer-events-auto"
             >
               <span className="font-serif text-3xl font-light tracking-[0.05em] lowercase group-hover:text-brand-clay transition-colors duration-500">
-                cây cảnh nam định
+                cây cảnh đỗ xuân hùng
               </span>
             </Link>
           </div>
@@ -279,7 +279,7 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
                 className="flex items-center text-brand-forest focus:outline-none cursor-pointer group"
               >
                 <span className="font-serif text-3xl font-light tracking-[0.05em] lowercase group-hover:text-brand-clay transition-colors duration-500">
-                  cây cảnh nam định
+                  cây cảnh đỗ xuân hùng
                 </span>
               </Link>
             </div>

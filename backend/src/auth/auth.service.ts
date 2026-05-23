@@ -40,7 +40,7 @@ export class AuthService {
     if (!isProduction && (!clientId || dto.bypassEmail)) {
       this.logger.warn(`Bypassing Google OAuth. Authenticating user with email: ${dto.bypassEmail || 'mock-user@caycanhnamdinh.vn'}`);
       email = dto.bypassEmail || 'khachhang@caycanhnamdinh.vn';
-      name = dto.bypassName || 'Khách hàng Cây Cảnh Nam Định';
+      name = dto.bypassName || 'Khách hàng Cây Cảnh Đỗ Xuân Hùng';
       avatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80';
       googleId = 'mock_google_id_' + email.split('@')[0];
     } else {

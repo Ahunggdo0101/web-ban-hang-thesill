@@ -229,7 +229,7 @@ export default function AuthModal() {
         {/* Header */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-brand-sand">
           <span className="font-serif text-lg text-brand-forest lowercase tracking-wider">
-            cây cảnh nam định account
+            cây cảnh đỗ xuân hùng account
           </span>
           <button
             onClick={handleClose}
@@ -468,7 +468,7 @@ export default function AuthModal() {
                   Chọn tài khoản để tiếp tục
                 </h3>
                 <p className="text-xs text-brand-moss">
-                  để đăng nhập vào trang **cây cảnh nam định**
+                  để đăng nhập vào trang **cây cảnh đỗ xuân hùng**
                 </p>
               </div>
 
