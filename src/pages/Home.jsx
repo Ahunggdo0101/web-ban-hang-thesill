@@ -140,7 +140,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="w-full space-y-28 pb-28 animate-fade-in bg-brand-cream">
+    <div className="w-full space-y-16 md:space-y-28 pb-16 md:pb-28 animate-fade-in bg-brand-cream">
       
       {/* 1. Hero Section - Premium Editorial Split Banner */}
       <section className="relative overflow-hidden bg-brand-beige border-b border-brand-sand">
@@ -150,7 +150,7 @@ export default function Home() {
             <span className="text-[10px] uppercase tracking-[0.2em] text-brand-clay font-bold block">
               NGHỆ NHÂN CÂY CẢNH ĐỖ XUÂN HÙNG • NAM ĐỊNH
             </span>
-            <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl text-brand-forest font-light leading-[1.08] tracking-tight">
+            <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl text-brand-forest font-light leading-[1.08] tracking-tight">
               Nghệ nhân cây cảnh <br />
               <span className="italic text-brand-clay font-normal">Đỗ Xuân Hùng</span>
             </h1>

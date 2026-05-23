@@ -56,7 +56,7 @@ const Footer = memo(function Footer() {
       </div>
 
       {/* 2. Main Footer Links */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
           
           {/* Newsletter Signup - Minimal & Premium design */}
@@ -96,7 +96,7 @@ const Footer = memo(function Footer() {
           </div>
 
           {/* Directory Links columns */}
-          <div className="lg:col-span-8 grid grid-cols-2 sm:grid-cols-3 gap-12 text-left">
+          <div className="lg:col-span-8 grid grid-cols-2 sm:grid-cols-3 gap-8 md:gap-12 text-left">
             <div className="space-y-4">
               <h4 className="font-serif text-base text-brand-white font-medium border-b border-[#1A372C] pb-2">Mua Sắm</h4>
               <ul className="space-y-3 text-xs text-brand-beige/60 font-semibold tracking-wide">
@@ -149,7 +149,7 @@ const Footer = memo(function Footer() {
 
         </div>
 
-        <div className="border-t border-[#1A372C] mt-20 pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] text-brand-beige/40 font-bold uppercase tracking-widest space-y-4 md:space-y-0">
+        <div className="border-t border-[#1A372C] mt-10 md:mt-20 pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] text-brand-beige/40 font-bold uppercase tracking-widest space-y-4 md:space-y-0">
           <p>© 2026 Nghệ Nhân Cây Cảnh Đỗ Xuân Hùng. Bảo lưu mọi quyền tạo tác nghệ thuật.</p>
           <div className="flex space-x-6">
             <Link to="/privacy" className="hover:text-brand-cream transition-colors">Bảo mật</Link>

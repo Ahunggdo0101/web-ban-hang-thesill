@@ -216,7 +216,7 @@ export default function AuthModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 xs:p-4">
       {/* Backdrop with simple opacity fallback for performance */}
       <div
         className="absolute inset-0 bg-[#0D231A]/45 transition-opacity duration-300"
@@ -227,7 +227,7 @@ export default function AuthModal() {
       <div className="relative bg-brand-cream w-full max-w-md modal-panel border border-brand-sand shadow-2xl animate-fade-in z-10 flex flex-col max-h-[90vh]">
         
         {/* Header */}
-        <div className="flex justify-between items-center px-6 py-4 border-b border-brand-sand">
+        <div className="flex justify-between items-center px-4 xs:px-6 py-4 border-b border-brand-sand">
           <span className="font-serif text-lg text-brand-forest lowercase tracking-wider">
             nghệ nhân đỗ xuân hùng account
           </span>
@@ -240,7 +240,7 @@ export default function AuthModal() {
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 xs:p-6 space-y-6">
           
           {error && (
             <div className="bg-red-50 border-l-4 border-red-500 p-4 flex items-start space-x-3 text-red-800 text-xs">

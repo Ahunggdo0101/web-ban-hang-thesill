@@ -205,42 +205,43 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Mobile Row */}
-        <div className="flex md:hidden justify-between items-center h-20 relative">
-          {/* Mobile Menu Toggle */}
-          <div className="flex items-center">
+        <div className="flex md:hidden justify-between items-center h-16 px-2 relative border-b border-brand-sand/30">
+          {/* Left Column: Mobile Menu Toggle */}
+          <div className="w-10 flex justify-start items-center z-10">
             <button
               onClick={() => setIsMobileMenuOpen(prev => !prev)}
-              className="text-brand-charcoal hover:text-brand-green p-2 focus:outline-none transition-colors"
+              className="text-brand-charcoal hover:text-brand-green p-1.5 focus:outline-none transition-colors"
               aria-label={isMobileMenuOpen ? 'Đóng menu' : 'Mở menu'}
             >
-              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
 
-          {/* Logo — Absolute Center */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+          {/* Center Column: Logo */}
+          <div className="flex-1 flex justify-center items-center px-1">
             <Link
               to="/"
-              className="flex items-center text-brand-forest focus:outline-none cursor-pointer group pointer-events-auto"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center text-brand-forest focus:outline-none cursor-pointer group text-center"
             >
-              <span className="font-serif text-3xl font-light tracking-[0.05em] lowercase group-hover:text-brand-clay transition-colors duration-500">
+              <span className="font-serif text-[12px] xs:text-[13px] sm:text-sm font-light tracking-[0.02em] lowercase group-hover:text-brand-clay transition-colors duration-500 truncate max-w-[155px] xs:max-w-[190px] sm:max-w-none block">
                 nghệ nhân đỗ xuân hùng
               </span>
             </Link>
           </div>
 
-          {/* Right Action Icons (Mobile version) */}
-          <div className="flex items-center space-x-1">
+          {/* Right Column: Actions */}
+          <div className="flex items-center space-x-0.5 z-10">
             {/* Search */}
             <div className="relative flex items-center">
               {showSearch && (
                 <input
                   type="text"
-                  placeholder="Tìm cây..."
+                  placeholder="Tìm..."
                   value={searchQuery}
                   onChange={handleSearchInput}
                   onKeyDown={handleKeyDown}
-                  className="bg-brand-cream border-b border-brand-sand text-brand-charcoal text-xs py-1 px-3 pr-8 focus:outline-none focus:border-brand-forest w-32 sm:w-48 animate-fade-in font-medium transition-all"
+                  className="bg-brand-cream border border-brand-sand text-brand-charcoal text-[10px] py-1 px-2.5 pr-7 focus:outline-none focus:border-brand-forest w-20 xs:w-28 animate-fade-in font-medium transition-all"
                   autoFocus
                   aria-label="Tìm kiếm sản phẩm"
                 />
@@ -253,17 +254,21 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
                     handleSearchToggle();
                   }
                 }}
-                className="text-brand-charcoal hover:text-brand-green p-2 cursor-pointer transition-colors"
+                className="text-brand-charcoal hover:text-brand-green p-1.5 cursor-pointer transition-colors"
                 title={showSearch && searchQuery.trim() ? 'Tìm kiếm' : (showSearch ? 'Đóng tìm kiếm' : 'Tìm kiếm')}
                 aria-label={showSearch && searchQuery.trim() ? 'Tìm kiếm' : (showSearch ? 'Đóng tìm kiếm' : 'Tìm kiếm')}
               >
-                {showSearch && searchQuery.trim() ? <Search size={18} /> : (showSearch ? <X size={18} /> : <Search size={18} />)}
+                {showSearch && searchQuery.trim() ? (
+                  <Search size={16} />
+                ) : showSearch ? (
+                  <X size={16} />
+                ) : (
+                  <Search size={16} />
+                )}
               </button>
             </div>
 
             {renderThemeToggle()}
-            {renderUserIcon()}
-            {renderWishlistIcon()}
             {renderCartIcon()}
           </div>
         </div>
@@ -375,6 +380,15 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
             }`}
           >
             Trắc Nghiệm Chọn Cây
+          </NavLink>
+          <NavLink
+            to="/wishlist"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className={({ isActive }) => `block w-full text-left text-xs font-bold tracking-widest uppercase py-1 ${
+              isActive ? 'text-brand-forest border-l-2 border-brand-forest pl-3' : 'text-brand-charcoal pl-3'
+            }`}
+          >
+            Sản Phẩm Yêu Thích
           </NavLink>
           <a href="#" className="block w-full text-left text-xs font-bold tracking-widest uppercase py-1 text-brand-charcoal pl-3">
             Chậu Cảnh

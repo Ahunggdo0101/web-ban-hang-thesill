@@ -143,7 +143,7 @@ export default function CartDrawer() {
         }}
       />
 
-      <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
+      <div className="absolute inset-y-0 right-0 max-w-full flex pl-0 xs:pl-10">
         <div className={`w-screen max-w-md cart-drawer-panel transform transition-transform duration-300 ease-in-out ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
           <div className="h-full flex flex-col bg-brand-cream border-l border-brand-sand shadow-2xl">
             
