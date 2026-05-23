@@ -53,7 +53,7 @@ export default function ContactPage() {
           Liên hệ với chúng tôi
         </span>
         <h1 className="font-serif text-4xl sm:text-5xl text-brand-forest font-light mt-2">
-          Kết nối với The Sill
+          Kết nối với Cây Cảnh Nam Định
         </h1>
         <p className="text-xs sm:text-sm text-brand-slate max-w-xl mt-3 leading-relaxed font-medium">
           Bạn có câu hỏi về việc chăm sóc cây cảnh, đơn hàng hay muốn hợp tác? Hãy gửi lời nhắn, chúng tôi luôn ở đây để đồng hành cùng bạn.
@@ -78,7 +78,7 @@ export default function ContactPage() {
                 <div className="space-y-1">
                   <h4 className="text-[10px] uppercase tracking-wider text-brand-clay font-bold">Địa chỉ showroom</h4>
                   <p className="text-xs text-brand-slate font-semibold leading-relaxed">
-                    109 Đống Đa, Thạch Thang, Hải Châu, Đà Nẵng
+                    Số 150 Điện Biên, Cửa Bắc, TP. Nam Định
                   </p>
                 </div>
               </div>
@@ -104,7 +104,7 @@ export default function ContactPage() {
                 <div className="space-y-1">
                   <h4 className="text-[10px] uppercase tracking-wider text-brand-clay font-bold">Email hỗ trợ</h4>
                   <p className="text-xs text-brand-slate font-semibold">
-                    support@thesill.vn
+                    support@caycanhnamdinh.vn
                   </p>
                 </div>
               </div>
@@ -240,14 +240,14 @@ export default function ContactPage() {
       {/* Google Maps nhúng showroom */}
       <div className="mt-20 border border-brand-sand bg-brand-white p-3 shadow-xs">
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3833.8273618335044!2d108.21447091485845!3d16.074443188877543!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31421830a6e76cf7%3A0x6e2fe6296ee979eb!2zMTA5IMSQ4buRbmcgxJBhLCBUaOG6oWNoIFRoYW5nLCBI4bqjaSBDaMOidSwgxJDDoCBO4bq5bmcgNTUwMDAwLCBWaWV0bmFt!5e0!3m2!1sen!2s!4v1680000000000!5m2!1sen!2s"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3744.156100984852!2d106.17516831487856!3d20.43265888682496!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135e0be67ee35ab%3A0xb35a0cf07c3be4cf!2zMTUwIMSQaeG7h24gQmnDqm4sIEPhu61hIELhuq9jLCBUUC4gTmFtIMSQ4buLbmgsIE5hbSDEkOG7i25oLCBWaWV0bmFt!5e0!3m2!1svi!2s!4v1680000000000!5m2!1svi!2s"
           width="100%"
           height="400"
           style={{ border: 0 }}
           allowFullScreen=""
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
-          title="Google Maps Showroom The Sill"
+          title="Google Maps Showroom Cây Cảnh Nam Định"
         />
       </div>
 

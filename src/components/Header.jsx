@@ -199,7 +199,7 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
       {/* Top Announcement Banner */}
       <div className="w-full bg-brand-forest text-brand-cream text-[10px] py-2.5 px-4 text-center font-semibold tracking-[0.15em] uppercase flex items-center justify-center space-x-2">
         <Leaf size={10} className="text-brand-clay animate-pulse flex-shrink-0" />
-        <span>Freeship cho đơn từ $150 • Bảo hành cây khỏe mạnh 30 ngày</span>
+        <span>Freeship cho đơn từ 150.000đ • Bảo hành cây khỏe mạnh 30 ngày</span>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -223,8 +223,8 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
               to="/"
               className="flex items-center text-brand-forest focus:outline-none cursor-pointer group pointer-events-auto"
             >
-              <span className="font-serif text-3xl font-light tracking-[0.1em] lowercase group-hover:text-brand-clay transition-colors duration-500">
-                the sill
+              <span className="font-serif text-3xl font-light tracking-[0.05em] lowercase group-hover:text-brand-clay transition-colors duration-500">
+                cây cảnh nam định
               </span>
             </Link>
           </div>
@@ -278,8 +278,8 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
                 to="/"
                 className="flex items-center text-brand-forest focus:outline-none cursor-pointer group"
               >
-                <span className="font-serif text-3xl font-light tracking-[0.1em] lowercase group-hover:text-brand-clay transition-colors duration-500">
-                  the sill
+                <span className="font-serif text-3xl font-light tracking-[0.05em] lowercase group-hover:text-brand-clay transition-colors duration-500">
+                  cây cảnh nam định
                 </span>
               </Link>
             </div>

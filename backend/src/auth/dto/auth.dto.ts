@@ -41,7 +41,7 @@ export class RefreshTokenDto {
 }
 
 export class LoginDto {
-  @ApiProperty({ example: 'admin@thesill.com' })
+  @ApiProperty({ example: 'admin@caycanhnamdinh.vn' })
   @IsEmail({}, { message: 'Email không hợp lệ' })
   email: string;
 

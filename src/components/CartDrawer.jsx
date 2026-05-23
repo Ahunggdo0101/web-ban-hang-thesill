@@ -149,7 +149,7 @@ export default function CartDrawer() {
             
             {/* Header */}
             <div className="px-6 py-5 border-b border-brand-sand flex justify-between items-center bg-brand-white">
-              <span className="font-serif text-lg font-light tracking-wider lowercase">the sill cart</span>
+              <span className="font-serif text-lg font-light tracking-wider lowercase">cây cảnh nam định cart</span>
               <button
                 onClick={() => setIsCartOpen(false)}
                 disabled={isCheckingOut || checkoutSuccess}
@@ -180,7 +180,7 @@ export default function CartDrawer() {
                 </div>
                 <h3 className="font-serif text-2xl text-brand-forest font-light mb-2">Đặt hàng thành công!</h3>
                 <p className="text-xs text-brand-slate mb-6 max-w-xs leading-relaxed font-medium">
-                  Cảm ơn {user ? user.name : 'bạn'} đã mua sắm tại **The Sill**. Đơn hàng giả lập của bạn đã được ghi nhận và thông báo chi tiết đã được gửi tới {user ? user.email : 'email của bạn'}.
+                  Cảm ơn {user ? user.name : 'bạn'} đã mua sắm tại **Cây Cảnh Nam Định**. Đơn hàng giả lập của bạn đã được ghi nhận và thông báo chi tiết đã được gửi tới {user ? user.email : 'email của bạn'}.
                 </p>
                 <div className="w-16 h-0.5 bg-brand-clay" />
               </div>

@@ -19,20 +19,20 @@ export default function AboutPage() {
     {
       icon: Users,
       title: "Cộng đồng xanh",
-      desc: "The Sill không chỉ bán cây, chúng tôi xây dựng một cộng đồng nơi những người yêu thiên nhiên có thể chia sẻ kinh nghiệm và cùng nhau lan tỏa lối sống xanh."
+      desc: "Cây Cảnh Nam Định không chỉ bán cây, chúng tôi xây dựng một cộng đồng nơi những người yêu thiên nhiên có thể chia sẻ kinh nghiệm và cùng nhau lan tỏa lối sống xanh."
     }
   ];
 
   const team = [
     {
-      name: "Elisa Green",
-      role: "Founder & CEO",
-      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&q=80"
+      name: "Đỗ Xuân Hùng",
+      role: "Chủ doanh nghiệp & CEO",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&q=80"
     },
     {
-      name: "James Root",
-      role: "Chuyên gia thực vật học",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&q=80"
+      name: "Elisa Green",
+      role: "Đồng sáng lập",
+      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&q=80"
     },
     {
       name: "Sophia Bloom",
@@ -100,7 +100,7 @@ export default function AboutPage() {
             
             <div className="space-y-5 text-sm text-brand-slate leading-relaxed font-medium">
               <p>
-                The Sill được thành lập với niềm tin mãnh liệt rằng cây xanh không chỉ đơn thuần là những vật trang trí vô tri vô giác. Chúng là những người bạn đồng hành sống động, mang năng lượng tích cực giúp thanh lọc không khí, giảm bớt căng thẳng và nâng cao chất lượng cuộc sống hàng ngày của bạn.
+                Cây Cảnh Nam Định được sáng lập bởi doanh nhân Đỗ Xuân Hùng với niềm tin mãnh liệt rằng cây xanh không chỉ đơn thuần là những vật trang trí vô tri vô giác. Chúng là những người bạn đồng hành sống động, mang năng lượng tích cực giúp thanh lọc không khí, giảm bớt căng thẳng và nâng cao chất lượng cuộc sống hàng ngày của bạn.
               </p>
               <p>
                 Hành trình đưa một chậu cây từ vườn ươm về ngôi nhà của bạn được chúng tôi chăm chút bằng cả tình yêu thương. Bằng cách đơn giản hóa quá trình chăm sóc cây xanh, cung cấp đầy đủ hướng dẫn tận tình và lựa chọn những loại cây dẻo dai nhất, chúng tôi muốn bất kỳ ai cũng có thể tự tin trở thành một người yêu cây thực thụ.
@@ -124,7 +124,7 @@ export default function AboutPage() {
               Những giá trị cốt lõi
             </h2>
             <p className="text-xs text-brand-slate font-medium">
-              Tại The Sill, chúng tôi luôn đặt tính bền vững, chất lượng sản phẩm và trải nghiệm của cộng đồng lên hàng đầu trong mọi quyết định.
+              Tại Cây Cảnh Nam Định, chúng tôi luôn đặt tính bền vững, chất lượng sản phẩm và trải nghiệm của cộng đồng lên hàng đầu trong mọi quyết định.
             </p>
           </div>
 
@@ -155,7 +155,7 @@ export default function AboutPage() {
             Đội ngũ sáng lập
           </h2>
           <p className="text-xs text-brand-slate font-medium">
-            Những con người đầy nhiệt huyết đứng sau sứ mệnh phủ xanh không gian sống tại The Sill.
+            Những con người đầy nhiệt huyết đứng sau sứ mệnh phủ xanh không gian sống tại Cây Cảnh Nam Định.
           </p>
         </div>
 

@@ -64,8 +64,8 @@ async function bootstrap() {
 
   // Thiết lập Swagger UI để phát triển và test API
   const config = new DocumentBuilder()
-    .setTitle('The Sill API')
-    .setDescription('Premium eCommerce store backend designed for high scalability (1M users)')
+    .setTitle('Cây Cảnh Nam Định API')
+    .setDescription('Premium eCommerce store backend designed for high scalability (1M users) - Cây Cảnh Nam Định')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

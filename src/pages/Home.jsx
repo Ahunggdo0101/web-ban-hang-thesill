@@ -148,7 +148,7 @@ export default function Home() {
           
           <div className="md:col-span-6 space-y-8 text-left">
             <span className="text-[10px] uppercase tracking-[0.2em] text-brand-clay font-bold block">
-              THE SILL • THƯƠNG HIỆU CÂY CẢNH CAO CẤP
+              CÂY CẢNH NAM ĐỊNH • THƯƠNG HIỆU UY TÍN HÀNG ĐẦU
             </span>
             <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl text-brand-forest font-light leading-[1.08] tracking-tight">
               Cây xanh mang lại <br />
@@ -287,7 +287,7 @@ export default function Home() {
       {/* 5. Why The Sill Section - Editorial features grid */}
       <section ref={whyRef} className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 transition-all duration-700 ${whyVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
         <div className="text-center max-w-xl mx-auto space-y-2">
-          <span className="text-[10px] uppercase tracking-[0.2em] text-brand-clay font-bold">Cam kết từ The Sill</span>
+          <span className="text-[10px] uppercase tracking-[0.2em] text-brand-clay font-bold">Cam kết từ Cây Cảnh Nam Định</span>
           <h2 className="font-serif text-3xl sm:text-4xl text-brand-forest font-light">Mang thiên nhiên về nhà thật đơn giản</h2>
         </div>
 
@@ -327,7 +327,7 @@ export default function Home() {
             ))}
           </div>
           <blockquote className="font-serif text-2xl sm:text-3xl text-brand-forest font-light italic leading-relaxed">
-            "Tôi thực sự bị ấn tượng bởi sự cẩn thiện của The Sill trong quy trình đóng gói. Cây cảnh giao đến nơi có lá xanh mướt, hoàn toàn nguyên vẹn và chậu gốm Cream của họ trông cực kỳ sang trọng trong phòng khách."
+            "Tôi thực sự bị ấn tượng bởi sự cẩn thận của Cây Cảnh Nam Định trong quy trình đóng gói. Cây cảnh giao đến nơi có lá xanh mướt, hoàn toàn nguyên vẹn và chậu gốm nghệ thuật của họ trông cực kỳ sang trọng trong phòng khách."
           </blockquote>
           <div className="space-y-1">
             <p className="text-[10px] font-bold uppercase tracking-widest text-brand-charcoal">Hồng Nhung, Đà Nẵng</p>

@@ -300,8 +300,8 @@ async function main() {
   const adminPasswordHash = await bcrypt.hash('admin', 10);
   await prisma.user.create({
     data: {
-      email: 'admin@thesill.com',
-      name: 'Admin The Sill',
+      email: 'admin@caycanhnamdinh.vn',
+      name: 'Đỗ Xuân Hùng',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
       role: 'admin',
       password: adminPasswordHash,
@@ -313,8 +313,8 @@ async function main() {
   const customerPasswordHash = await bcrypt.hash('password123', 10);
   await prisma.user.create({
     data: {
-      email: 'customer@thesill.com',
-      name: 'Sill Customer',
+      email: 'khachhang@caycanhnamdinh.vn',
+      name: 'Khách hàng Cây Cảnh Nam Định',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
       role: 'user',
       password: customerPasswordHash,

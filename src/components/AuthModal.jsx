@@ -29,8 +29,8 @@ export default function AuthModal() {
   // Danh sách tài khoản mock để đăng nhập nhanh Google
   const mockAccounts = [
     {
-      name: 'Admin The Sill ⚙️',
-      email: 'admin@thesill.com',
+      name: 'Đỗ Xuân Hùng ⚙️',
+      email: 'admin@caycanhnamdinh.vn',
       avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&q=80&w=150',
     },
     {
@@ -229,7 +229,7 @@ export default function AuthModal() {
         {/* Header */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-brand-sand">
           <span className="font-serif text-lg text-brand-forest lowercase tracking-wider">
-            the sill account
+            cây cảnh nam định account
           </span>
           <button
             onClick={handleClose}
@@ -468,7 +468,7 @@ export default function AuthModal() {
                   Chọn tài khoản để tiếp tục
                 </h3>
                 <p className="text-xs text-brand-moss">
-                  để đăng nhập vào trang **the sill**
+                  để đăng nhập vào trang **cây cảnh nam định**
                 </p>
               </div>
 
