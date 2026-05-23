@@ -91,7 +91,7 @@ export default function ContactPage() {
                 <div className="space-y-1">
                   <h4 className="text-[10px] uppercase tracking-wider text-brand-clay font-bold">Số điện thoại hotline</h4>
                   <p className="text-xs text-brand-slate font-semibold">
-                    1900 8888 (Tư vấn miễn phí)
+                    0966337492 (Hỗ trợ trực tiếp)
                   </p>
                 </div>
               </div>
@@ -104,7 +104,7 @@ export default function ContactPage() {
                 <div className="space-y-1">
                   <h4 className="text-[10px] uppercase tracking-wider text-brand-clay font-bold">Email hỗ trợ</h4>
                   <p className="text-xs text-brand-slate font-semibold">
-                    doxuanhung@caycanhnamdinh.vn
+                    dohungg0101@gmail.com
                   </p>
                 </div>
               </div>

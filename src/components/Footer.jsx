@@ -127,7 +127,7 @@ const Footer = memo(function Footer() {
                     <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
                   </svg>
                 </a>
-                <a href="#" className="hover:text-brand-clay text-brand-beige/50 transition-colors" title="Facebook">
+                <a href="https://www.facebook.com/ohung.345374" target="_blank" rel="noopener noreferrer" className="hover:text-brand-clay text-brand-beige/50 transition-colors" title="Facebook">
                   <svg className="w-4 h-4 inline" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
                   </svg>
@@ -141,8 +141,8 @@ const Footer = memo(function Footer() {
               </div>
               <p className="text-[10px] text-brand-beige/50 leading-relaxed font-semibold uppercase tracking-widest">
                 Showroom: Số 150 Điện Biên, TP. Nam Định<br />
-                Hotline: 1900 8888<br />
-                Email: doxuanhung@caycanhnamdinh.vn
+                Hotline: 0966337492<br />
+                Email: dohungg0101@gmail.com
               </p>
             </div>
           </div>

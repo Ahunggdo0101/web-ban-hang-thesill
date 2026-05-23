@@ -300,7 +300,7 @@ async function main() {
   const adminPasswordHash = await bcrypt.hash('admin', 10);
   await prisma.user.create({
     data: {
-      email: 'admin@caycanhnamdinh.vn',
+      email: 'dohungg0101@gmail.com',
       name: 'Đỗ Xuân Hùng',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
       role: 'admin',

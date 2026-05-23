@@ -30,7 +30,7 @@ export default function AuthModal() {
   const mockAccounts = [
     {
       name: 'Đỗ Xuân Hùng ⚙️',
-      email: 'admin@caycanhnamdinh.vn',
+      email: 'dohungg0101@gmail.com',
       avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&q=80&w=150',
     },
     {
