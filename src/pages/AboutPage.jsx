@@ -4,7 +4,7 @@ import useDocumentTitle from '../hooks/useDocumentTitle';
 import { optimizeUnsplashImage } from '../utils/image';
 
 export default function AboutPage() {
-  useDocumentTitle('Về Chúng Tôi');
+  useDocumentTitle('Nghệ Nhân Đỗ Xuân Hùng');
   const values = [
     {
       icon: Leaf,
@@ -19,7 +19,7 @@ export default function AboutPage() {
     {
       icon: Users,
       title: "Cộng đồng xanh",
-      desc: "Cây Cảnh Đỗ Xuân Hùng không chỉ bán cây, chúng tôi xây dựng một cộng đồng nơi những người yêu thiên nhiên có thể chia sẻ kinh nghiệm và cùng nhau lan tỏa lối sống xanh."
+      desc: "Nghệ nhân Đỗ Xuân Hùng không chỉ cung cấp cây cảnh, chúng tôi xây dựng một không gian giao lưu nơi những người yêu thiên nhiên có thể chia sẻ nghệ thuật cây cảnh bonsai."
     }
   ];
 
@@ -100,7 +100,7 @@ export default function AboutPage() {
             
             <div className="space-y-5 text-sm text-brand-slate leading-relaxed font-medium">
               <p>
-                Cây Cảnh Đỗ Xuân Hùng ra đời từ tình yêu cháy bỏng với nghệ thuật cây cảnh truyền thống Nam Định của nhà sáng lập Đỗ Xuân Hùng. Với niềm tin mãnh liệt rằng mỗi dáng cây, thế đá không chỉ đơn thuần là trang trí, chúng là những tác phẩm nghệ thuật sống động mang sinh khí và sự bình an tới ngôi nhà của bạn.
+                Nghệ nhân cây cảnh Đỗ Xuân Hùng lớn lên tại cái nôi của làng nghề cây cảnh truyền thống nổi tiếng Nam Định. Với hơn nhiều năm gắn bó cùng nghệ thuật tạo hình sinh vật cảnh, nghệ nhân Đỗ Xuân Hùng hiểu rằng mỗi dáng cây, thế đá không chỉ đơn thuần là trang trí, chúng là những tác phẩm nghệ thuật sống động mang sinh khí và sự bình an tới không gian sống của bạn.
               </p>
               <p>
                 Hành trình đưa một chậu cây từ vườn ươm về ngôi nhà của bạn được chúng tôi chăm chút bằng cả tình yêu thương. Bằng cách đơn giản hóa quá trình chăm sóc cây xanh, cung cấp đầy đủ hướng dẫn tận tình và lựa chọn những loại cây dẻo dai nhất, chúng tôi muốn bất kỳ ai cũng có thể tự tin trở thành một người yêu cây thực thụ.
@@ -124,7 +124,7 @@ export default function AboutPage() {
               Những giá trị cốt lõi
             </h2>
             <p className="text-xs text-brand-slate font-medium">
-              Tại Cây Cảnh Đỗ Xuân Hùng, chúng tôi luôn đặt chữ Tín, chữ Tâm và chất lượng nghệ thuật của từng tác phẩm lên hàng đầu trong mọi quyết định.
+              Dưới sự giám tuyển của Nghệ nhân cây cảnh Đỗ Xuân Hùng, chúng tôi luôn đặt chữ Tín, chữ Tâm và chất lượng nghệ thuật của từng tác phẩm lên hàng đầu trong mọi quyết định.
             </p>
           </div>
 
@@ -155,7 +155,7 @@ export default function AboutPage() {
             Đội ngũ sáng lập
           </h2>
           <p className="text-xs text-brand-slate font-medium">
-            Những con người đầy nhiệt huyết đứng sau sứ mệnh phủ xanh không gian sống tại Cây Cảnh Đỗ Xuân Hùng.
+            Những con người đầy nhiệt huyết đứng sau sứ mệnh phủ xanh không gian sống của Nghệ nhân cây cảnh Đỗ Xuân Hùng.
           </p>
         </div>
 

@@ -150,7 +150,7 @@ const Footer = memo(function Footer() {
         </div>
 
         <div className="border-t border-[#1A372C] mt-20 pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] text-brand-beige/40 font-bold uppercase tracking-widest space-y-4 md:space-y-0">
-          <p>© 2026 Cây Cảnh Đỗ Xuân Hùng. Giám tuyển nghệ thuật bởi Nghệ nhân Đỗ Xuân Hùng.</p>
+          <p>© 2026 Nghệ Nhân Cây Cảnh Đỗ Xuân Hùng. Bảo lưu mọi quyền tạo tác nghệ thuật.</p>
           <div className="flex space-x-6">
             <Link to="/privacy" className="hover:text-brand-cream transition-colors">Bảo mật</Link>
             <Link to="/shipping" className="hover:text-brand-cream transition-colors">Vận chuyển</Link>

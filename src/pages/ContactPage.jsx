@@ -53,7 +53,7 @@ export default function ContactPage() {
           Liên hệ với chúng tôi
         </span>
         <h1 className="font-serif text-4xl sm:text-5xl text-brand-forest font-light mt-2">
-          Kết nối với Cây Cảnh Đỗ Xuân Hùng
+          Kết nối với Nghệ Nhân Cây Cảnh Đỗ Xuân Hùng
         </h1>
         <p className="text-xs sm:text-sm text-brand-slate max-w-xl mt-3 leading-relaxed font-medium">
           Bạn có câu hỏi về việc chăm sóc cây cảnh, đơn hàng hay muốn hợp tác? Hãy gửi lời nhắn, chúng tôi luôn ở đây để đồng hành cùng bạn.

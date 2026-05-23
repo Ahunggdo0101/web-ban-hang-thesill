@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const SITE_NAME = 'Cây Cảnh Đỗ Xuân Hùng';
+const SITE_NAME = 'Nghệ Nhân Cây Cảnh Đỗ Xuân Hùng';
 
 export default function useDocumentTitle(title) {
   useEffect(() => {

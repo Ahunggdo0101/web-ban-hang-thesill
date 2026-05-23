@@ -23,7 +23,7 @@ export const Sidebar = memo(({ activeTab, setActiveTab, onLogout, isOpen, onClos
       `}>
         {/* Logo */}
         <div className="px-6 py-6 border-b border-white/10">
-          <h2 className="font-serif text-xl font-light lowercase tracking-wider">đỗ xuân hùng</h2>
+          <h2 className="font-serif text-xl font-light lowercase tracking-wider">nghệ nhân đỗ xuân hùng</h2>
           <p className="text-[9px] uppercase tracking-widest text-brand-clay mt-0.5 font-bold">Admin Dashboard</p>
         </div>
 

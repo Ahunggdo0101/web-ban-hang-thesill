@@ -148,11 +148,11 @@ export default function Home() {
           
           <div className="md:col-span-6 space-y-8 text-left">
             <span className="text-[10px] uppercase tracking-[0.2em] text-brand-clay font-bold block">
-              ĐỖ XUÂN HÙNG • NGHỆ THUẬT CÂY CẢNH NỔI TIẾNG NAM ĐỊNH
+              NGHỆ NHÂN CÂY CẢNH ĐỖ XUÂN HÙNG • NAM ĐỊNH
             </span>
             <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl text-brand-forest font-light leading-[1.08] tracking-tight">
-              Tinh hoa cây cảnh <br />
-              <span className="italic text-brand-clay font-normal">Đỗ Xuân Hùng</span> nghệ thuật
+              Nghệ nhân cây cảnh <br />
+              <span className="italic text-brand-clay font-normal">Đỗ Xuân Hùng</span>
             </h1>
             <p className="text-xs sm:text-sm text-[#555] leading-relaxed max-w-md font-medium">
               Kiến tạo tổ ấm xanh mát với các loài cây dễ chăm sóc được chọn lọc kỹ lưỡng, kết hợp cùng các dòng chậu gốm thủ công tinh xảo. Đóng gói chuyên nghiệp và vận chuyển trực tiếp đến cửa nhà bạn.
@@ -287,7 +287,7 @@ export default function Home() {
       {/* 5. Why The Sill Section - Editorial features grid */}
       <section ref={whyRef} className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 transition-all duration-700 ${whyVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
         <div className="text-center max-w-xl mx-auto space-y-2">
-          <span className="text-[10px] uppercase tracking-[0.2em] text-brand-clay font-bold">Cam kết từ Đỗ Xuân Hùng</span>
+          <span className="text-[10px] uppercase tracking-[0.2em] text-brand-clay font-bold">Cam kết từ Nghệ nhân Đỗ Xuân Hùng</span>
           <h2 className="font-serif text-3xl sm:text-4xl text-brand-forest font-light">Mang thiên nhiên về nhà thật đơn giản</h2>
         </div>
 
@@ -330,11 +330,11 @@ export default function Home() {
           </div>
           <span className="text-[10px] uppercase tracking-[0.2em] text-brand-clay font-bold block">Thư ngỏ từ người sáng lập</span>
           <blockquote className="font-serif text-2xl sm:text-3xl text-brand-forest font-light italic leading-relaxed">
-            "Mỗi tác phẩm cây cảnh gửi đến tay quý khách không chỉ là một sản phẩm thương mại đơn thuần, mà là một sinh linh xanh chứa đựng tình yêu thiên nhiên sâu sắc và cả tâm huyết kiến tạo của tôi cùng các cộng sự tại mảnh đất Nam Định."
+            "Mỗi tác phẩm cây cảnh gửi đến tay quý khách không chỉ là một sản phẩm thương mại đơn thuần, mà là một tác phẩm nghệ thuật xanh, được tạo tác và chăm sóc cẩn thận dưới đôi bàn tay nghệ nhân và cả tâm huyết của tôi cùng các cộng sự tại Nam Định."
           </blockquote>
           <div className="space-y-1">
             <p className="text-[11px] font-bold uppercase tracking-widest text-brand-charcoal">Nghệ nhân Đỗ Xuân Hùng</p>
-            <p className="text-[10px] text-brand-clay font-bold uppercase tracking-wider">Chủ doanh nghiệp & Nhà sáng lập Cây Cảnh Đỗ Xuân Hùng</p>
+            <p className="text-[10px] text-brand-clay font-bold uppercase tracking-wider">Chủ doanh nghiệp & Nghệ nhân Cây Cảnh Đỗ Xuân Hùng</p>
           </div>
         </div>
       </section>

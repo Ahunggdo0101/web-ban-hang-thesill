@@ -12,7 +12,7 @@ export default function PolicyPage({ type }) {
       content = (
         <div className="space-y-8">
           <p className="lead text-base sm:text-lg text-brand-slate italic font-medium">
-            Tại Cây Cảnh Đỗ Xuân Hùng, chúng tôi hiểu rằng việc vận chuyển sinh vật sống yêu cầu sự chăm sóc và kỹ thuật đặc biệt. 
+            Tại Nghệ Nhân Cây Cảnh Đỗ Xuân Hùng, chúng tôi hiểu rằng việc vận chuyển sinh vật sống yêu cầu sự chăm sóc và kỹ thuật đặc biệt. 
             Mỗi chậu cây gửi đi đều được đóng gói tỉ mỉ bằng giải pháp độc quyền để đảm bảo cây đến tay bạn luôn tươi tốt và khỏe mạnh.
           </p>
           
@@ -28,7 +28,7 @@ export default function PolicyPage({ type }) {
             <h2 className="font-serif text-2xl text-brand-forest font-light">2. Chi phí vận chuyển</h2>
             <p className="text-xs sm:text-sm text-brand-slate leading-relaxed font-medium">
               Phí giao hàng tiêu chuẩn được tính dựa trên trọng lượng bầu đất và kích thước của chậu cây. 
-              Đặc biệt, Cây Cảnh Đỗ Xuân Hùng áp dụng chương trình <strong>miễn phí vận chuyển tiêu chuẩn cho tất cả các đơn hàng từ 150.000đ trở lên</strong>.
+              Đặc biệt, Nghệ Nhân Cây Cảnh Đỗ Xuân Hùng áp dụng chương trình <strong>miễn phí vận chuyển tiêu chuẩn cho tất cả các đơn hàng từ 150.000đ trở lên</strong>.
             </p>
           </section>
 
@@ -49,14 +49,14 @@ export default function PolicyPage({ type }) {
         <div className="space-y-8">
           <p className="lead text-base sm:text-lg text-brand-slate italic font-medium">
             Sự hài lòng của bạn và sức khỏe của cây xanh là ưu tiên hàng đầu của chúng tôi. 
-            Mỗi đơn hàng tại Cây Cảnh Đỗ Xuân Hùng đều được bảo đảm bằng chính sách cam kết chất lượng vượt trội.
+            Mỗi đơn hàng tại Nghệ Nhân Cây Cảnh Đỗ Xuân Hùng đều được bảo đảm bằng chính sách cam kết chất lượng vượt trội.
           </p>
 
           <section className="space-y-4">
             <h2 className="font-serif text-2xl text-brand-forest font-light">1. Bảo hành sức khỏe cây trong 30 ngày</h2>
             <p className="text-xs sm:text-sm text-brand-slate leading-relaxed font-medium">
               Nếu cây của bạn gặp bất kỳ vấn đề nghiêm trọng nào về sức khỏe (héo úa, rụng sạch lá, thối rễ do vận chuyển) trong vòng <strong>30 ngày kể từ ngày nhận hàng</strong>, 
-              Cây Cảnh Đỗ Xuân Hùng cam kết <strong>1 đổi 1 hoặc hoàn trả sản phẩm miễn phí</strong>.
+              Nghệ Nhân Cây Cảnh Đỗ Xuân Hùng cam kết <strong>1 đổi 1 hoặc hoàn trả sản phẩm miễn phí</strong>.
             </p>
           </section>
 
@@ -83,7 +83,7 @@ export default function PolicyPage({ type }) {
       content = (
         <div className="space-y-8">
           <p className="lead text-base sm:text-lg text-brand-slate italic font-medium">
-            Cây Cảnh Đỗ Xuân Hùng tôn trọng quyền riêng tư của khách hàng và cam kết bảo vệ tuyệt đối các dữ liệu cá nhân mà bạn đã tin tưởng chia sẻ với chúng tôi.
+            Nghệ Nhân Cây Cảnh Đỗ Xuân Hùng tôn trọng quyền riêng tư của khách hàng và cam kết bảo vệ tuyệt đối các dữ liệu cá nhân mà bạn đã tin tưởng chia sẻ với chúng tôi.
           </p>
 
           <section className="space-y-4">
@@ -103,7 +103,7 @@ export default function PolicyPage({ type }) {
           <section className="space-y-4">
             <h2 className="font-serif text-2xl text-brand-forest font-light">3. Bảo mật thanh toán trực tuyến</h2>
             <p className="text-xs sm:text-sm text-brand-slate leading-relaxed font-medium">
-              Tất cả các giao dịch thanh toán bằng thẻ tín dụng tại Cây Cảnh Đỗ Xuân Hùng đều được mã hóa qua giao thức cổng thanh toán bảo mật chuẩn quốc tế. 
+              Tất cả các giao dịch thanh toán bằng thẻ tín dụng tại Nghệ Nhân Cây Cảnh Đỗ Xuân Hùng đều được mã hóa qua giao thức cổng thanh toán bảo mật chuẩn quốc tế. 
               Chúng tôi hoàn toàn không lưu trữ thông tin thẻ ngân hàng hoặc mã CVV của khách hàng trên hệ thống máy chủ nội bộ.
             </p>
           </section>

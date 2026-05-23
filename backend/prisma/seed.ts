@@ -314,7 +314,7 @@ async function main() {
   await prisma.user.create({
     data: {
       email: 'khachhang@caycanhnamdinh.vn',
-      name: 'Khách hàng Cây Cảnh Đỗ Xuân Hùng',
+      name: 'Khách hàng Nghệ Nhân Cây Cảnh Đỗ Xuân Hùng',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
       role: 'user',
       password: customerPasswordHash,
