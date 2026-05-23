@@ -1,10 +1,11 @@
-import { Injectable, UnauthorizedException, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException, ConflictException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { OAuth2Client } from 'google-auth-library';
+import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../database/prisma.service';
 import { RedisService } from '../redis/redis.service';
-import { GoogleLoginDto, RefreshTokenDto } from './dto/auth.dto';
+import { GoogleLoginDto, RefreshTokenDto, LoginDto, RegisterDto } from './dto/auth.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
@@ -33,15 +34,19 @@ export class AuthService {
     let googleId: string | undefined;
 
     const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID', '');
+    const isProduction = process.env.NODE_ENV === 'production';
 
-    // Nếu có thông tin bypass ở môi trường dev hoặc chưa cấu hình clientId, cho phép bypass để test
-    if (!clientId || dto.bypassEmail) {
+    // Chỉ cho phép bypass Google OAuth ở môi trường phát triển (development/test) khi chưa cấu hình clientId hoặc có request bypassEmail
+    if (!isProduction && (!clientId || dto.bypassEmail)) {
       this.logger.warn(`Bypassing Google OAuth. Authenticating user with email: ${dto.bypassEmail || 'mock-user@thesill.com'}`);
       email = dto.bypassEmail || 'customer@thesill.com';
       name = dto.bypassName || 'Sill Customer';
       avatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80';
       googleId = 'mock_google_id_' + email.split('@')[0];
     } else {
+      if (!clientId) {
+        throw new BadRequestException('Google Client ID is not configured on production');
+      }
       try {
         const ticket = await this.googleClient.verifyIdToken({
           idToken: dto.idToken,
@@ -195,5 +200,40 @@ export class AuthService {
   async logoutAll(userId: string) {
     await this.redisService.delByPrefix(`refresh_token:${userId}:`);
     return { success: true, message: 'Logged out of all sessions' };
+  }
+
+  async loginWithPassword(dto: LoginDto) {
+    const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
+
+    if (!user || !user.password) {
+      throw new UnauthorizedException('Email hoặc mật khẩu không chính xác');
+    }
+
+    const isMatch = await bcrypt.compare(dto.password, user.password);
+    if (!isMatch) {
+      throw new UnauthorizedException('Email hoặc mật khẩu không chính xác');
+    }
+
+    return this.generateAuthTokens(user.id, user.email, user.role);
+  }
+
+  async register(dto: RegisterDto) {
+    const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    if (existing) {
+      throw new ConflictException('Email này đã được sử dụng');
+    }
+
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+    const user = await this.prisma.user.create({
+      data: {
+        email: dto.email,
+        name: dto.name,
+        password: hashedPassword,
+        role: 'user',
+      },
+    });
+
+    return this.generateAuthTokens(user.id, user.email, user.role);
   }
 }

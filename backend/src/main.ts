@@ -6,11 +6,27 @@ import { AppModule } from './app.module';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+import helmet from 'helmet';
 
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
+
+  // Kích hoạt HTTP Security Headers bằng helmet bảo vệ API (CSP cấu hình cho phép Swagger UI hoạt động)
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: [`'self'`],
+          styleSrc: [`'self'`, `'unsafe-inline'`],
+          imgSrc: [`'self'`, 'data:', 'validator.swagger.io'],
+          scriptSrc: [`'self'`, `'unsafe-inline'`, `'unsafe-eval'`],
+        },
+      },
+    }),
+  );
+  const configService = app.get(ConfigService);
 
   // Cấu hình ValidationPipe để tự động validate và chuyển đổi kiểu dữ liệu (transform)
   app.useGlobalPipes(
@@ -21,9 +37,24 @@ async function bootstrap() {
     }),
   );
 
-  // Kích hoạt CORS hỗ trợ giao tiếp giữa frontend (Vite) và backend
+  // Kích hoạt CORS hỗ trợ giao tiếp giữa frontend (Vite) và backend an toàn
+  const allowedOriginsEnv = configService.get<string>('ALLOWED_ORIGINS', '');
+  const allowedOrigins = allowedOriginsEnv
+    ? allowedOriginsEnv.split(',').map(o => o.trim())
+    : ['http://localhost:5173', 'https://web-ban-hang-the-sill.vercel.app'];
+
   app.enableCors({
-    origin: '*', // Trong production nên cấu hình chi tiết tên miền được phép truy cập
+    origin: (origin: string, callback: (err: Error | null, allow?: boolean) => void) => {
+      // Cho phép requests không có origin (như curl hoặc mobile apps, Postman)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+        callback(null, true);
+      } else {
+        logger.warn(`Origin blocked by CORS: ${origin}`);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
@@ -42,7 +73,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 3000);
 
   await app.listen(port);

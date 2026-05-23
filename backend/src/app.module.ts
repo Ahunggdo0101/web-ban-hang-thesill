@@ -28,6 +28,7 @@ import * as Joi from 'joi';
         JWT_ACCESS_SECRET: Joi.string().required(),
         JWT_REFRESH_SECRET: Joi.string().required(),
         GOOGLE_CLIENT_ID: Joi.string().allow('').optional(),
+        ALLOWED_ORIGINS: Joi.string().allow('').optional(),
         CLOUDINARY_CLOUD_NAME: Joi.string().required(),
         CLOUDINARY_API_KEY: Joi.string().required(),
         CLOUDINARY_API_SECRET: Joi.string().required(),

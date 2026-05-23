@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ChevronRight, X } from 'lucide-react';
 import { journals } from '../data/journals';
 import useDocumentTitle from '../hooks/useDocumentTitle';
+import { optimizeUnsplashImage } from '../utils/image';
 
 export default function JournalPage() {
   useDocumentTitle('Nhật Ký Cây Xanh');
@@ -33,7 +34,7 @@ export default function JournalPage() {
           >
             <div className="aspect-[16/10] w-full overflow-hidden bg-brand-beige border border-brand-sand relative">
               <img
-                src={blog.image}
+                src={optimizeUnsplashImage(blog.image, 600)}
                 alt={blog.title}
                 className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-750 ease-out"
                 loading="lazy"
@@ -61,11 +62,11 @@ export default function JournalPage() {
       {selectedJournal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
           <div 
-            className="fixed inset-0 bg-[#0a2315]/60 backdrop-blur-xs transition-opacity animate-fade-in" 
+            className="fixed inset-0 bg-[#0D231A]/60 transition-opacity animate-fade-in" 
             onClick={() => setSelectedJournal(null)} 
             aria-hidden="true"
           />
-          <div className="relative bg-brand-cream border border-brand-sand shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto z-10 animate-fade-in text-left">
+          <div className="relative bg-brand-cream border border-brand-sand shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto z-10 modal-panel animate-fade-in text-left">
             <button 
               onClick={() => setSelectedJournal(null)} 
               className="absolute right-4 top-4 p-2 text-brand-forest hover:text-brand-clay transition-colors cursor-pointer z-20 bg-brand-white/80 rounded-full border border-brand-sand/30"
@@ -76,7 +77,7 @@ export default function JournalPage() {
             
             <div className="w-full aspect-[16/9] overflow-hidden bg-brand-beige border-b border-brand-sand">
               <img 
-                src={selectedJournal.image} 
+                src={optimizeUnsplashImage(selectedJournal.image, 800)} 
                 alt={selectedJournal.title} 
                 className="w-full h-full object-cover"
               />

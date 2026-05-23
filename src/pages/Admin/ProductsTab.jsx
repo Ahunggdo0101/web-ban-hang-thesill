@@ -6,6 +6,7 @@ import {
 import { API_BASE_URL } from '../../config';
 import { potStyles, potColors } from '../../data/products';
 import { Toast, ConfirmModal } from './shared';
+import { optimizeUnsplashImage } from '../../utils/image';
 
 const API = API_BASE_URL;
 
@@ -301,7 +302,7 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
                 <tr key={p.id} className="hover:bg-brand-cream/30 transition-colors">
                   <td className="py-3 px-4">
                     <div className="w-11 h-11 bg-brand-cream border border-brand-sand overflow-hidden">
-                      <img src={p.image} alt={p.name} className="w-full h-full object-cover" loading="lazy" />
+                      <img src={optimizeUnsplashImage(p.image, 100)} alt={p.name} className="w-full h-full object-cover" loading="lazy" />
                     </div>
                   </td>
                   <td className="py-3 px-4">
@@ -351,8 +352,8 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
       {/* Product Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-[#0d231a]/40 backdrop-blur-sm" onClick={() => !isSubmitting && setIsModalOpen(false)} />
-          <div className="relative bg-brand-cream w-full max-w-4xl border border-brand-sand shadow-2xl animate-fade-in z-10 flex flex-col max-h-[92vh] overflow-hidden">
+          <div className="absolute inset-0 bg-[#0d231a]/60" onClick={() => !isSubmitting && setIsModalOpen(false)} />
+          <div className="relative bg-brand-cream w-full max-w-4xl border border-brand-sand shadow-2xl animate-fade-in modal-panel z-10 flex flex-col max-h-[92vh] overflow-hidden">
             <div className="flex justify-between items-center px-6 py-4 border-b border-brand-sand bg-white">
               <h3 className="font-serif text-lg text-brand-forest lowercase tracking-wide">
                 {modalType === 'create' ? 'Thêm sản phẩm mới' : `Sửa: ${formData.name}`}
@@ -443,7 +444,7 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
                       <div className="w-full flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
                           <div className="w-12 h-12 border border-brand-sand bg-brand-cream overflow-hidden shrink-0">
-                            <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+                            <img src={optimizeUnsplashImage(formData.image, 100)} alt="Preview" className="w-full h-full object-cover" />
                           </div>
                           <div className="max-w-[180px] md:max-w-[240px]">
                             <span className="text-[9px] text-brand-sage font-mono block truncate" title={formData.image}>

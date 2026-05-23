@@ -6,6 +6,7 @@ import { useToast } from '../context/ToastContext';
 import { API_BASE_URL } from '../config';
 import { CreditCard, Lock, CheckCircle2, ArrowLeft, ShoppingBag, AlertCircle } from 'lucide-react';
 import useDocumentTitle from '../hooks/useDocumentTitle';
+import { optimizeUnsplashImage } from '../utils/image';
 
 export default function CheckoutPage() {
   useDocumentTitle('Thanh Toán');
@@ -437,7 +438,7 @@ export default function CheckoutPage() {
               <div key={idx} className="flex gap-4 items-start border-b border-brand-sand/40 pb-4">
                 <div className="w-16 h-16 border border-brand-sand bg-brand-white overflow-hidden flex-shrink-0">
                   <img
-                    src={item.product.colorImages?.[item.potColor] || item.product.image}
+                    src={optimizeUnsplashImage(item.product.colorImages?.[item.potColor] || item.product.image, 100)}
                     alt={item.product.name}
                     className="w-full h-full object-cover"
                   />
@@ -551,8 +552,8 @@ export default function CheckoutPage() {
 
       {/* OVERLAY chúc mừng đặt hàng thành công */}
       {isSuccess && (
-        <div className="fixed inset-0 bg-[#0d231a]/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-brand-cream border border-brand-sand p-8 sm:p-12 max-w-md w-full text-center space-y-6 shadow-2xl animate-scale-up">
+        <div className="fixed inset-0 bg-[#0d231a]/95 z-50 flex items-center justify-center p-4">
+          <div className="bg-brand-cream border border-brand-sand p-8 sm:p-12 max-w-md w-full text-center space-y-6 shadow-2xl animate-scale-up modal-panel">
             <div className="w-20 h-20 bg-brand-white border border-brand-sand rounded-full flex items-center justify-center mx-auto text-brand-forest animate-pulse-slow">
               <CheckCircle2 size={48} className="text-brand-forest" />
             </div>

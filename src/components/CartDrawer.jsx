@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
 import { API_BASE_URL } from '../config';
+import { optimizeUnsplashImage } from '../utils/image';
 
 export default function CartDrawer() {
   const {
@@ -134,16 +135,16 @@ export default function CartDrawer() {
 
   return (
     <div className={`fixed inset-0 z-50 overflow-hidden transition-opacity duration-300 ${isCartOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-      {/* Background Overlay with Blur */}
+      {/* Background Overlay with simple opacity, avoiding heavy backdrop-filter blur for performance */}
       <div
-        className={`absolute inset-0 bg-[#0d231a]/30 backdrop-blur-xs transition-opacity duration-300 ${isCartOpen ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute inset-0 bg-[#0D231A]/40 transition-opacity duration-300 ${isCartOpen ? 'opacity-100' : 'opacity-0'}`}
         onClick={() => {
           if (!isCheckingOut && !checkoutSuccess) setIsCartOpen(false);
         }}
       />
 
       <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
-        <div className={`w-screen max-w-md transform transition-transform duration-300 ease-in-out ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className={`w-screen max-w-md cart-drawer-panel transform transition-transform duration-300 ease-in-out ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
           <div className="h-full flex flex-col bg-brand-cream border-l border-brand-sand shadow-2xl">
             
             {/* Header */}
@@ -228,7 +229,7 @@ export default function CartDrawer() {
                     {cartItems.map((item, idx) => (
                       <div key={`${item.product.id}-${item.potStyle}-${item.potColor}-${idx}`} className="py-5 flex space-x-4">
                         <img
-                          src={item.product.colorImages && item.product.colorImages[item.potColor] ? item.product.colorImages[item.potColor] : item.product.image}
+                          src={optimizeUnsplashImage(item.product.colorImages && item.product.colorImages[item.potColor] ? item.product.colorImages[item.potColor] : item.product.image, 100)}
                           alt={item.product.name}
                           className="w-16 h-16 object-cover border border-brand-sand flex-shrink-0 bg-brand-white"
                         />

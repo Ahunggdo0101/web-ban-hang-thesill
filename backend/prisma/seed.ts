@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 import * as dotenv from 'dotenv';
+import * as bcrypt from 'bcrypt';
 
 dotenv.config();
 
@@ -264,9 +265,12 @@ const productsData = [
 async function main() {
   console.log('Start seeding products...');
 
-  // Xóa các sản phẩm cũ trước để tránh conflict trùng id khi seed lại nhiều lần
-  await prisma.product.deleteMany({});
+  // Xóa các dữ liệu cũ theo thứ tự khóa ngoại để tránh conflict
+  await prisma.orderItem.deleteMany({});
+  await prisma.wishlist.deleteMany({});
+  await prisma.order.deleteMany({});
   await prisma.user.deleteMany({});
+  await prisma.product.deleteMany({});
 
   // Seed sản phẩm
   for (const product of productsData) {
@@ -293,23 +297,27 @@ async function main() {
   }
 
   // Seed một admin user mẫu
+  const adminPasswordHash = await bcrypt.hash('admin', 10);
   await prisma.user.create({
     data: {
       email: 'admin@thesill.com',
       name: 'Admin The Sill',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
       role: 'admin',
+      password: adminPasswordHash,
       googleId: 'admin_google_id_9999',
     },
   });
 
   // Seed một user customer mẫu
+  const customerPasswordHash = await bcrypt.hash('password123', 10);
   await prisma.user.create({
     data: {
       email: 'customer@thesill.com',
       name: 'Sill Customer',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
       role: 'user',
+      password: customerPasswordHash,
       googleId: 'mock_google_id_customer',
     },
   });

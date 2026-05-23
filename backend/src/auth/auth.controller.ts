@@ -1,7 +1,8 @@
 import { Controller, Post, Body, Get, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
-import { GoogleLoginDto, RefreshTokenDto } from './dto/auth.dto';
+import { GoogleLoginDto, RefreshTokenDto, LoginDto, RegisterDto } from './dto/auth.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GetUser } from './decorators/get-user.decorator';
 import type { RequestUser } from './decorators/get-user.decorator';
@@ -11,7 +12,28 @@ import type { RequestUser } from './decorators/get-user.decorator';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Post('login')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Đăng nhập bằng email + mật khẩu' })
+  @ApiResponse({ status: 200, description: 'Đăng nhập thành công.' })
+  @ApiResponse({ status: 401, description: 'Sai tài khoản hoặc mật khẩu.' })
+  async login(@Body() dto: LoginDto) {
+    return this.authService.loginWithPassword(dto);
+  }
+
+  @Post('register')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Đăng ký tài khoản mới' })
+  @ApiResponse({ status: 201, description: 'Đăng ký thành công.' })
+  @ApiResponse({ status: 409, description: 'Email đã được sử dụng.' })
+  async register(@Body() dto: RegisterDto) {
+    return this.authService.register(dto);
+  }
+
   @Post('google-login')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Authenticate with Google ID Token or via Bypass Email in Development' })
   @ApiResponse({ status: 200, description: 'Successfully authenticated. Returns tokens and user info.' })

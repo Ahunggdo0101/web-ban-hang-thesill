@@ -18,10 +18,16 @@ export class OrdersService {
       let subtotal = 0;
       const itemsToCreate = [];
 
+      // Truy vấn toàn bộ sản phẩm trong giỏ hàng bằng một câu lệnh duy nhất
+      const productIds = dto.items.map(item => item.productId);
+      const products = await tx.product.findMany({
+        where: { id: { in: productIds } },
+      });
+
+      const productMap = new Map(products.map(p => [p.id, p]));
+
       for (const item of dto.items) {
-        const product = await tx.product.findUnique({
-          where: { id: item.productId },
-        });
+        const product = productMap.get(item.productId);
 
         if (!product) {
           throw new NotFoundException(`Product with ID "${item.productId}" not found in catalog`);

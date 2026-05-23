@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { API_BASE_URL } from '../config';
 import { Clock, Loader2, CheckCircle2, XCircle, AlertCircle, ShoppingBag, AlertTriangle, ArrowRight } from 'lucide-react';
+import { optimizeUnsplashImage } from '../utils/image';
 
 // Thành phần hiển thị trạng thái đơn hàng (tương tự trang Admin)
 const StatusBadge = ({ status }) => {
@@ -172,11 +173,11 @@ export default function MyOrders() {
                   <div key={item.id} className="py-4 flex gap-4 first:pt-0 last:pb-0">
                     <div className="w-20 h-20 bg-brand-cream border border-brand-sand shrink-0 overflow-hidden">
                       <img
-                        src={item.product?.image}
+                        src={optimizeUnsplashImage(item.product?.image, 100)}
                         alt={item.product?.name || 'Sản phẩm'}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          e.target.src = 'https://images.unsplash.com/photo-1545241047-6083a3684587?w=150&auto=format&fit=crop&q=60';
+                          e.target.src = optimizeUnsplashImage('https://images.unsplash.com/photo-1545241047-6083a3684587', 100);
                         }}
                       />
                     </div>

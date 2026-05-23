@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 import { API_BASE_URL } from '../../config';
 import { Toast, ConfirmModal, StatusBadge } from './shared';
+import { optimizeUnsplashImage } from '../../utils/image';
 
 const API = API_BASE_URL;
 
@@ -175,7 +176,7 @@ export default function OrdersTab({ fetchWithAuth }) {
                           <div className="space-y-2">
                             {(order.items || []).map(item => (
                               <div key={item.id} className="flex items-center gap-3 bg-white border border-brand-sand p-3">
-                                <img src={item.product?.image} alt={item.product?.name} className="w-10 h-10 object-cover border border-brand-sand" loading="lazy" />
+                                <img src={optimizeUnsplashImage(item.product?.image, 100)} alt={item.product?.name} className="w-10 h-10 object-cover border border-brand-sand" loading="lazy" />
                                 <div className="flex-1">
                                   <p className="text-xs font-bold text-brand-forest">{item.product?.name}</p>
                                   <p className="text-[10px] text-[#888]">Chậu: {item.potStyle} · Màu: {item.potColor} · SL: {item.quantity}</p>

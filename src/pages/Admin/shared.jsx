@@ -39,8 +39,8 @@ export const ConfirmModal = memo(({ open, title, description, onConfirm, onCance
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-[#0d231a]/40 backdrop-blur-sm" onClick={() => !loading && onCancel()} />
-      <div className="relative bg-white max-w-sm w-full border border-brand-sand shadow-2xl p-6 space-y-5 animate-fade-in z-10">
+      <div className="absolute inset-0 bg-[#0d231a]/60" onClick={() => !loading && onCancel()} />
+      <div className="relative bg-white max-w-sm w-full border border-brand-sand shadow-2xl p-6 space-y-5 animate-fade-in modal-panel z-10">
         <div className="flex items-start gap-3">
           <AlertTriangle size={20} className={danger ? 'text-red-500 shrink-0 mt-0.5' : 'text-amber-500 shrink-0 mt-0.5'} />
           <div>

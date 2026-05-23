@@ -329,7 +329,8 @@ export default function Shop({ searchQuery }) {
         {/* MOBILE FILTER OVERLAY DRAWER */}
         {showMobileFilters && (
           <div className="fixed inset-0 z-50 flex lg:hidden">
-            <div className="fixed inset-0 bg-[#0a2315]/40 backdrop-blur-xs" onClick={() => setShowMobileFilters(false)} />
+            {/* Backdrop overlay optimized for mobile GPU (no blur) */}
+            <div className="fixed inset-0 bg-[#0D231A]/50" onClick={() => setShowMobileFilters(false)} />
             <div className="relative flex flex-col w-full max-w-xs bg-brand-cream h-full p-6 shadow-2xl overflow-y-auto animate-slide-right text-left">
               <div className="flex justify-between items-center border-b border-brand-sand pb-4 mb-6">
                 <h3 className="font-serif text-lg font-medium text-brand-forest">Bộ lọc</h3>

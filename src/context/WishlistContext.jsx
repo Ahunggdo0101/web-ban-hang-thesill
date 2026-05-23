@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './AuthContext';
 import { API_BASE_URL } from '../config';
 
@@ -67,7 +67,7 @@ export function WishlistProvider({ children }) {
   }, [user, loadWishlist]);
 
   // Thêm vào danh sách yêu thích
-  const addToWishlist = async (product) => {
+  const addToWishlist = useCallback(async (product) => {
     if (user) {
       try {
         const res = await fetchWithAuth(`${API_BASE_URL}/wishlist/${product.id}`, {
@@ -90,10 +90,10 @@ export function WishlistProvider({ children }) {
         return updated;
       });
     }
-  };
+  }, [user, fetchWithAuth]);
 
   // Xóa khỏi danh sách yêu thích
-  const removeFromWishlist = async (productId) => {
+  const removeFromWishlist = useCallback(async (productId) => {
     if (user) {
       try {
         const res = await fetchWithAuth(`${API_BASE_URL}/wishlist/${productId}`, {
@@ -112,7 +112,7 @@ export function WishlistProvider({ children }) {
         return updated;
       });
     }
-  };
+  }, [user, fetchWithAuth]);
 
   // Kiểm tra xem sản phẩm có nằm trong danh sách yêu thích không
   const isInWishlist = useCallback((productId) => {
@@ -121,17 +121,17 @@ export function WishlistProvider({ children }) {
 
   const wishlistCount = wishlistItems.length;
 
+  const value = useMemo(() => ({
+    wishlistItems,
+    addToWishlist,
+    removeFromWishlist,
+    isInWishlist,
+    wishlistCount,
+    loading,
+  }), [wishlistItems, addToWishlist, removeFromWishlist, isInWishlist, wishlistCount, loading]);
+
   return (
-    <WishlistContext.Provider
-      value={{
-        wishlistItems,
-        addToWishlist,
-        removeFromWishlist,
-        isInWishlist,
-        wishlistCount,
-        loading,
-      }}
-    >
+    <WishlistContext.Provider value={value}>
       {children}
     </WishlistContext.Provider>
   );

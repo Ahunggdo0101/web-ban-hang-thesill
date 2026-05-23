@@ -1,6 +1,7 @@
 import { Leaf, ShieldCheck, Users } from 'lucide-react';
 import useScrollAnimation from '../hooks/useScrollAnimation';
 import useDocumentTitle from '../hooks/useDocumentTitle';
+import { optimizeUnsplashImage } from '../utils/image';
 
 export default function AboutPage() {
   useDocumentTitle('Về Chúng Tôi');
@@ -56,7 +57,7 @@ export default function AboutPage() {
       <section className="relative h-[65vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1545241047-6083a3684587?w=1600&auto=format&fit=crop&q=80"
+            src={optimizeUnsplashImage("https://images.unsplash.com/photo-1545241047-6083a3684587", 1000)}
             alt="The Sill Houseplants"
             className="w-full h-full object-cover brightness-65 scale-102 transition-transform duration-1000"
           />
@@ -79,7 +80,7 @@ export default function AboutPage() {
           {/* Left Column - Image Stack */}
           <div className="relative aspect-4/3 w-full bg-brand-white border border-brand-sand shadow-sm overflow-hidden group">
             <img
-              src="https://images.unsplash.com/photo-1512428559087-560fa5ceab42?w=800&auto=format&fit=crop&q=80"
+              src={optimizeUnsplashImage("https://images.unsplash.com/photo-1512428559087-560fa5ceab42", 600)}
               alt="Caring for plants"
               className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-700 ease-out"
               loading="lazy"
@@ -163,7 +164,7 @@ export default function AboutPage() {
             <div key={idx} className="space-y-4 text-center group">
               <div className="aspect-square w-full border border-brand-sand overflow-hidden relative shadow-xs">
                 <img
-                  src={member.image}
+                  src={optimizeUnsplashImage(member.image, 300)}
                   alt={member.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                   loading="lazy"

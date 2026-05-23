@@ -4,13 +4,21 @@ export default function ScrollProgress() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    let ticking = false;
+    
     const handleScroll = () => {
-      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-      if (totalHeight > 0) {
-        const scrolled = (window.scrollY / totalHeight) * 100;
-        setProgress(scrolled);
-      } else {
-        setProgress(0);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+          if (totalHeight > 0) {
+            const scrolled = (window.scrollY / totalHeight) * 100;
+            setProgress(scrolled);
+          } else {
+            setProgress(0);
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 

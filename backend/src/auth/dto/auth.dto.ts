@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsOptional, IsEmail } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsEmail, MinLength, MaxLength } from 'class-validator';
 
 export class GoogleLoginDto {
   @ApiProperty({
@@ -38,4 +38,34 @@ export class RefreshTokenDto {
   @IsNotEmpty()
   @IsString()
   refreshToken: string;
+}
+
+export class LoginDto {
+  @ApiProperty({ example: 'admin@thesill.com' })
+  @IsEmail({}, { message: 'Email không hợp lệ' })
+  email: string;
+
+  @ApiProperty({ example: 'admin' })
+  @IsNotEmpty({ message: 'Mật khẩu không được để trống' })
+  @IsString()
+  password: string;
+}
+
+export class RegisterDto {
+  @ApiProperty({ example: 'Nguyễn Văn A' })
+  @IsNotEmpty({ message: 'Tên không được để trống' })
+  @IsString()
+  @MaxLength(100)
+  name: string;
+
+  @ApiProperty({ example: 'user@example.com' })
+  @IsEmail({}, { message: 'Email không hợp lệ' })
+  email: string;
+
+  @ApiProperty({ example: 'matkhau123', minimum: 6 })
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(6, { message: 'Mật khẩu phải có ít nhất 6 ký tự' })
+  @MaxLength(100)
+  password: string;
 }

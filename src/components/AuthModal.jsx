@@ -1,22 +1,32 @@
 import { useState, useEffect } from 'react';
-import { X, Sparkles, AlertCircle, Settings, Mail, User } from 'lucide-react';
+import { X, Sparkles, AlertCircle, Settings, Mail, User, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function AuthModal() {
-  const { isAuthModalOpen, setIsAuthModalOpen, login } = useAuth();
+  const { isAuthModalOpen, setIsAuthModalOpen, login, loginWithPassword, register } = useAuth();
+  
+  // Cấu hình Google
   const [googleClientId, setGoogleClientId] = useState(
     localStorage.getItem('thesill_google_client_id') || ''
   );
   const [showConfig, setShowConfig] = useState(false);
   const [showAccountChooser, setShowAccountChooser] = useState(false);
-  const [error, setError] = useState(null);
   
-  // Custom inputs for "Use another account"
+  // Custom inputs cho Google mock bypass
   const [customName, setCustomName] = useState('');
   const [customEmail, setCustomEmail] = useState('');
   const [showCustomForm, setShowCustomForm] = useState(false);
 
-  // Mock Google accounts for chooser
+  // States cho Email + Mật khẩu
+  const [activeTab, setActiveTab] = useState('login'); // 'login' | 'register'
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  // Danh sách tài khoản mock để đăng nhập nhanh Google
   const mockAccounts = [
     {
       name: 'Admin The Sill ⚙️',
@@ -40,11 +50,10 @@ export default function AuthModal() {
     }
   ];
 
-  // Load Real Google SDK if client ID exists
+  // Tải SDK Google thật nếu có Google Client ID
   useEffect(() => {
     if (!isAuthModalOpen || !googleClientId) return;
 
-    // Check if script is already added
     let script = document.getElementById('google-jssdk');
     if (!script) {
       script = document.createElement('script');
@@ -81,7 +90,6 @@ export default function AuthModal() {
   if (!isAuthModalOpen) return null;
 
   const handleGoogleCredential = async (response) => {
-    // Decode JWT from response.credential (real google login)
     try {
       setError(null);
       const res = await login({
@@ -136,6 +144,53 @@ export default function AuthModal() {
     }
   };
 
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setName('');
+    setEmail('');
+    setPassword('');
+    setError(null);
+    setShowPassword(false);
+  };
+
+  const handlePasswordAuthSubmit = async (e) => {
+    e.preventDefault();
+    if (!email || !password) {
+      setError('Vui lòng điền đầy đủ các trường.');
+      return;
+    }
+    if (activeTab === 'register' && !name) {
+      setError('Vui lòng nhập họ tên.');
+      return;
+    }
+    if (activeTab === 'register' && password.length < 6) {
+      setError('Mật khẩu phải có ít nhất 6 ký tự.');
+      return;
+    }
+
+    setError(null);
+    setLoading(true);
+
+    try {
+      let res;
+      if (activeTab === 'login') {
+        res = await loginWithPassword(email, password);
+      } else {
+        res = await register(name, email, password);
+      }
+
+      if (res && res.success) {
+        setName('');
+        setEmail('');
+        setPassword('');
+      } else {
+        setError(res?.error || 'Tài khoản hoặc mật khẩu không chính xác.');
+      }
+    } catch (err) {
+      setError('Không thể kết nối tới máy chủ.');
+    }
+  };
+
   const saveClientId = (e) => {
     e.preventDefault();
     if (googleClientId.trim()) {
@@ -150,20 +205,26 @@ export default function AuthModal() {
     setShowConfig(false);
   };
 
+  const handleClose = () => {
+    setIsAuthModalOpen(false);
+    setShowAccountChooser(false);
+    setShowCustomForm(false);
+    setError(null);
+    setName('');
+    setEmail('');
+    setPassword('');
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
+      {/* Backdrop with simple opacity fallback for performance */}
       <div
-        className="absolute inset-0 bg-[#0D231A]/40 backdrop-blur-sm transition-opacity duration-300"
-        onClick={() => {
-          setIsAuthModalOpen(false);
-          setShowAccountChooser(false);
-          setShowCustomForm(false);
-        }}
+        className="absolute inset-0 bg-[#0D231A]/45 transition-opacity duration-300"
+        onClick={handleClose}
       />
 
       {/* Modal Container */}
-      <div className="relative bg-brand-cream w-full max-w-md border border-brand-sand shadow-2xl animate-fade-in z-10 flex flex-col max-h-[90vh]">
+      <div className="relative bg-brand-cream w-full max-w-md modal-panel border border-brand-sand shadow-2xl animate-fade-in z-10 flex flex-col max-h-[90vh]">
         
         {/* Header */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-brand-sand">
@@ -171,11 +232,7 @@ export default function AuthModal() {
             the sill account
           </span>
           <button
-            onClick={() => {
-              setIsAuthModalOpen(false);
-              setShowAccountChooser(false);
-              setShowCustomForm(false);
-            }}
+            onClick={handleClose}
             className="text-brand-charcoal hover:text-brand-moss p-1 transition-colors cursor-pointer"
           >
             <X size={20} />
@@ -194,25 +251,123 @@ export default function AuthModal() {
 
           {!showAccountChooser ? (
             <>
-              {/* Intro Text */}
-              <div className="text-center space-y-2">
-                <h3 className="font-serif text-2xl text-brand-forest font-light">
-                  Chào mừng bạn quay lại
-                </h3>
-                <p className="text-xs text-[#666] leading-relaxed">
-                  Đăng nhập bằng tài khoản Google để lưu trữ lịch sử đơn hàng, nhận cẩm nang chăm cây độc quyền và thanh toán nhanh chóng hơn.
-                </p>
+              {/* Tab Selector */}
+              <div className="flex border-b border-brand-sand">
+                <button
+                  type="button"
+                  onClick={() => handleTabChange('login')}
+                  className={`flex-1 pb-3 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                    activeTab === 'login'
+                      ? 'border-b-2 border-brand-forest text-brand-forest'
+                      : 'text-[#888] hover:text-brand-charcoal'
+                  }`}
+                >
+                  Đăng nhập
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleTabChange('register')}
+                  className={`flex-1 pb-3 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                    activeTab === 'register'
+                      ? 'border-b-2 border-brand-forest text-brand-forest'
+                      : 'text-[#888] hover:text-brand-charcoal'
+                  }`}
+                >
+                  Đăng ký
+                </button>
               </div>
 
-              {/* Action Buttons */}
+              {/* Email + Password Form */}
+              <form onSubmit={handlePasswordAuthSubmit} className="space-y-4">
+                {activeTab === 'register' && (
+                  <div className="space-y-1">
+                    <label className="block text-[10px] uppercase tracking-wider text-brand-moss font-semibold">
+                      Họ và tên
+                    </label>
+                    <div className="relative">
+                      <User size={14} className="absolute left-3 top-3 text-[#999]" />
+                      <input
+                        type="text"
+                        required
+                        placeholder="Nguyễn Văn A"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="w-full border border-brand-sand bg-white pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-brand-forest"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-1">
+                  <label className="block text-[10px] uppercase tracking-wider text-brand-moss font-semibold">
+                    Địa chỉ Email
+                  </label>
+                  <div className="relative">
+                    <Mail size={14} className="absolute left-3 top-3 text-[#999]" />
+                    <input
+                      type="email"
+                      required
+                      placeholder="email@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full border border-brand-sand bg-white pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-brand-forest"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-[10px] uppercase tracking-wider text-brand-moss font-semibold">
+                    Mật khẩu
+                  </label>
+                  <div className="relative">
+                    <Lock size={14} className="absolute left-3 top-3 text-[#999]" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      placeholder={activeTab === 'login' ? '••••••••' : 'Tối thiểu 6 ký tự'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full border border-brand-sand bg-white pl-9 pr-10 py-2.5 text-sm focus:outline-none focus:border-brand-forest"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-3 text-brand-moss hover:text-brand-forest cursor-pointer"
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-brand-forest text-brand-cream hover:bg-brand-moss py-3 text-[11px] font-bold uppercase tracking-widest transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  {loading
+                    ? 'Đang xử lý...'
+                    : activeTab === 'login'
+                    ? 'Đăng nhập'
+                    : 'Tạo tài khoản'}
+                </button>
+              </form>
+
+              {/* Or separator */}
+              <div className="relative flex py-2 items-center">
+                <div className="flex-grow border-t border-brand-sand"></div>
+                <span className="flex-shrink mx-4 text-[#888] text-[10px] uppercase tracking-wider font-semibold">
+                  Hoặc
+                </span>
+                <div className="flex-grow border-t border-brand-sand"></div>
+              </div>
+
+              {/* Google Sign In Buttons */}
               <div className="space-y-3">
                 {googleClientId ? (
-                  // Real Google Sign In button container
-                  <div className="w-full flex justify-center py-2">
+                  <div className="w-full flex justify-center py-1">
                     <div id="real-google-btn" className="w-full"></div>
                   </div>
                 ) : (
-                  // Mock Google Sign-In Button
                   <button
                     onClick={() => setShowAccountChooser(true)}
                     className="w-full flex items-center justify-center space-x-3 bg-white border border-brand-sand py-3 px-4 hover:bg-brand-cream/50 active:bg-brand-sand/20 transition-all font-sans font-medium text-sm text-brand-charcoal cursor-pointer shadow-sm"
@@ -239,23 +394,23 @@ export default function AuthModal() {
                   </button>
                 )}
 
-                {/* Direct Demo login information alert */}
-                <div className="bg-[#1F3E35]/5 p-4 border border-[#1F3E35]/10 space-y-1.5 rounded-sm">
-                  <div className="flex items-center space-x-2 text-brand-forest text-xs font-semibold">
+                {/* Info bypass cho Dev */}
+                <div className="bg-[#1F3E35]/5 p-3.5 border border-[#1F3E35]/10 space-y-1 rounded-sm">
+                  <div className="flex items-center space-x-2 text-brand-forest text-[11px] font-semibold">
                     <Sparkles size={13} className="text-brand-clay" />
-                    <span>Chế độ kiểm tra nhanh (Demo Mode)</span>
+                    <span>Demo Mode (Đăng nhập Google mô phỏng)</span>
                   </div>
-                  <p className="text-[10px] text-[#555] leading-relaxed">
-                    Mặc định, nút Google sẽ mở ra một cửa sổ popup mô phỏng danh sách tài khoản Google để bạn click chọn đăng nhập ngay tại localhost mà không cần tạo dự án trên Google Console.
+                  <p className="text-[10px] text-[#666] leading-relaxed">
+                    Mặc định, nút Google sẽ mở danh sách tài khoản Google mock để kiểm thử nhanh. Bạn cũng có thể đăng ký tài khoản mới bằng Email + Mật khẩu ở form trên.
                   </p>
                 </div>
               </div>
 
-              {/* Developer Configuration Toggle */}
+              {/* Config Client ID ẩn */}
               <div className="pt-4 border-t border-brand-sand">
                 <button
                   onClick={() => setShowConfig(!showConfig)}
-                  className="flex items-center space-x-2 text-xs text-[#888] hover:text-brand-forest transition-colors cursor-pointer"
+                  className="flex items-center space-x-2 text-[10px] text-[#888] hover:text-brand-forest transition-colors cursor-pointer"
                 >
                   <Settings size={12} />
                   <span>{showConfig ? 'Ẩn cấu hình phát triển' : 'Cấu hình Google Client ID thật'}</span>
@@ -263,7 +418,7 @@ export default function AuthModal() {
 
                 {showConfig && (
                   <form onSubmit={saveClientId} className="mt-3 space-y-3 p-3 bg-white border border-brand-sand">
-                    <label className="block text-[10px] uppercase tracking-wider font-semibold text-brand-charcoal">
+                    <label className="block text-[9px] uppercase tracking-wider font-semibold text-brand-charcoal">
                       Google OAuth Client ID
                     </label>
                     <input
@@ -276,7 +431,7 @@ export default function AuthModal() {
                     <div className="flex space-x-2">
                       <button
                         type="submit"
-                        className="bg-brand-forest text-brand-cream text-[10px] py-1.5 px-3 uppercase tracking-wider font-bold hover:bg-brand-moss transition-colors cursor-pointer"
+                        className="bg-brand-forest text-brand-cream text-[9px] py-1.5 px-3 uppercase tracking-wider font-bold hover:bg-brand-moss transition-colors cursor-pointer"
                       >
                         Lưu cấu hình
                       </button>
@@ -289,7 +444,7 @@ export default function AuthModal() {
                             setShowConfig(false);
                             alert('Đã xóa cấu hình Client ID. Quay về chế độ mô phỏng.');
                           }}
-                          className="border border-[#bbb] text-brand-charcoal text-[10px] py-1.5 px-3 uppercase tracking-wider font-bold hover:bg-gray-100 transition-colors cursor-pointer"
+                          className="border border-[#bbb] text-brand-charcoal text-[9px] py-1.5 px-3 uppercase tracking-wider font-bold hover:bg-gray-100 transition-colors cursor-pointer"
                         >
                           Xóa
                         </button>
@@ -300,7 +455,7 @@ export default function AuthModal() {
               </div>
             </>
           ) : (
-            // Simulated Account Chooser
+            // Google Mock Account Chooser
             <div className="space-y-4">
               <div className="text-center space-y-1">
                 <div className="inline-flex items-center justify-center space-x-1.5 bg-[#4285F4]/10 py-1.5 px-3 rounded-full text-[#4285F4] text-[10px] font-bold uppercase tracking-wider mb-2">
@@ -318,7 +473,6 @@ export default function AuthModal() {
               </div>
 
               {!showCustomForm ? (
-                // Account list
                 <div className="border border-brand-sand bg-white divide-y divide-brand-sand rounded-sm overflow-hidden">
                   {mockAccounts.map((acc, index) => (
                     <button
@@ -351,7 +505,6 @@ export default function AuthModal() {
                   </button>
                 </div>
               ) : (
-                // Form to enter custom email and name
                 <form onSubmit={handleCustomLoginSubmit} className="space-y-4 p-4 bg-white border border-brand-sand rounded-sm">
                   <h4 className="text-xs font-bold text-brand-forest uppercase tracking-wider">
                     Nhập tài khoản Google mới

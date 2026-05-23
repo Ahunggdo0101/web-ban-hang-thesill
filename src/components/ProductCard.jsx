@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Star, ShoppingBag, Eye } from 'lucide-react';
+import { Star, ShoppingBag } from 'lucide-react';
+import { optimizeUnsplashImage } from '../utils/image';
 
 // Render static potColorsInfo outside to avoid array recreation on every render
 const DEFAULT_POT_COLORS = [
@@ -27,14 +28,14 @@ const ProductCard = React.memo(({ plant, activeColor, onColorChange, addToCart, 
       {/* Image Container */}
       <div className="relative aspect-square w-full overflow-hidden bg-brand-white border border-brand-sand shadow-xs">
         <img
-          src={displayImage}
+          src={optimizeUnsplashImage(displayImage, 400)}
           alt={plant.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out animate-fade-in"
           loading="lazy"
         />
 
         {plant.petFriendly && (
-          <span className="absolute top-2.5 left-2.5 bg-[#FAF8F5]/90 backdrop-blur-xs border border-brand-sand text-[#1F3E35] text-[7px] uppercase font-extrabold tracking-widest px-2 py-0.5 shadow-xs">
+          <span className="absolute top-2.5 left-2.5 bg-brand-cream/95 border border-brand-sand text-[#1F3E35] text-[7px] uppercase font-extrabold tracking-widest px-2 py-0.5 shadow-xs">
             Pet Friendly
           </span>
         )}

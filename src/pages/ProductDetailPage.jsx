@@ -10,6 +10,14 @@ import ProductCard from '../components/ProductCard';
 import useDocumentTitle from '../hooks/useDocumentTitle';
 import SkeletonProductDetail from '../components/SkeletonProductDetail';
 import useRecentlyViewed from '../hooks/useRecentlyViewed';
+import { optimizeUnsplashImage } from '../utils/image';
+
+const RELATED_POT_COLORS = [
+  { name: "Terracotta", value: "#D77A61" },
+  { name: "Cream", value: "#F5F2EB" },
+  { name: "Mint", value: "#C1D5C0" },
+  { name: "Charcoal", value: "#3E3E3E" }
+];
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -124,6 +132,9 @@ export default function ProductDetailPage() {
 
   const handleDecrement = useCallback(() => setQuantity(q => Math.max(1, q - 1)), []);
   const handleIncrement = useCallback(() => setQuantity(q => q + 1), []);
+  const handleRelatedColorChange = useCallback((productId, colorName) => {
+    setRelatedCardColors(prev => ({ ...prev, [productId]: colorName }));
+  }, []);
 
   // Nếu sản phẩm đang tải dữ liệu
   if (isLoading) {
@@ -175,7 +186,7 @@ export default function ProductDetailPage() {
           <div className="flex-grow flex items-center justify-center min-h-[300px] max-h-[380px] md:max-h-[460px] overflow-hidden relative border border-brand-sand bg-brand-beige">
             <img
               key={imgKey}
-              src={activeImage}
+              src={optimizeUnsplashImage(activeImage, 600)}
               alt={product.name}
               className="w-full h-full object-cover animate-fade-in transition-opacity duration-500"
               loading="lazy"
@@ -201,7 +212,7 @@ export default function ProductDetailPage() {
                   }`}
                 >
                   <img
-                    src={imgUrl}
+                    src={optimizeUnsplashImage(imgUrl, 100)}
                     alt={`${product.name} ${i + 1}`}
                     className="w-full h-full object-cover"
                     loading="lazy"
@@ -412,17 +423,9 @@ export default function ProductDetailPage() {
                 key={plant.id}
                 plant={plant}
                 activeColor={relatedCardColors[plant.id] || 'Terracotta'}
-                onColorChange={(productId, colorName, e) => {
-                  e.stopPropagation();
-                  setRelatedCardColors(prev => ({ ...prev, [productId]: colorName }));
-                }}
+                onColorChange={handleRelatedColorChange}
                 addToCart={addToCart}
-                potColorsInfo={[
-                  { name: "Terracotta", value: "#D77A61" },
-                  { name: "Cream", value: "#F5F2EB" },
-                  { name: "Mint", value: "#C1D5C0" },
-                  { name: "Charcoal", value: "#3E3E3E" }
-                ]}
+                potColorsInfo={RELATED_POT_COLORS}
               />
             ))}
           </div>

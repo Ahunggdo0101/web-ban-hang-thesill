@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Leaf, Star, ChevronRight, BookOpen, X } from 'lucide-react';
+import { optimizeUnsplashImage } from '../utils/image';
 import ProductCard from '../components/ProductCard';
 import SkeletonProductCard from '../components/SkeletonProductCard';
 import { journals } from '../data/journals';
@@ -177,13 +178,13 @@ export default function Home() {
             <div className="relative w-full max-w-md aspect-[4/5] bg-brand-white p-4 border border-brand-sand shadow-xs">
               <div className="w-full h-full overflow-hidden border border-brand-sand bg-brand-beige">
                 <img
-                  src="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&q=80&w=1200"
+                  src={optimizeUnsplashImage("https://images.unsplash.com/photo-1585320806297-9794b3e4eeae", 800)}
                   alt="Premium houseplants collection"
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-[3000ms] ease-out"
                 />
               </div>
               {/* Decorative accent element */}
-              <div className="absolute -bottom-4 -left-4 w-24 h-24 border border-brand-sand bg-brand-cream/80 backdrop-blur-xs hidden sm:flex items-center justify-center p-3 text-center">
+              <div className="absolute -bottom-4 -left-4 w-24 h-24 border border-brand-sand bg-brand-cream/95 hidden sm:flex items-center justify-center p-3 text-center">
                 <span className="font-serif text-[10px] italic text-brand-forest">100% Cây Khỏe Mạnh</span>
               </div>
             </div>
@@ -209,7 +210,7 @@ export default function Home() {
               {/* Circular Container */}
               <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden bg-brand-beige border border-brand-sand relative group-hover:border-brand-clay transition-all duration-500 shadow-xs">
                 <img
-                  src={cat.image}
+                  src={optimizeUnsplashImage(cat.image, 300)}
                   alt={cat.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                 />
@@ -275,7 +276,7 @@ export default function Home() {
           </div>
           <div className="md:col-span-5 h-[350px] md:h-full min-h-[450px] overflow-hidden border-t md:border-t-0 md:border-l border-[#1A372C]">
             <img
-              src="https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&q=80&w=1000"
+              src={optimizeUnsplashImage("https://images.unsplash.com/photo-1545241047-6083a3684587", 600)}
               alt="Beautiful houseplant leaf"
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-[4000ms]"
             />
@@ -359,7 +360,7 @@ export default function Home() {
             >
               <div className="aspect-[4/3] w-full overflow-hidden bg-brand-beige border border-brand-sand relative">
                 <img
-                  src={blog.image}
+                  src={optimizeUnsplashImage(blog.image, 400)}
                   alt={blog.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
@@ -411,10 +412,10 @@ export default function Home() {
       {selectedJournal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
           <div 
-            className="fixed inset-0 bg-[#0a2315]/60 backdrop-blur-xs transition-opacity animate-fade-in" 
+            className="fixed inset-0 bg-[#0D231A]/60 transition-opacity animate-fade-in" 
             onClick={() => setSelectedJournal(null)} 
           />
-          <div className="relative bg-brand-cream border border-brand-sand shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto z-10 animate-fade-in text-left">
+          <div className="relative bg-brand-cream border border-brand-sand shadow-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto z-10 modal-panel animate-fade-in text-left">
             <button 
               onClick={() => setSelectedJournal(null)} 
               className="absolute right-4 top-4 p-2 text-brand-forest hover:text-brand-clay transition-colors cursor-pointer z-20 bg-brand-white/80 rounded-full border border-brand-sand/30"
@@ -425,7 +426,7 @@ export default function Home() {
             
             <div className="w-full aspect-[16/9] overflow-hidden bg-brand-beige border-b border-brand-sand">
               <img 
-                src={selectedJournal.image} 
+                src={optimizeUnsplashImage(selectedJournal.image, 800)} 
                 alt={selectedJournal.title} 
                 className="w-full h-full object-cover animate-pulse-slow"
               />

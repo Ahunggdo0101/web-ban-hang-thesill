@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { optimizeUnsplashImage } from '../utils/image';
 
 const MegaMenu = memo(function MegaMenu({ data }) {
   if (!data || !data.links || !data.cards) return null;
@@ -33,7 +34,7 @@ const MegaMenu = memo(function MegaMenu({ data }) {
               <Link to={card.href} key={idx} className="group/card block overflow-hidden">
                 <div className="relative aspect-[3/4] overflow-hidden border border-brand-sand/50 bg-brand-cream">
                   <img
-                    src={card.image}
+                    src={optimizeUnsplashImage(card.image, 300)}
                     alt={card.title}
                     className="w-full h-full object-cover transform group-hover/card:scale-105 transition-transform duration-500"
                     loading="lazy"
