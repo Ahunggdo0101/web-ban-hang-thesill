@@ -256,7 +256,7 @@ export default function Home() {
         </section>
 
         {/* 1.8. Popular Plants Section - Các loại cây trồng được ưa chuộng nhất hiện nay */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 pt-8 md:pt-10">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 pt-10 md:pt-12">
           <div className="text-left space-y-1">
             <h2 className="font-serif text-3xl sm:text-4xl text-[#1c1c1c] font-light tracking-tight">
               Các loại cây trồng được ưa chuộng nhất hiện nay
