@@ -193,7 +193,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 1.5. Trust Badges / Divider Section */}
+      {/* 1.5. Trust Badges / Divider Section - Sử dụng màu nền #f9f8f7 hài hòa với footer */}
       <section className="bg-[#f9f8f7] border-b border-brand-sand/60 py-12 md:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 lg:gap-16">
