@@ -142,116 +142,119 @@ export default function Home() {
   return (
     <div className="w-full space-y-16 md:space-y-28 pb-16 md:pb-28 animate-fade-in bg-brand-cream">
       
-      {/* 1. Hero Section - Premium Editorial Split Banner */}
-      <section className="relative overflow-hidden bg-brand-beige border-b border-brand-sand">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 grid grid-cols-1 md:grid-cols-12 gap-16 items-center">
-          
-          <div className="md:col-span-6 space-y-8 text-left">
-            <span className="text-[10px] uppercase tracking-[0.2em] text-brand-clay font-bold block">
-              NGHỆ NHÂN CÂY CẢNH ĐỖ XUÂN HÙNG • NAM ĐỊNH
-            </span>
-            <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl text-brand-forest font-light leading-[1.08] tracking-tight">
-              Nghệ nhân cây cảnh <br />
-              <span className="italic text-brand-clay font-normal">Đỗ Xuân Hùng</span>
-            </h1>
-            <p className="text-xs sm:text-sm text-[#555] leading-relaxed max-w-md font-medium">
-              Kiến tạo tổ ấm xanh mát với các loài cây dễ chăm sóc được chọn lọc kỹ lưỡng, kết hợp cùng các dòng chậu gốm thủ công tinh xảo. Đóng gói chuyên nghiệp và vận chuyển trực tiếp đến cửa nhà bạn.
-            </p>
-            <div className="flex flex-wrap gap-4 pt-4">
-              <Link
-                to="/shop"
-                className="bg-brand-forest hover:bg-brand-green text-brand-white text-[10px] font-bold tracking-widest uppercase px-10 py-5 transition-all duration-300 shadow-sm cursor-pointer hover:-translate-y-0.5 inline-block text-center"
-              >
-                MUA SẮM NGAY
-              </Link>
-              <Link
-                to="/quiz"
-                className="border border-brand-forest bg-transparent hover:bg-brand-moss text-brand-forest text-[10px] font-bold tracking-widest uppercase px-10 py-5 transition-all duration-300 cursor-pointer hover:-translate-y-0.5 inline-block text-center"
-              >
-                TRẮC NGHIỆM CHỌN CÂY
-              </Link>
-            </div>
-          </div>
-
-          <div className="md:col-span-6 relative flex justify-center">
-            {/* Double framed image overlay */}
-            <div className="relative w-full max-w-md aspect-[4/5] bg-brand-white p-4 border border-brand-sand shadow-xs">
-              <div className="w-full h-full overflow-hidden border border-brand-sand bg-brand-beige">
-                <img
-                  src={optimizeUnsplashImage("https://images.unsplash.com/photo-1585320806297-9794b3e4eeae", 800)}
-                  alt="Premium houseplants collection"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-[3000ms] ease-out"
-                />
-              </div>
-              {/* Decorative accent element */}
-              <div className="absolute -bottom-4 -left-4 w-24 h-24 border border-brand-sand bg-brand-cream/95 hidden sm:flex items-center justify-center p-3 text-center">
-                <span className="font-serif text-[10px] italic text-brand-forest">100% Cây Khỏe Mạnh</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* 1.5. Trust Badges / Divider Section - Sử dụng màu nền #f9f8f7 hài hòa với footer */}
-      <section className="bg-[#f9f8f7] border-b border-brand-sand/60 py-12 md:py-14">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 lg:gap-16">
+      {/* 1. Hero & Trust Badges Section - Gộp chung để loại bỏ khoảng cách space-y giữa 2 phần */}
+      <div className="w-full flex flex-col">
+        {/* 1. Hero Section - Premium Editorial Split Banner */}
+        <section className="relative overflow-hidden bg-brand-beige">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 grid grid-cols-1 md:grid-cols-12 gap-16 items-center">
             
-            {/* Cột 1 */}
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 text-brand-forest mt-0.5">
-                {/* SVG watering can */}
-                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-                  <path d="M7 11h8a1 1 0 0 1 1 1v6a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-6a1 1 0 0 1 1-1z" />
-                  <path d="M7 13H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2" />
-                  <path d="M16 14l5-3" />
-                  <path d="M21 9v6" />
-                </svg>
-              </div>
-              <div className="space-y-1.5 text-left">
-                <h3 className="font-sans text-sm sm:text-base font-bold text-brand-charcoal">
-                  Hướng dẫn của chuyên gia
-                </h3>
-                <p className="text-xs sm:text-sm text-brand-slate leading-relaxed font-medium">
-                  Thành công bắt đầu từ việc lựa chọn đúng loại cây. Chúng tôi sẽ đảm bảo bạn làm được điều đó.
-                </p>
-              </div>
-            </div>
-
-            {/* Cột 2 */}
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 text-brand-forest mt-0.5">
-                <Smile size={24} strokeWidth={1.5} className="w-6 h-6" />
-              </div>
-              <div className="space-y-1.5 text-left">
-                <h3 className="font-sans text-sm sm:text-base font-bold text-brand-charcoal">
-                  Kết nối & Phát triển
-                </h3>
-                <p className="text-xs sm:text-sm text-brand-slate leading-relaxed font-medium">
-                  Cộng đồng là tất cả. Các buổi hội thảo và sự kiện của chúng tôi giúp bạn học hỏi và kết nối.
-                </p>
+            <div className="md:col-span-6 space-y-8 text-left">
+              <span className="text-[10px] uppercase tracking-[0.2em] text-brand-clay font-bold block">
+                NGHỆ NHÂN CÂY CẢNH ĐỖ XUÂN HÙNG • NAM ĐỊNH
+              </span>
+              <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl text-brand-forest font-light leading-[1.08] tracking-tight">
+                Nghệ nhân cây cảnh <br />
+                <span className="italic text-brand-clay font-normal">Đỗ Xuân Hùng</span>
+              </h1>
+              <p className="text-xs sm:text-sm text-[#555] leading-relaxed max-w-md font-medium">
+                Kiến tạo tổ ấm xanh mát với các loài cây dễ chăm sóc được chọn lọc kỹ lưỡng, kết hợp cùng các dòng chậu gốm thủ công tinh xảo. Đóng gói chuyên nghiệp và vận chuyển trực tiếp đến cửa nhà bạn.
+              </p>
+              <div className="flex flex-wrap gap-4 pt-4">
+                <Link
+                  to="/shop"
+                  className="bg-brand-forest hover:bg-brand-green text-brand-white text-[10px] font-bold tracking-widest uppercase px-10 py-5 transition-all duration-300 shadow-sm cursor-pointer hover:-translate-y-0.5 inline-block text-center"
+                >
+                  MUA SẮM NGAY
+                </Link>
+                <Link
+                  to="/quiz"
+                  className="border border-brand-forest bg-transparent hover:bg-brand-moss text-brand-forest text-[10px] font-bold tracking-widest uppercase px-10 py-5 transition-all duration-300 cursor-pointer hover:-translate-y-0.5 inline-block text-center"
+                >
+                  TRẮC NGHIỆM CHỌN CÂY
+                </Link>
               </div>
             </div>
 
-            {/* Cột 3 */}
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 text-brand-forest mt-0.5">
-                <ShieldCheck size={24} strokeWidth={1.5} className="w-6 h-6" />
-              </div>
-              <div className="space-y-1.5 text-left">
-                <h3 className="font-sans text-sm sm:text-base font-bold text-brand-charcoal">
-                  Dịch vụ không phán xét
-                </h3>
-                <p className="text-xs sm:text-sm text-brand-slate leading-relaxed font-medium">
-                  Đội ngũ tận tâm của chúng tôi luôn sẵn sàng hỗ trợ — không có câu hỏi nào là quá nhỏ hay quá ngớ ngẩn!
-                </p>
+            <div className="md:col-span-6 relative flex justify-center">
+              {/* Double framed image overlay */}
+              <div className="relative w-full max-w-md aspect-[4/5] bg-brand-white p-4 border border-brand-sand shadow-xs">
+                <div className="w-full h-full overflow-hidden border border-brand-sand bg-brand-beige">
+                  <img
+                    src={optimizeUnsplashImage("https://images.unsplash.com/photo-1585320806297-9794b3e4eeae", 800)}
+                    alt="Premium houseplants collection"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-[3000ms] ease-out"
+                  />
+                </div>
+                {/* Decorative accent element */}
+                <div className="absolute -bottom-4 -left-4 w-24 h-24 border border-brand-sand bg-brand-cream/95 hidden sm:flex items-center justify-center p-3 text-center">
+                  <span className="font-serif text-[10px] italic text-brand-forest">100% Cây Khỏe Mạnh</span>
+                </div>
               </div>
             </div>
 
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* 1.5. Trust Badges / Divider Section - Sử dụng màu nền #f9f8f7 hài hòa với footer */}
+        <section className="bg-[#f9f8f7] border-y border-brand-sand/60 py-12 md:py-14">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 lg:gap-16">
+              
+              {/* Cột 1 */}
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 text-brand-forest mt-0.5">
+                  {/* SVG watering can */}
+                  <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+                    <path d="M7 11h8a1 1 0 0 1 1 1v6a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-6a1 1 0 0 1 1-1z" />
+                    <path d="M7 13H5a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2" />
+                    <path d="M16 14l5-3" />
+                    <path d="M21 9v6" />
+                  </svg>
+                </div>
+                <div className="space-y-1.5 text-left">
+                  <h3 className="font-sans text-sm sm:text-base font-bold text-brand-charcoal">
+                    Hướng dẫn của chuyên gia
+                  </h3>
+                  <p className="text-xs sm:text-sm text-brand-slate leading-relaxed font-medium">
+                    Thành công bắt đầu từ việc lựa chọn đúng loại cây. Chúng tôi sẽ đảm bảo bạn làm được điều đó.
+                  </p>
+                </div>
+              </div>
+
+              {/* Cột 2 */}
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 text-brand-forest mt-0.5">
+                  <Smile size={24} strokeWidth={1.5} className="w-6 h-6" />
+                </div>
+                <div className="space-y-1.5 text-left">
+                  <h3 className="font-sans text-sm sm:text-base font-bold text-brand-charcoal">
+                    Kết nối & Phát triển
+                  </h3>
+                  <p className="text-xs sm:text-sm text-brand-slate leading-relaxed font-medium">
+                    Cộng đồng là tất cả. Các buổi hội thảo và sự kiện của chúng tôi giúp bạn học hỏi và kết nối.
+                  </p>
+                </div>
+              </div>
+
+              {/* Cột 3 */}
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 text-brand-forest mt-0.5">
+                  <ShieldCheck size={24} strokeWidth={1.5} className="w-6 h-6" />
+                </div>
+                <div className="space-y-1.5 text-left">
+                  <h3 className="font-sans text-sm sm:text-base font-bold text-brand-charcoal">
+                    Dịch vụ không phán xét
+                  </h3>
+                  <p className="text-xs sm:text-sm text-brand-slate leading-relaxed font-medium">
+                    Đội ngũ tận tâm của chúng tôi luôn sẵn sàng hỗ trợ — không có câu hỏi nào là quá nhỏ hay quá ngớ ngẩn!
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+      </div>
 
       {/* 2. Shop by Category - Circular design like actual thesill.com */}
       <section ref={categoriesRef} className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 transition-all duration-700 ${categoriesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
