@@ -23,10 +23,10 @@ const ProductCard = React.memo(({ plant, activeColor, onColorChange, addToCart, 
   return (
     <Link
       to={'/product/' + plant.id}
-      className="group cursor-pointer flex flex-col space-y-4 relative w-full text-left"
+      className="group cursor-pointer flex flex-col space-y-4 relative w-full max-w-[360px] mx-auto text-left"
     >
       {/* Image Container */}
-      <div className="relative aspect-square w-full overflow-hidden bg-brand-white border border-brand-sand shadow-xs">
+      <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-white border border-brand-sand shadow-xs">
         <img
           src={optimizeUnsplashImage(displayImage, 400)}
           alt={plant.name}
