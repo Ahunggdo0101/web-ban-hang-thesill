@@ -503,7 +503,84 @@ export default function Home() {
       </section>
     </div>
 
-      {/* 2. Shop by Category - Circular design like actual thesill.com */}
+    {/* 1.95. Plants for Everyone Section - Cây xanh cho mọi người */}
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 pt-16 md:pt-24">
+      <div className="text-left">
+        <h2 className="font-serif text-3xl sm:text-4xl text-[#2A2D24] font-normal tracking-tight">
+          Cây xanh cho mọi người
+        </h2>
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+        
+        {[
+          {
+            title: "Cây trồng trong nhà",
+            image: "https://images.unsplash.com/photo-1566393028639-d108a42c46a7",
+            path: "/shop?difficulty=easy"
+          },
+          {
+            title: "Cây trồng ngoài trời",
+            image: "https://images.unsplash.com/photo-1550950158-d0d960dff51b",
+            path: "/shop?size=large"
+          },
+          {
+            title: "Các loại cây thân thiện với thú cưng",
+            image: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e",
+            path: "/shop?pet=true"
+          },
+          {
+            title: "Cây dễ chăm sóc",
+            image: "https://images.unsplash.com/photo-1485955900006-10f4d324d411",
+            path: "/shop?difficulty=easy"
+          },
+          {
+            title: "Hoa lan",
+            image: "https://images.unsplash.com/photo-1525310072745-f49212b5ac6d",
+            path: "/shop"
+          },
+          {
+            title: "Cây trồng trong nhà cỡ lớn và khổng lồ",
+            image: "https://images.unsplash.com/photo-1596547609652-9cf5d8d76921",
+            path: "/shop?size=large"
+          },
+          {
+            title: "Cây chịu được ánh sáng yếu",
+            image: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b",
+            path: "/shop?light=low"
+          },
+          {
+            title: "Chăm sóc cây trồng",
+            image: "https://images.unsplash.com/photo-1604762524889-3e2fcc145f86",
+            path: "/shop"
+          }
+        ].map((item, idx) => (
+          <Link 
+            key={idx} 
+            to={item.path}
+            className="group flex flex-col space-y-3 cursor-pointer"
+          >
+            {/* Square Image container */}
+            <div className="relative aspect-square w-full overflow-hidden bg-brand-beige border border-brand-sand shadow-xs">
+              <img
+                src={optimizeUnsplashImage(item.image, 500)}
+                alt={item.title}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+              />
+            </div>
+            {/* Title with Arrow */}
+            <div className="text-left">
+              <span className="font-serif text-sm sm:text-base font-normal text-brand-forest group-hover:text-brand-green hover-underline inline-flex items-center gap-1 transition-colors leading-snug">
+                {item.title} <span className="font-sans font-light group-hover:translate-x-1 transition-transform">→</span>
+              </span>
+            </div>
+          </Link>
+        ))}
+
+      </div>
+    </section>
+
+    {/* 2. Shop by Category - Circular design like actual thesill.com */}
       <section ref={categoriesRef} className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 transition-all duration-700 ${categoriesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
         <div className="text-center max-w-xl mx-auto space-y-2">
           <span className="text-[10px] uppercase tracking-[0.2em] text-brand-clay font-bold">Danh mục sản phẩm</span>
