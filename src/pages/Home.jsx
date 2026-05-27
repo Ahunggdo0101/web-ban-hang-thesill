@@ -560,8 +560,8 @@ export default function Home() {
             to={item.path}
             className="group flex flex-col space-y-3 cursor-pointer"
           >
-            {/* Square Image container */}
-            <div className="relative aspect-square w-full overflow-hidden bg-brand-beige border border-brand-sand shadow-xs">
+            {/* Aspect 3:4 Image container */}
+            <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-beige border border-brand-sand shadow-xs">
               <img
                 src={optimizeUnsplashImage(item.image, 500)}
                 alt={item.title}
