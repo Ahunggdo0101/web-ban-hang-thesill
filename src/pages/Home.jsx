@@ -254,166 +254,166 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* 1.8. Popular Plants Section - Các loại cây trồng được ưa chuộng nhất hiện nay */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 pt-8 md:pt-10">
+          <div className="text-left space-y-1">
+            <h2 className="font-serif text-3xl sm:text-4xl text-[#1c1c1c] font-light tracking-tight">
+              Các loại cây trồng được ưa chuộng nhất hiện nay
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+            
+            {/* Cây 1: Cây ô liu */}
+            <div className="group flex flex-col space-y-4">
+              <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-beige border border-brand-sand shadow-xs">
+                {/* Badge đỏ đặc biệt */}
+                <div className="absolute top-0 left-0 z-10 bg-[#e74c3c] text-white text-[9px] font-bold px-2.5 py-1.5 flex items-center gap-1 uppercase tracking-wider">
+                  <Star size={10} fill="white" className="text-white" />
+                  Ưu đãi đặc biệt nhân dịp kỷ niệm!
+                </div>
+                <img
+                  src={optimizeUnsplashImage("https://images.unsplash.com/photo-1599599810769-bcde5a160d32", 600)}
+                  alt="Cây ô liu"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                />
+              </div>
+              <div className="space-y-1 text-left">
+                <h3 className="font-serif text-base sm:text-lg font-medium text-brand-forest hover:text-brand-green transition-colors">
+                  <Link to="/shop">Cây ô liu</Link>
+                </h3>
+                <p className="text-xs sm:text-sm text-brand-slate italic leading-relaxed">
+                  Loại cây lý tưởng cho không gian nội thất cao cấp.
+                </p>
+                {/* Rating */}
+                <div className="flex items-center gap-1.5 pt-0.5">
+                  <div className="flex text-brand-forest">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={11} fill="currentColor" className="text-brand-forest" />
+                    ))}
+                  </div>
+                  <span className="text-[10px] sm:text-xs text-brand-slate font-semibold">158 đánh giá</span>
+                </div>
+                <p className="text-xs sm:text-sm font-bold text-brand-charcoal pt-0.5">
+                  Từ 59 đô la
+                </p>
+              </div>
+            </div>
+
+            {/* Cây 2: Philodendron Brasil */}
+            <div className="group flex flex-col space-y-4">
+              <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-beige border border-brand-sand shadow-xs">
+                <img
+                  src={optimizeUnsplashImage("https://images.unsplash.com/photo-1597055181300-e3633a207518", 600)}
+                  alt="Philodendron Brasil"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                />
+              </div>
+              <div className="space-y-1 text-left">
+                <h3 className="font-serif text-base sm:text-lg font-medium text-brand-forest hover:text-brand-green transition-colors">
+                  <Link to="/shop">Philodendron Brasil</Link>
+                </h3>
+                <p className="text-xs sm:text-sm text-brand-slate italic leading-relaxed">
+                  Ánh sáng mạnh hơn làm nổi bật nhiều màu sắc hơn.
+                </p>
+                {/* Rating */}
+                <div className="flex items-center gap-1.5 pt-0.5">
+                  <div className="flex text-brand-forest">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={11} fill="currentColor" className="text-brand-forest" />
+                    ))}
+                  </div>
+                  <span className="text-[10px] sm:text-xs text-brand-slate font-semibold">1 đánh giá</span>
+                </div>
+                <p className="text-xs sm:text-sm font-bold text-brand-charcoal pt-0.5">
+                  Từ 69 đô la
+                </p>
+              </div>
+            </div>
+
+            {/* Cây 3: Cây tiền */}
+            <div className="group flex flex-col space-y-4">
+              <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-beige border border-brand-sand shadow-xs">
+                {/* Badge đỏ đặc biệt */}
+                <div className="absolute top-0 left-0 z-10 bg-[#e74c3c] text-white text-[9px] font-bold px-2.5 py-1.5 flex items-center gap-1 uppercase tracking-wider">
+                  <Star size={10} fill="white" className="text-white" />
+                  Ưu đãi đặc biệt nhân dịp kỷ niệm!
+                </div>
+                <img
+                  src={optimizeUnsplashImage("https://images.unsplash.com/photo-1520412099521-63b16afe9587", 600)}
+                  alt="Cây tiền"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                />
+              </div>
+              <div className="space-y-1 text-left">
+                <h3 className="font-serif text-base sm:text-lg font-medium text-brand-forest hover:text-brand-green transition-colors">
+                  <Link to="/shop">Cây tiền</Link>
+                </h3>
+                <p className="text-xs sm:text-sm text-brand-slate italic leading-relaxed">
+                  Cây may mắn nguyên thủy
+                </p>
+                {/* Rating */}
+                <div className="flex items-center gap-1.5 pt-0.5">
+                  <div className="flex text-brand-forest">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={11} fill="currentColor" className="text-brand-forest" />
+                    ))}
+                  </div>
+                  <span className="text-[10px] sm:text-xs text-brand-slate font-semibold">66 đánh giá</span>
+                </div>
+                <p className="text-xs sm:text-sm font-bold text-brand-charcoal pt-0.5">
+                  Từ 39 đô la
+                </p>
+              </div>
+            </div>
+
+            {/* Cây 4: Chanh Meyer */}
+            <div className="group flex flex-col space-y-4">
+              <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-beige border border-brand-sand shadow-xs">
+                {/* Badge đỏ đặc biệt */}
+                <div className="absolute top-0 left-0 z-10 bg-[#e74c3c] text-white text-[9px] font-bold px-2.5 py-1.5 flex items-center gap-1 uppercase tracking-wider">
+                  <svg viewBox="0 0 24 24" width="10" height="10" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="inline-block mr-0.5 fill-white text-white">
+                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                    <line x1="7" y1="7" x2="7.01" y2="7" />
+                  </svg>
+                  Ưu đãi đặc biệt
+                </div>
+                <img
+                  src={optimizeUnsplashImage("https://images.unsplash.com/photo-1534531173927-aeb928d54385", 600)}
+                  alt="Chanh Meyer"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                />
+              </div>
+              <div className="space-y-1 text-left">
+                <span className="text-[10px] text-brand-clay font-bold block uppercase tracking-wide leading-none pb-1">
+                  Vùng trồng thích hợp: 4-11 (sân hiên) / 8-11 (ngoài trời)
+                </span>
+                <h3 className="font-serif text-base sm:text-lg font-medium text-brand-forest hover:text-brand-green transition-colors">
+                  <Link to="/shop">Chanh Meyer</Link>
+                </h3>
+                <p className="text-xs sm:text-sm text-brand-slate italic leading-relaxed">
+                  Mua ở cửa hàng &lt; tự trồng tại nhà
+                </p>
+                {/* Rating */}
+                <div className="flex items-center gap-1.5 pt-0.5">
+                  <div className="flex text-brand-forest">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={11} fill="currentColor" className="text-brand-forest" />
+                    ))}
+                  </div>
+                  <span className="text-[10px] sm:text-xs text-brand-slate font-semibold">20 đánh giá</span>
+                </div>
+                <p className="text-xs sm:text-sm font-bold text-brand-charcoal pt-0.5 flex items-center gap-2">
+                  <span className="text-brand-forest">Từ $99</span>
+                  <span className="text-brand-slate/60 line-through font-normal text-xs">109 đô la</span>
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </section>
       </div>
-
-      {/* 1.8. Popular Plants Section - Các loại cây trồng được ưa chuộng nhất hiện nay */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-        <div className="text-left space-y-1">
-          <h2 className="font-serif text-3xl sm:text-4xl text-[#1c1c1c] font-light tracking-tight">
-            Các loại cây trồng được ưa chuộng nhất hiện nay
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
-          
-          {/* Cây 1: Cây ô liu */}
-          <div className="group flex flex-col space-y-4">
-            <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-beige border border-brand-sand shadow-xs">
-              {/* Badge đỏ đặc biệt */}
-              <div className="absolute top-0 left-0 z-10 bg-[#e74c3c] text-white text-[9px] font-bold px-2.5 py-1.5 flex items-center gap-1 uppercase tracking-wider">
-                <Star size={10} fill="white" className="text-white" />
-                Ưu đãi đặc biệt nhân dịp kỷ niệm!
-              </div>
-              <img
-                src={optimizeUnsplashImage("https://images.unsplash.com/photo-1599599810769-bcde5a160d32", 600)}
-                alt="Cây ô liu"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-              />
-            </div>
-            <div className="space-y-1 text-left">
-              <h3 className="font-serif text-base sm:text-lg font-medium text-brand-forest hover:text-brand-green transition-colors">
-                <Link to="/shop">Cây ô liu</Link>
-              </h3>
-              <p className="text-xs sm:text-sm text-brand-slate italic leading-relaxed">
-                Loại cây lý tưởng cho không gian nội thất cao cấp.
-              </p>
-              {/* Rating */}
-              <div className="flex items-center gap-1.5 pt-0.5">
-                <div className="flex text-brand-forest">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={11} fill="currentColor" className="text-brand-forest" />
-                  ))}
-                </div>
-                <span className="text-[10px] sm:text-xs text-brand-slate font-semibold">158 đánh giá</span>
-              </div>
-              <p className="text-xs sm:text-sm font-bold text-brand-charcoal pt-0.5">
-                Từ 59 đô la
-              </p>
-            </div>
-          </div>
-
-          {/* Cây 2: Philodendron Brasil */}
-          <div className="group flex flex-col space-y-4">
-            <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-beige border border-brand-sand shadow-xs">
-              <img
-                src={optimizeUnsplashImage("https://images.unsplash.com/photo-1597055181300-e3633a207518", 600)}
-                alt="Philodendron Brasil"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-              />
-            </div>
-            <div className="space-y-1 text-left">
-              <h3 className="font-serif text-base sm:text-lg font-medium text-brand-forest hover:text-brand-green transition-colors">
-                <Link to="/shop">Philodendron Brasil</Link>
-              </h3>
-              <p className="text-xs sm:text-sm text-brand-slate italic leading-relaxed">
-                Ánh sáng mạnh hơn làm nổi bật nhiều màu sắc hơn.
-              </p>
-              {/* Rating */}
-              <div className="flex items-center gap-1.5 pt-0.5">
-                <div className="flex text-brand-forest">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={11} fill="currentColor" className="text-brand-forest" />
-                  ))}
-                </div>
-                <span className="text-[10px] sm:text-xs text-brand-slate font-semibold">1 đánh giá</span>
-              </div>
-              <p className="text-xs sm:text-sm font-bold text-brand-charcoal pt-0.5">
-                Từ 69 đô la
-              </p>
-            </div>
-          </div>
-
-          {/* Cây 3: Cây tiền */}
-          <div className="group flex flex-col space-y-4">
-            <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-beige border border-brand-sand shadow-xs">
-              {/* Badge đỏ đặc biệt */}
-              <div className="absolute top-0 left-0 z-10 bg-[#e74c3c] text-white text-[9px] font-bold px-2.5 py-1.5 flex items-center gap-1 uppercase tracking-wider">
-                <Star size={10} fill="white" className="text-white" />
-                Ưu đãi đặc biệt nhân dịp kỷ niệm!
-              </div>
-              <img
-                src={optimizeUnsplashImage("https://images.unsplash.com/photo-1520412099521-63b16afe9587", 600)}
-                alt="Cây tiền"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-              />
-            </div>
-            <div className="space-y-1 text-left">
-              <h3 className="font-serif text-base sm:text-lg font-medium text-brand-forest hover:text-brand-green transition-colors">
-                <Link to="/shop">Cây tiền</Link>
-              </h3>
-              <p className="text-xs sm:text-sm text-brand-slate italic leading-relaxed">
-                Cây may mắn nguyên thủy
-              </p>
-              {/* Rating */}
-              <div className="flex items-center gap-1.5 pt-0.5">
-                <div className="flex text-brand-forest">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={11} fill="currentColor" className="text-brand-forest" />
-                  ))}
-                </div>
-                <span className="text-[10px] sm:text-xs text-brand-slate font-semibold">66 đánh giá</span>
-              </div>
-              <p className="text-xs sm:text-sm font-bold text-brand-charcoal pt-0.5">
-                Từ 39 đô la
-              </p>
-            </div>
-          </div>
-
-          {/* Cây 4: Chanh Meyer */}
-          <div className="group flex flex-col space-y-4">
-            <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-beige border border-brand-sand shadow-xs">
-              {/* Badge đỏ đặc biệt */}
-              <div className="absolute top-0 left-0 z-10 bg-[#e74c3c] text-white text-[9px] font-bold px-2.5 py-1.5 flex items-center gap-1 uppercase tracking-wider">
-                <svg viewBox="0 0 24 24" width="10" height="10" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="inline-block mr-0.5 fill-white text-white">
-                  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
-                  <line x1="7" y1="7" x2="7.01" y2="7" />
-                </svg>
-                Ưu đãi đặc biệt
-              </div>
-              <img
-                src={optimizeUnsplashImage("https://images.unsplash.com/photo-1534531173927-aeb928d54385", 600)}
-                alt="Chanh Meyer"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-              />
-            </div>
-            <div className="space-y-1 text-left">
-              <span className="text-[10px] text-brand-clay font-bold block uppercase tracking-wide leading-none pb-1">
-                Vùng trồng thích hợp: 4-11 (sân hiên) / 8-11 (ngoài trời)
-              </span>
-              <h3 className="font-serif text-base sm:text-lg font-medium text-brand-forest hover:text-brand-green transition-colors">
-                <Link to="/shop">Chanh Meyer</Link>
-              </h3>
-              <p className="text-xs sm:text-sm text-brand-slate italic leading-relaxed">
-                Mua ở cửa hàng &lt; tự trồng tại nhà
-              </p>
-              {/* Rating */}
-              <div className="flex items-center gap-1.5 pt-0.5">
-                <div className="flex text-brand-forest">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={11} fill="currentColor" className="text-brand-forest" />
-                  ))}
-                </div>
-                <span className="text-[10px] sm:text-xs text-brand-slate font-semibold">20 đánh giá</span>
-              </div>
-              <p className="text-xs sm:text-sm font-bold text-brand-charcoal pt-0.5 flex items-center gap-2">
-                <span className="text-brand-forest">Từ $99</span>
-                <span className="text-brand-slate/60 line-through font-normal text-xs">109 đô la</span>
-              </p>
-            </div>
-          </div>
-
-        </div>
-      </section>
 
       {/* 2. Shop by Category - Circular design like actual thesill.com */}
       <section ref={categoriesRef} className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 transition-all duration-700 ${categoriesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
