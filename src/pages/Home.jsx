@@ -501,10 +501,9 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </div>
 
-    {/* 1.95. Plants for Everyone Section - Cây xanh cho mọi người */}
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 pt-16 md:pt-24">
+      {/* 1.95. Plants for Everyone Section - Cây xanh cho mọi người */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 pt-10 md:pt-12">
       <div className="text-left">
         <h2 className="font-serif text-3xl sm:text-4xl text-[#2A2D24] font-normal tracking-tight">
           Cây xanh cho mọi người
@@ -579,6 +578,7 @@ export default function Home() {
 
       </div>
     </section>
+  </div>
 
     {/* 2. Shop by Category - Circular design like actual thesill.com */}
       <section ref={categoriesRef} className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 transition-all duration-700 ${categoriesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
