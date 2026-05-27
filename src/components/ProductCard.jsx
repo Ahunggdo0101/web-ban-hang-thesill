@@ -40,6 +40,12 @@ const ProductCard = React.memo(({ plant, activeColor, onColorChange, addToCart, 
           </span>
         )}
 
+        {plant.originalPrice && (
+          <span className="absolute top-2.5 right-2.5 bg-red-600 text-white text-[7px] uppercase font-extrabold tracking-widest px-2 py-0.5 shadow-xs">
+            ☆ Ưu đãi đặc biệt
+          </span>
+        )}
+
         {/* Desktop Hover Controls */}
         <div className="absolute inset-0 bg-[#0d231a]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center p-3">
           <div className="flex w-full space-x-2 animate-slide-up">
@@ -102,8 +108,15 @@ const ProductCard = React.memo(({ plant, activeColor, onColorChange, addToCart, 
           ))}
         </div>
 
-        <p className="text-xs font-bold text-brand-charcoal pt-1">
-          ${plant.price}
+        <p className="text-xs font-bold pt-1 text-center">
+          {plant.originalPrice ? (
+            <span className="inline-flex items-center gap-1.5 justify-center">
+              <span className="text-red-600 font-bold">${plant.price}</span>
+              <span className="text-[#888] line-through text-[10px] font-normal">${plant.originalPrice}</span>
+            </span>
+          ) : (
+            <span className="text-brand-charcoal">${plant.price}</span>
+          )}
         </p>
       </div>
     </Link>

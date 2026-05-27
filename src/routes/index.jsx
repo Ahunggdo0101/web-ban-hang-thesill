@@ -16,6 +16,7 @@ const AccountPage = lazy(() => import('../pages/AccountPage'));
 const JournalPage = lazy(() => import('../pages/JournalPage'));
 const SearchPage = lazy(() => import('../pages/SearchPage'));
 const PolicyPage = lazy(() => import('../pages/PolicyPage'));
+const SalePage = lazy(() => import('../pages/SalePage'));
 
 // Import các layout và trang lỗi toàn cục
 import RootLayout from '../layouts/RootLayout';
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
           {
             path: 'shop',
             element: <ShopPage />,
+          },
+          {
+            path: 'collections/sale',
+            element: <SalePage />,
           },
           {
             path: 'quiz',

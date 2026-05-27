@@ -11,10 +11,10 @@ function deepFreeze(object) {
 
 export const NAVIGATION_DATA = deepFreeze([
   {
-    title: 'KHUYẾN MÃI',
+    title: 'GIẢM GIÁ CỬA HÀNG',
     color: 'text-red-600 hover:text-red-800',
     hasMenu: false,
-    view: 'shop'
+    view: 'collections/sale'
   },
   {
     title: 'Hàng Mới Về',
