@@ -79,6 +79,11 @@
 }
 
 /* ─── Base Styles ─── */
+/* Nới rộng khung hiển thị tối đa từ 1280px (7xl mặc định) lên 1440px để giao diện rộng rãi, hài hòa hơn */
+.max-w-7xl {
+  max-width: 1440px !important;
+}
+
 *,
 *::before,
 *::after {
