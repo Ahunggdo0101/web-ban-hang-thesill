@@ -791,7 +791,35 @@ export default function Home() {
               {/* Rating */}
               {item.rating > 0 ? (
                 <div className="flex items-center gap-1.5 pt-0.5">
-         {/* 2.0. Care & Workshops Section - Chăm sóc cây trồng & Hội thảo */}
+                  <div className="flex text-brand-forest">
+                    {[...Array(item.rating)].map((_, i) => (
+                      <Star key={i} size={11} fill="currentColor" className="text-brand-forest" />
+                    ))}
+                  </div>
+                  <span className="text-[10px] sm:text-xs text-brand-slate font-semibold">
+                    {item.reviewsCount}
+                  </span>
+                </div>
+              ) : (
+                // Dùng div rỗng chiều cao tương đương để đồng đều chiều cao cột trên grid
+                <div className="h-[18px]" />
+              )}
+              
+              {/* Price */}
+              <p className="text-xs sm:text-sm font-bold text-brand-charcoal pt-0.5 flex items-center gap-2">
+                <span className="text-brand-forest">{item.price}</span>
+                {item.oldPrice && (
+                  <span className="text-brand-slate/60 line-through font-normal text-xs">{item.oldPrice}</span>
+                )}
+              </p>
+            </div>
+          </Link>
+        ))}
+
+      </div>
+    </section>
+
+    {/* 2.0. Care & Workshops Section - Chăm sóc cây trồng & Hội thảo */}
     <section className="relative bg-[#f9f8f7] py-16 md:py-24">
       
       {/* Nhánh lá trang trí màu xanh lục ở góc phải trên cùng */}
