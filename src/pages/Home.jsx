@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Leaf, Star, ChevronRight, BookOpen, X, Smile, ShieldCheck, MessageSquare, Phone, Mail } from 'lucide-react';
+import { ArrowRight, Leaf, Star, ChevronRight, BookOpen, X, Smile, ShieldCheck, MessageSquare, Phone, Mail, Heart } from 'lucide-react';
 import { optimizeUnsplashImage } from '../utils/image';
 import ProductCard from '../components/ProductCard';
 import SkeletonProductCard from '../components/SkeletonProductCard';
@@ -647,6 +647,132 @@ export default function Home() {
                 <Star size={10} fill="white" className="text-white" />
                 Ưu đãi đặc biệt nhân dịp kỷ niệm!
               </div>
+              <img
+                src={optimizeUnsplashImage(item.image, 600)}
+                alt={item.title}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+              />
+            </div>
+            
+            <div className="space-y-1 text-left">
+              <h3 className="font-serif text-base sm:text-lg font-medium text-brand-forest hover:text-brand-green transition-colors">
+                {item.title}
+              </h3>
+              <p className="text-xs sm:text-sm text-brand-slate italic leading-relaxed">
+                {item.desc}
+              </p>
+              
+              {/* Rating */}
+              {item.rating > 0 ? (
+                <div className="flex items-center gap-1.5 pt-0.5">
+                  <div className="flex text-brand-forest">
+                    {[...Array(item.rating)].map((_, i) => (
+                      <Star key={i} size={11} fill="currentColor" className="text-brand-forest" />
+                    ))}
+                  </div>
+                  <span className="text-[10px] sm:text-xs text-brand-slate font-semibold">
+                    {item.reviewsCount}
+                  </span>
+                </div>
+              ) : (
+                // Dùng div rỗng chiều cao tương đương để đồng đều chiều cao cột trên grid
+                <div className="h-[18px]" />
+              )}
+              
+              {/* Price */}
+              <p className="text-xs sm:text-sm font-bold text-brand-charcoal pt-0.5 flex items-center gap-2">
+                <span className="text-brand-forest">{item.price}</span>
+                {item.oldPrice && (
+                  <span className="text-brand-slate/60 line-through font-normal text-xs">{item.oldPrice}</span>
+                )}
+              </p>
+            </div>
+          </Link>
+        ))}
+
+      </div>
+    </section>
+
+    {/* 1.99. New Arrivals Section - Hàng mới về */}
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 pt-10 md:pt-12">
+      <div className="flex justify-between items-end">
+        <div className="text-left">
+          <h2 className="font-serif text-3xl sm:text-4xl text-[#2A2D24] font-normal tracking-tight">
+            Hàng mới về
+          </h2>
+        </div>
+        <Link 
+          to="/shop"
+          className="font-serif text-xs sm:text-sm font-normal text-brand-forest hover:text-brand-green hover-underline inline-flex items-center gap-1 transition-colors pb-0.5"
+        >
+          Xem tất cả sản phẩm mới về <span className="font-sans font-light">→</span>
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+        
+        {[
+          {
+            title: "Lan kép lớn",
+            desc: "Có thể nở hoa trong nhiều tháng",
+            rating: 5,
+            reviewsCount: "32 reviews",
+            price: "Từ 139 đô la",
+            badgeType: "bestseller",
+            image: "https://images.unsplash.com/photo-1525310072745-f49212b5ac6d",
+            path: "/shop"
+          },
+          {
+            title: "Chim Thiên Đường",
+            desc: "Thiên đường đã được ban tặng",
+            rating: 5,
+            reviewsCount: "29 reviews",
+            price: "Từ 69 đô la",
+            badgeType: "anniversary",
+            image: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b",
+            path: "/shop?size=large"
+          },
+          {
+            title: "Cây dành dành lớn",
+            desc: "Những loài hoa thơm ngát dành cho không gian đầy nắng",
+            rating: 0,
+            price: "Từ 119 đô la",
+            oldPrice: "129 đô la",
+            badgeType: "anniversary",
+            image: "https://images.unsplash.com/photo-1512428813824-f4a0f4a88352",
+            path: "/shop?size=large"
+          },
+          {
+            title: "Cây cọ lớn uy nghi",
+            desc: "Không gian xanh mát như khu nghỉ dưỡng",
+            rating: 5,
+            reviewsCount: "9 reviews",
+            price: "Từ 89 đô la",
+            oldPrice: "99 đô la",
+            badgeType: "anniversary",
+            image: "https://images.unsplash.com/photo-1584473457406-6240486418e9",
+            path: "/shop?size=large"
+          }
+        ].map((item, idx) => (
+          <Link 
+            key={idx} 
+            to={item.path}
+            className="group flex flex-col space-y-4 cursor-pointer"
+          >
+            {/* Aspect 3:4 Image container */}
+            <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-beige border border-brand-sand shadow-xs">
+              {/* Badge */}
+              {item.badgeType === "bestseller" ? (
+                <div className="absolute top-0 left-0 z-10 bg-[#00ced1] text-white text-[9px] font-bold px-2.5 py-1.5 flex items-center gap-1 uppercase tracking-wider">
+                  <Heart size={10} fill="white" className="text-white" />
+                  Sản phẩm bán chạy nhất
+                </div>
+              ) : (
+                <div className="absolute top-0 left-0 z-10 bg-[#e74c3c] text-white text-[9px] font-bold px-2.5 py-1.5 flex items-center gap-1 uppercase tracking-wider">
+                  <Star size={10} fill="white" className="text-white" />
+                  Ưu đãi đặc biệt nhân dịp kỷ niệm!
+                </div>
+              )}
               <img
                 src={optimizeUnsplashImage(item.image, 600)}
                 alt={item.title}
