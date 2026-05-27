@@ -578,6 +578,70 @@ export default function Home() {
 
       </div>
     </section>
+
+    {/* 1.98. Large Floor Plants Section - Cây trồng lớn trên sàn */}
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 pt-10 md:pt-12">
+      <div className="flex justify-between items-end">
+        <div className="text-left">
+          <h2 className="font-serif text-3xl sm:text-4xl text-[#2A2D24] font-normal tracking-tight">
+            Cây trồng lớn trên sàn
+          </h2>
+        </div>
+        <Link 
+          to="/shop?size=large"
+          className="font-serif text-xs sm:text-sm font-normal text-brand-forest hover:text-brand-green hover-underline inline-flex items-center gap-1 transition-colors pb-0.5"
+        >
+          Mua tất cả các loại cây lớn <span className="font-sans font-light">→</span>
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+        
+        {[
+          {
+            title: "Cây ô liu lớn",
+            image: "https://images.unsplash.com/photo-1599599810769-bcde5a160d32",
+            path: "/shop?size=large"
+          },
+          {
+            title: "Cây bàng Singapore lớn",
+            image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae",
+            path: "/shop?size=large"
+          },
+          {
+            title: "Cây thiên điểu lớn",
+            image: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b",
+            path: "/shop?size=large"
+          },
+          {
+            title: "Cây môn kiểng lớn",
+            image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
+            path: "/shop?size=large"
+          }
+        ].map((item, idx) => (
+          <Link 
+            key={idx} 
+            to={item.path}
+            className="group flex flex-col cursor-pointer"
+          >
+            {/* Aspect 3:4 Image container */}
+            <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-beige border border-brand-sand shadow-xs">
+              {/* Badge đỏ đặc biệt */}
+              <div className="absolute top-0 left-0 z-10 bg-[#e74c3c] text-white text-[9px] font-bold px-2.5 py-1.5 flex items-center gap-1 uppercase tracking-wider">
+                <Star size={10} fill="white" className="text-white" />
+                Ưu đãi đặc biệt nhân dịp kỷ niệm!
+              </div>
+              <img
+                src={optimizeUnsplashImage(item.image, 600)}
+                alt={item.title}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+              />
+            </div>
+          </Link>
+        ))}
+
+      </div>
+    </section>
   </div>
 
     {/* 2. Shop by Category - Circular design like actual thesill.com */}
