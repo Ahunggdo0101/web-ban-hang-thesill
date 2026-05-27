@@ -599,22 +599,38 @@ export default function Home() {
         
         {[
           {
-            title: "Cây ô liu lớn",
+            title: "Cây ô liu",
+            desc: "Loại cây lý tưởng cho không gian nội thất cao cấp.",
+            rating: 5,
+            reviewsCount: "158 reviews",
+            price: "Từ 59 đô la",
             image: "https://images.unsplash.com/photo-1599599810769-bcde5a160d32",
             path: "/shop?size=large"
           },
           {
-            title: "Cây bàng Singapore lớn",
+            title: "Cây sung lá đàn",
+            desc: "Người yêu thích thiết kế",
+            rating: 5,
+            reviewsCount: "26 reviews",
+            price: "Từ 69 đô la",
             image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae",
             path: "/shop?size=large"
           },
           {
-            title: "Cây thiên điểu lớn",
+            title: "Chim Thiên Đường",
+            desc: "Thiên đường đã được ban tặng",
+            rating: 5,
+            reviewsCount: "29 reviews",
+            price: "Từ 69 đô la",
             image: "https://images.unsplash.com/photo-1614594975525-e45190c55d0b",
             path: "/shop?size=large"
           },
           {
-            title: "Cây môn kiểng lớn",
+            title: "Alocasia Portora",
+            desc: "To lớn, xù xì và phát triển nhanh.",
+            rating: 0,
+            price: "Từ 169 đô la",
+            oldPrice: "199 đô la",
             image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
             path: "/shop?size=large"
           }
@@ -622,7 +638,7 @@ export default function Home() {
           <Link 
             key={idx} 
             to={item.path}
-            className="group flex flex-col cursor-pointer"
+            className="group flex flex-col space-y-4 cursor-pointer"
           >
             {/* Aspect 3:4 Image container */}
             <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-beige border border-brand-sand shadow-xs">
@@ -636,6 +652,40 @@ export default function Home() {
                 alt={item.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
               />
+            </div>
+            
+            <div className="space-y-1 text-left">
+              <h3 className="font-serif text-base sm:text-lg font-medium text-brand-forest hover:text-brand-green transition-colors">
+                {item.title}
+              </h3>
+              <p className="text-xs sm:text-sm text-brand-slate italic leading-relaxed">
+                {item.desc}
+              </p>
+              
+              {/* Rating */}
+              {item.rating > 0 ? (
+                <div className="flex items-center gap-1.5 pt-0.5">
+                  <div className="flex text-brand-forest">
+                    {[...Array(item.rating)].map((_, i) => (
+                      <Star key={i} size={11} fill="currentColor" className="text-brand-forest" />
+                    ))}
+                  </div>
+                  <span className="text-[10px] sm:text-xs text-brand-slate font-semibold">
+                    {item.reviewsCount}
+                  </span>
+                </div>
+              ) : (
+                // Dùng div rỗng chiều cao tương đương để đồng đều chiều cao cột trên grid
+                <div className="h-[18px]" />
+              )}
+              
+              {/* Price */}
+              <p className="text-xs sm:text-sm font-bold text-brand-charcoal pt-0.5 flex items-center gap-2">
+                <span className="text-brand-forest">{item.price}</span>
+                {item.oldPrice && (
+                  <span className="text-brand-slate/60 line-through font-normal text-xs">{item.oldPrice}</span>
+                )}
+              </p>
             </div>
           </Link>
         ))}
