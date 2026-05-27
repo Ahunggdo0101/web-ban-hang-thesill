@@ -258,10 +258,7 @@ export default function Home() {
         {/* 1.8. Popular Plants Section - Các loại cây trồng được ưa chuộng nhất hiện nay */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 pt-10 md:pt-12">
           <div className="text-left space-y-1">
-            <h2 
-              className="text-[26px] sm:text-[32px] md:text-[40px] text-[#2A2D24] font-normal leading-tight tracking-tight"
-              style={{ fontFamily: '"Domaine Display", Lora, Georgia, serif' }}
-            >
+            <h2 className="font-serif text-[26px] sm:text-[32px] md:text-[40px] text-[#2A2D24] font-normal leading-tight tracking-tight">
               Các loại cây trồng được ưa chuộng nhất hiện nay
             </h2>
           </div>

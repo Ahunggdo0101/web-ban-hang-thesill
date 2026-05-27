@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap');
 
 @import "tailwindcss";
 
@@ -43,7 +43,7 @@
   --color-brand-charcoal: var(--brand-charcoal);
   --color-brand-slate: var(--brand-slate);
   
-  --font-serif: "Lora", Georgia, serif;
+  --font-serif: "Domaine Display", "Playfair Display", Georgia, serif;
   --font-sans: "Montserrat", system-ui, sans-serif;
   
   --animate-fade-in: fade-in 0.4s cubic-bezier(0.25, 1, 0.5, 1) both;
