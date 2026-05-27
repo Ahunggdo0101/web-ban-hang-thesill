@@ -3,9 +3,9 @@
 @import "tailwindcss";
 
 :root {
-  --brand-forest: #0D231A;
-  --brand-green: #1F3E35;
-  --brand-sage: #5F746C;
+  --brand-forest: #007b5f;
+  --brand-green: #009673;
+  --brand-sage: #4d9b89;
   --brand-moss: #E8EBE9;
   --brand-cream: #FAF8F5;
   --brand-white: #FFFFFF;
