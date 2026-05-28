@@ -78,5 +78,18 @@ async function bootstrap() {
   await app.listen(port);
   logger.log(`Application is running on: http://localhost:${port}/api`);
   logger.log(`API Swagger documentation is available at: http://localhost:${port}/api/docs`);
+
+  // Tự động chạy di trú Database (Prisma Migrations) ở background để không block cổng Render
+  logger.log('Starting automated database migrations in background...');
+  const { exec } = require('child_process');
+  exec('npx prisma migrate deploy', (error: any, stdout: string, stderr: string) => {
+    if (error) {
+      logger.error(`Automated database migration failed: ${error.message}`);
+      if (stderr) logger.error(`Migration stderr: ${stderr}`);
+      return;
+    }
+    logger.log('Automated database migration completed successfully!');
+    if (stdout) logger.log(`Migration output:\n${stdout}`);
+  });
 }
 bootstrap();
