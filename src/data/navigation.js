@@ -11,36 +11,34 @@ function deepFreeze(object) {
 
 export const NAVIGATION_DATA = deepFreeze([
   {
-    title: 'GIẢM GIÁ CỬA HÀNG',
+    title: 'GIẢM GIÁ',
     color: 'text-red-600 hover:text-red-800',
     hasMenu: false,
     view: 'collections/sale'
   },
   {
-    title: 'Hàng Mới Về',
+    title: 'Hàng Mới',
     color: 'text-[#666] hover:text-brand-forest',
     hasMenu: true,
     view: 'shop',
     menuData: {
       links: [
-        { name: 'Hàng Mới Về', href: '/shop?sort=newest' },
-        { name: 'Bán Chạy Nhất', href: '/shop?sort=rating' },
-        { name: 'Cây Cảnh Trong Nhà', href: '/shop' },
-        { name: 'Cây Để Bàn', href: '/shop?size=small' },
-        { name: 'Cây Dễ Chăm Sóc', href: '/shop?difficulty=easy' },
-        { name: 'Cây Thân Thiện Thú Cưng', href: '/shop?pet=true' },
-        { name: 'Quà Tặng Cây Xanh', href: '/shop' }
+        { name: 'Lựa chọn hàng đầu', href: '/shop?sort=rating' },
+        { name: 'Cây trong nhà mới', href: '/shop' },
+        { name: 'Cây ngoài trời mới', href: '/shop' },
+        { name: 'Cây cổ thụ mới', href: '/collections/large-plants' },
+        { name: 'Hội thảo sắp tới', href: '/quiz' }
       ],
       cards: [
         {
-          title: 'Cây Nở Hoa Mùa Này',
+          title: 'Cây Đang Nở Hoa',
           image: 'https://images.unsplash.com/photo-1566393028639-d108a42c46a7?auto=format&fit=crop&q=80&w=600',
           href: '/shop?light=bright'
         },
         {
           title: 'Bộ Sưu Tập Cây Cổ Thụ',
           image: 'https://images.unsplash.com/photo-1596547609652-9cf5d8d76921?auto=format&fit=crop&q=80&w=600',
-          href: '/shop?size=large'
+          href: '/collections/large-plants'
         },
         {
           title: 'Quà Tặng Ngày Của Cha',
@@ -54,44 +52,94 @@ export const NAVIGATION_DATA = deepFreeze([
     title: 'Cây Cỡ Lớn',
     color: 'text-[#666] hover:text-brand-forest',
     hasMenu: true,
-    view: 'shop',
+    view: 'collections/large-plants',
     menuData: {
       links: [
-        { name: 'Cây Cỡ Lớn Bán Chạy', href: '/shop?size=large&sort=rating' },
-        { name: 'Cây Trồng Góc Nhà', href: '/shop?size=large&light=medium' },
-        { name: 'Cây Cảnh Văn Phòng', href: '/shop?size=large&difficulty=easy' },
-        { name: 'Cây Thanh Lọc Không Khí', href: '/shop?size=large' }
+        { name: 'Cây Lớn Bán Chạy', href: '/collections/large-plants?sort=rating' },
+        { name: 'Cây Trồng Góc Nhà', href: '/collections/large-plants?light=medium' },
+        { name: 'Cây Cảnh Văn Phòng', href: '/collections/large-plants?difficulty=easy' },
+        { name: 'Cây Thanh Lọc Không Khí', href: '/collections/large-plants' }
       ],
       cards: [
         {
           title: 'Bàng Singapore Đại',
           image: 'https://images.unsplash.com/photo-1597055181300-e3633a207518?auto=format&fit=crop&q=80&w=600',
-          href: '/shop?size=large'
+          href: '/collections/large-plants'
         },
         {
           title: 'Trầu Bà Cột Xanh Mướt',
           image: 'https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&q=80&w=600',
-          href: '/shop?size=large&difficulty=easy'
+          href: '/collections/large-plants?difficulty=easy'
         },
         {
           title: 'Cây Hạnh Phúc Cỡ Lớn',
           image: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&q=80&w=600',
-          href: '/shop?size=large&light=medium'
+          href: '/collections/large-plants?light=medium'
         }
       ]
     }
   },
   {
-    title: 'Cây Trong Nhà',
+    title: 'Trong Nhà',
     color: 'text-[#666] hover:text-brand-forest',
-    hasMenu: false,
-    view: 'shop'
+    hasMenu: true,
+    view: 'collections/indoor-plants',
+    menuData: {
+      links: [
+        { name: 'Cây Trong Nhà Bán Chạy', href: '/collections/indoor-plants?sort=rating' },
+        { name: 'Cây Để Bàn Tiện Lợi', href: '/collections/indoor-plants?light=medium' },
+        { name: 'Cây Dễ Chăm Sóc', href: '/collections/indoor-plants?difficulty=easy' },
+        { name: 'Cây Thanh Lọc Không Khí', href: '/collections/indoor-plants' }
+      ],
+      cards: [
+        {
+          title: 'Cây Lưỡi Hổ Bền Bỉ',
+          image: 'https://images.unsplash.com/photo-1596547609652-9cf5d8d76921?auto=format&fit=crop&q=80&w=600',
+          href: '/collections/indoor-plants?difficulty=easy'
+        },
+        {
+          title: 'Cây Kim Tiền May Mắn',
+          image: 'https://images.unsplash.com/photo-1632203171982-cc0df6e9ceb4?auto=format&fit=crop&q=80&w=600',
+          href: '/collections/indoor-plants'
+        },
+        {
+          title: 'Trầu Bà Lá Xẻ Nam Mỹ',
+          image: 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&q=80&w=600',
+          href: '/collections/indoor-plants?light=medium'
+        }
+      ]
+    }
   },
   {
-    title: 'Cây Ngoài Trời',
+    title: 'Ngoài Trời',
     color: 'text-[#666] hover:text-brand-forest',
-    hasMenu: false,
-    view: 'shop'
+    hasMenu: true,
+    view: 'collections/outdoor-plants',
+    menuData: {
+      links: [
+        { name: 'Cây Ngoài Trời Bán Chạy', href: '/collections/outdoor-plants?sort=rating' },
+        { name: 'Cây Chịu Nắng Ban Công', href: '/collections/outdoor-plants?light=bright' },
+        { name: 'Cây Ăn Quả Mini', href: '/collections/outdoor-plants' },
+        { name: 'Hoa Leo Giàn Rực Rỡ', href: '/collections/outdoor-plants' }
+      ],
+      cards: [
+        {
+          title: 'Cây Ô Liu Địa Trung Hải',
+          image: 'https://images.unsplash.com/photo-1545167622-3a6ac756afa4?auto=format&fit=crop&q=80&w=600',
+          href: '/collections/outdoor-plants'
+        },
+        {
+          title: 'Cây Chanh Meyer Độc Đáo',
+          image: 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?auto=format&fit=crop&q=80&w=600',
+          href: '/collections/outdoor-plants'
+        },
+        {
+          title: 'Hoa Giấy Leo Giàn Rực Rỡ',
+          image: 'https://images.unsplash.com/photo-1525310072745-f49212b5ac6d?auto=format&fit=crop&q=80&w=600',
+          href: '/collections/outdoor-plants'
+        }
+      ]
+    }
   },
   {
     title: 'Hoa Lan',

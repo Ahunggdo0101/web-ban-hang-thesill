@@ -7,6 +7,8 @@ import { API_BASE_URL } from '../../config';
 import { potStyles, potColors } from '../../data/products';
 import { Toast, ConfirmModal } from './shared';
 import { optimizeUnsplashImage } from '../../utils/image';
+import MediaPickerModal from './MediaPickerModal';
+import { formatVND } from '../../utils/translation';
 
 const API = API_BASE_URL;
 
@@ -30,6 +32,19 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
   const [toast, setToast] = useState(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isDeletingImage, setIsDeletingImage] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API}/categories`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setCategories(data);
+        }
+      })
+      .catch(err => console.error('Lỗi tải categories:', err));
+  }, []);
 
   function initialForm() {
     return { id: '', name: '', botanicalName: '', price: '', description: '', category: 'plants', image: '', images: '', light: 'medium', petFriendly: false, difficulty: 'easy', size: 'medium', careDetails: { light: '', water: '', toxicity: '' } };
@@ -63,7 +78,16 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
 
   useEffect(() => { loadProducts(); }, [loadProducts]);
 
-  const handleOpenCreate = () => { setFormData(initialForm()); setFormError(''); setModalType('create'); setIsModalOpen(true); };
+  const handleOpenCreate = () => {
+    const defaultCat = categories.length > 0 ? categories[0].id : 'plants';
+    setFormData({
+      ...initialForm(),
+      category: defaultCat
+    });
+    setFormError('');
+    setModalType('create');
+    setIsModalOpen(true);
+  };
 
   const handleOpenEdit = (p) => {
     setFormError('');
@@ -167,16 +191,57 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
     }
   };
 
+  const generateSlug = (name) => {
+    let slug = name.toLowerCase().trim();
+    // Thay thế các ký tự tiếng Việt
+    slug = slug.replace(/[áàảãạăắằẳẵặâấầẩẫậ]/g, 'a');
+    slug = slug.replace(/[éèẻẽẹêếềểễệ]/g, 'e');
+    slug = slug.replace(/[íìỉĩị]/g, 'i');
+    slug = slug.replace(/[óòỏõọôốồổỗộơớờởỡợ]/g, 'o');
+    slug = slug.replace(/[úùủũụưứừửữự]/g, 'u');
+    slug = slug.replace(/[ýỳỷỹỵ]/g, 'y');
+    slug = slug.replace(/đ/g, 'd');
+    // Thay thế ký tự đặc biệt, khoảng trắng thành dấu gạch ngang
+    slug = slug.replace(/[^a-z0-9 -]/g, '')
+               .replace(/\s+/g, '-')
+               .replace(/-+/g, '-');
+    const randomSuffix = Math.random().toString(36).substring(2, 6);
+    return `${slug}-${randomSuffix}`;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
-    if (!formData.id.trim()) return setFormError('ID (slug) không được để trống.');
     if (!formData.name.trim()) return setFormError('Tên sản phẩm không được để trống.');
     if (isNaN(Number(formData.price)) || Number(formData.price) < 0) return setFormError('Giá bán phải là số hợp lệ.');
     if (!formData.image || !formData.image.trim()) return setFormError('Vui lòng tải lên ảnh sản phẩm chính.');
     setIsSubmitting(true);
-    const imagesArray = formData.images ? formData.images.split(',').map(u => u.trim()).filter(Boolean) : [formData.image];
-    const payload = { id: formData.id.trim(), name: formData.name.trim(), botanicalName: formData.botanicalName.trim(), price: Number(formData.price), description: formData.description.trim(), category: formData.category, image: formData.image.trim(), images: imagesArray, light: formData.light, petFriendly: formData.petFriendly, difficulty: formData.difficulty, size: formData.size, careDetails: { light: formData.careDetails.light.trim(), water: formData.careDetails.water.trim(), toxicity: formData.careDetails.toxicity.trim() } };
+
+    let finalId = formData.id;
+    if (modalType === 'create') {
+      finalId = generateSlug(formData.name);
+    }
+
+    const imagesArray = [formData.image.trim()];
+    const payload = { 
+      id: finalId, 
+      name: formData.name.trim(), 
+      botanicalName: formData.botanicalName.trim(), 
+      price: Number(formData.price), 
+      description: formData.description.trim(), 
+      category: formData.category, 
+      image: formData.image.trim(), 
+      images: imagesArray, 
+      light: formData.light, 
+      petFriendly: formData.petFriendly, 
+      difficulty: formData.difficulty, 
+      size: formData.size, 
+      careDetails: { 
+        light: formData.careDetails.light.trim(), 
+        water: formData.careDetails.water.trim(), 
+        toxicity: formData.careDetails.toxicity.trim() 
+      } 
+    };
     if (modalType !== 'create') {
       delete payload.id;
     }
@@ -256,6 +321,14 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
         confirmLabel="Xóa ngay"
       />
 
+      {/* Media Picker Modal */}
+      <MediaPickerModal
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={(url) => setFormData(prev => ({ ...prev, image: url }))}
+        fetchWithAuth={fetchWithAuth}
+      />
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h2 className="font-serif text-2xl text-brand-forest font-light">Quản lý sản phẩm <span className="text-sm text-[#888] font-sans font-normal">({totalItems})</span></h2>
@@ -274,7 +347,7 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
         <div className="flex items-center gap-2">
           <Filter size={13} className="text-brand-slate" />
           <div className="flex border border-brand-sand overflow-hidden">
-            {[{ v: 'all', l: 'Tất cả' }, { v: 'plants', l: 'Cây' }, { v: 'pots', l: 'Chậu' }, { v: 'care', l: 'Chăm sóc' }].map(({ v, l }) => (
+            {[{ v: 'all', l: 'Tất cả' }, ...categories.map(c => ({ v: c.id, l: c.name }))].map(({ v, l }) => (
               <button key={v} onClick={() => { setCategoryFilter(v); setPage(1); }} className={`px-3 py-1.5 text-xs font-semibold cursor-pointer transition-colors ${categoryFilter === v ? 'bg-brand-forest text-brand-cream' : 'text-brand-charcoal hover:bg-brand-sand/30'}`}>{l}</button>
             ))}
           </div>
@@ -314,9 +387,11 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
                     <div className="text-[9px] font-mono text-[#999] mt-0.5">{p.id}</div>
                   </td>
                   <td className="py-3 px-4">
-                    <span className="bg-brand-forest/5 border border-brand-forest/15 text-brand-forest text-[9px] px-2 py-0.5 uppercase tracking-wider font-bold">{p.category}</span>
+                    <span className="bg-brand-forest/5 border border-brand-forest/15 text-brand-forest text-[9px] px-2 py-0.5 uppercase tracking-wider font-bold">
+                      {categories.find(c => c.id === p.category)?.name || p.category}
+                    </span>
                   </td>
-                  <td className="py-3 px-4 font-bold text-brand-forest">${p.price}</td>
+                  <td className="py-3 px-4 font-bold text-brand-forest">{formatVND(p.price)}</td>
                   <td className="py-3 px-4 space-y-0.5">
                     <div className="text-[10px]"><span className="text-[#999]">Nắng: </span><span className="font-semibold capitalize">{p.light}</span></div>
                     <div className="text-[10px]"><span className="text-[#999]">Chăm: </span><span className="font-semibold capitalize">{p.difficulty}</span></div>
@@ -371,14 +446,7 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage">ID (slug) *</label>
-                  <div className="flex gap-1">
-                    <input type="text" name="id" required disabled={modalType === 'edit' || isSubmitting} value={formData.id} onChange={handleInput} placeholder="monstera-deliciosa" className="flex-1 bg-white border border-brand-sand/80 px-3 py-2 text-xs focus:outline-none focus:border-brand-forest font-mono disabled:bg-gray-100 disabled:text-[#888]" />
-                    {modalType === 'create' && <button type="button" onClick={handleGenerateSlug} className="text-[9px] bg-brand-cream border border-brand-sand px-2 uppercase tracking-widest font-bold text-brand-forest hover:bg-brand-sand/30 cursor-pointer whitespace-nowrap">Auto</button>}
-                  </div>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage">Tên sản phẩm *</label>
                   <input type="text" name="name" required disabled={isSubmitting} value={formData.name} onChange={handleInput} placeholder="Monstera Deliciosa" className="w-full bg-white border border-brand-sand/80 px-3 py-2 text-xs focus:outline-none focus:border-brand-forest" />
@@ -390,19 +458,20 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage">Giá ($) *</label>
+                <div className="space-y-1.5 col-span-1">
+                  <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage" title="Nhập số thô. Ví dụ: 39 nghĩa là 39.000 đ">Giá (x1.000 đ) *</label>
                   <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-[#999] text-xs">$</span>
-                    <input type="number" name="price" required min="0" step="any" disabled={isSubmitting} value={formData.price} onChange={handleInput} placeholder="45" className="w-full bg-white border border-brand-sand/80 pl-7 pr-3 py-2 text-xs focus:outline-none focus:border-brand-forest font-bold" />
+                    <span className="absolute left-3 top-2.5 text-[#999] text-[10px] font-bold">đ</span>
+                    <input type="number" name="price" required min="0" step="any" disabled={isSubmitting} value={formData.price} onChange={handleInput} placeholder="45" title="Nhập số thô. Ví dụ: 39 nghĩa là 39.000 đ" className="w-full bg-white border border-brand-sand/80 pl-7 pr-3 py-2 text-xs focus:outline-none focus:border-brand-forest font-bold" />
                   </div>
+                  <span className="text-[8px] text-brand-slate block mt-0.5">(39 = 39.000 đ)</span>
                 </div>
                 <div className="space-y-1.5">
                   <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage">Danh mục *</label>
                   <select name="category" disabled={isSubmitting} value={formData.category} onChange={handleInput} className="w-full bg-white border border-brand-sand/80 px-3 py-2 text-xs focus:outline-none focus:border-brand-forest cursor-pointer">
-                    <option value="plants">Cây cảnh</option>
-                    <option value="pots">Chậu</option>
-                    <option value="care">Chăm sóc</option>
+                    {categories.map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
                   </select>
                 </div>
                 <div className="space-y-1.5">
@@ -423,7 +492,7 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-1.5">
                   <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage">Hình ảnh sản phẩm (chính) *</label>
                   
@@ -465,26 +534,23 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
                         </button>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center py-2">
+                      <div className="flex flex-col items-center gap-2 py-2">
                         <label
                           htmlFor="product-image-upload"
                           className="inline-flex items-center bg-brand-forest hover:bg-brand-green text-brand-cream px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider cursor-pointer transition-colors shadow-sm disabled:opacity-50"
                         >
                           Chọn ảnh từ máy tính
                         </label>
-                        <span className="text-[8px] text-[#888] mt-1 block">Chấp nhận JPEG, PNG, WEBP tối đa 5MB</span>
+                        <button
+                          type="button"
+                          onClick={() => setPickerOpen(true)}
+                          className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-brand-forest border border-brand-sand hover:bg-brand-cream/60 px-3 py-1.5 cursor-pointer transition-colors"
+                        >
+                          🖼️ Chọn từ thư viện ảnh
+                        </button>
+                        <span className="text-[8px] text-[#888]">Chấp nhận JPEG, PNG, WEBP tối đa 5MB</span>
                       </div>
                     )}
-                  </div>
-                </div>
-
-                <div className="space-y-1.5 flex flex-col justify-between">
-                  <div>
-                    <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage">URL ảnh thư viện (phân cách bằng dấu phẩy)</label>
-                    <input type="text" name="images" disabled={isSubmitting || isUploadingImage} value={formData.images} onChange={handleInput} placeholder="url1, url2, url3" className="w-full bg-white border border-brand-sand/80 px-3 py-2 text-xs focus:outline-none focus:border-brand-forest font-mono" />
-                  </div>
-                  <div className="text-[9px] text-[#999] italic mt-1.5 hidden md:block">
-                    * Ảnh chính được dùng hiển thị ngoài trang danh sách sản phẩm.
                   </div>
                 </div>
               </div>

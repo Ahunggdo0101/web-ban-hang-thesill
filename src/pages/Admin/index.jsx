@@ -6,6 +6,14 @@ import DashboardTab from './DashboardTab';
 import ProductsTab from './ProductsTab';
 import OrdersTab from './OrdersTab';
 import UsersTab from './UsersTab';
+import HomepageTab from './HomepageTab';
+import MediaTab from './MediaTab';
+import LargePlantsTab from './LargePlantsTab';
+import MenuTab from './MenuTab';
+import IndoorPlantsTab from './IndoorPlantsTab';
+import OutdoorPlantsTab from './OutdoorPlantsTab';
+import CategoriesTab from './CategoriesTab';
+
 
 export default function Admin({ refreshProducts }) {
   const { fetchWithAuth, logout, user } = useAuth();
@@ -39,12 +47,14 @@ export default function Admin({ refreshProducts }) {
             </button>
             <div>
               <p className="text-[10px] uppercase tracking-widest text-brand-slate font-bold">Admin Dashboard</p>
-              <h1 className="font-serif text-lg text-brand-forest font-light capitalize">{activeTab === 'dashboard' ? 'Tổng quan' : activeTab === 'products' ? 'Sản phẩm' : activeTab === 'orders' ? 'Đơn hàng' : 'Người dùng'}</h1>
+               <h1 className="font-serif text-lg text-brand-forest font-light capitalize">
+                {activeTab === 'dashboard' ? 'Tổng quan' : activeTab === 'products' ? 'Sản phẩm' : activeTab === 'categories' ? 'Danh mục' : activeTab === 'indoorplants' ? 'Cây Trong Nhà (Slots)' : activeTab === 'largeplants' ? 'Cây Cỡ Lớn (Slots)' : activeTab === 'outdoorplants' ? 'Cây Ngoài Trời (Slots)' : activeTab === 'orders' ? 'Đơn hàng' : activeTab === 'users' ? 'Người dùng' : activeTab === 'media' ? 'Thư viện ảnh' : activeTab === 'menu' ? 'Cấu hình Menu' : 'Trang chủ'}
+              </h1>
             </div>
           </div>
           {user && (
             <div className="flex items-center gap-2">
-              {user.avatar && <img src={user.avatar} alt={user.name} className="w-7 h-7 rounded-full object-cover border border-brand-sand" />}
+               {user.avatar && <img src={user.avatar} alt={user.name} className="w-7 h-7 rounded-full object-cover border border-brand-sand" />}
               <div className="hidden sm:block text-right">
                 <p className="text-xs font-bold text-brand-forest">{user.name}</p>
                 <p className="text-[9px] uppercase text-brand-clay font-bold tracking-widest">{user.role}</p>
@@ -56,9 +66,16 @@ export default function Admin({ refreshProducts }) {
         {/* Tab Content */}
         <main className="flex-1 p-6 overflow-auto">
           {activeTab === 'dashboard' && <DashboardTab fetchWithAuth={fetchWithAuth} />}
-          {activeTab === 'products' && <ProductsTab fetchWithAuth={fetchWithAuth} refreshProducts={refreshProducts} />}
-          {activeTab === 'orders' && <OrdersTab fetchWithAuth={fetchWithAuth} />}
-          {activeTab === 'users' && <UsersTab fetchWithAuth={fetchWithAuth} />}
+          {activeTab === 'homepage'   && <HomepageTab fetchWithAuth={fetchWithAuth} />}
+          {activeTab === 'menu'       && <MenuTab fetchWithAuth={fetchWithAuth} />}
+          {activeTab === 'media'      && <MediaTab fetchWithAuth={fetchWithAuth} />}
+          {activeTab === 'products'   && <ProductsTab fetchWithAuth={fetchWithAuth} refreshProducts={refreshProducts} />}
+          {activeTab === 'categories' && <CategoriesTab fetchWithAuth={fetchWithAuth} />}
+          {activeTab === 'indoorplants'&& <IndoorPlantsTab fetchWithAuth={fetchWithAuth} />}
+          {activeTab === 'largeplants'&& <LargePlantsTab fetchWithAuth={fetchWithAuth} />}
+          {activeTab === 'outdoorplants'&& <OutdoorPlantsTab fetchWithAuth={fetchWithAuth} />}
+          {activeTab === 'orders'     && <OrdersTab fetchWithAuth={fetchWithAuth} />}
+          {activeTab === 'users'      && <UsersTab fetchWithAuth={fetchWithAuth} />}
         </main>
       </div>
     </div>

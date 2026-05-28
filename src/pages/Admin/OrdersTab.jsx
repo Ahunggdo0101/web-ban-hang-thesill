@@ -5,6 +5,7 @@ import {
 import { API_BASE_URL } from '../../config';
 import { Toast, ConfirmModal, StatusBadge } from './shared';
 import { optimizeUnsplashImage } from '../../utils/image';
+import { formatVND } from '../../utils/translation';
 
 const API = API_BASE_URL;
 
@@ -65,6 +66,19 @@ export default function OrdersTab({ fetchWithAuth }) {
     finally { setUpdatingId(null); }
   };
 
+  const handlePaymentStatusUpdate = async (orderId, newStatus) => {
+    try {
+      const res = await fetchWithAuth(`${API}/orders/admin/${orderId}/payment-status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentStatus: newStatus }),
+      });
+      if (!res.ok) throw new Error('Cập nhật thất bại');
+      showToast(`Đã cập nhật trạng thái thanh toán đơn hàng!`);
+      loadOrders();
+    } catch (err) { showToast(err.message, 'error'); }
+  };
+
   const handleDelete = async () => {
     if (!deleteId) return;
     setIsDeleting(true);
@@ -121,6 +135,7 @@ export default function OrdersTab({ fetchWithAuth }) {
                 <th className="py-3 px-4">Mã đơn</th>
                 <th className="py-3 px-4">Khách hàng</th>
                 <th className="py-3 px-4">Tổng tiền</th>
+                <th className="py-3 px-4">Thanh toán</th>
                 <th className="py-3 px-4">Trạng thái</th>
                 <th className="py-3 px-4">Ngày đặt</th>
                 <th className="py-3 px-4 text-right">Thao tác</th>
@@ -128,9 +143,9 @@ export default function OrdersTab({ fetchWithAuth }) {
             </thead>
             <tbody className="divide-y divide-brand-sand text-xs text-brand-charcoal">
               {loading ? (
-                <tr><td colSpan={6} className="py-12 text-center"><Loader2 className="animate-spin mx-auto text-brand-forest" size={24} /></td></tr>
+                <tr><td colSpan={7} className="py-12 text-center"><Loader2 className="animate-spin mx-auto text-brand-forest" size={24} /></td></tr>
               ) : orders.length === 0 ? (
-                <tr><td colSpan={6} className="py-12 text-center text-[#888] font-serif">Không tìm thấy đơn hàng nào.</td></tr>
+                <tr><td colSpan={7} className="py-12 text-center text-[#888] font-serif">Không tìm thấy đơn hàng nào.</td></tr>
               ) : orders.map(order => (
                 <>
                   <tr key={order.id} className="hover:bg-brand-cream/30 transition-colors">
@@ -139,12 +154,48 @@ export default function OrdersTab({ fetchWithAuth }) {
                         <ChevronDown size={10} className={`transition-transform ${expandedId === order.id ? 'rotate-180' : ''}`} />
                         {order.id.substring(0, 12)}...
                       </button>
+                      {order.vatRequested && (
+                        <div className="mt-1">
+                          <span className="inline-block bg-red-50 text-red-600 border border-red-200 text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded-xs tracking-wider animate-pulse font-sans">
+                            Yêu cầu VAT
+                          </span>
+                        </div>
+                      )}
                     </td>
                     <td className="py-3 px-4">
                       <div className="font-semibold text-brand-charcoal">{order.customerName}</div>
                       <div className="text-[10px] text-[#888]">{order.customerEmail}</div>
                     </td>
-                    <td className="py-3 px-4 font-bold text-brand-forest">${order.totalAmount?.toFixed(2)}</td>
+                    <td className="py-3 px-4 font-bold text-brand-forest">{formatVND(order.totalAmount)}</td>
+                    <td className="py-3 px-4">
+                      <div className="space-y-1 text-left">
+                        <div>
+                          <span className={`text-[8px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded-sm ${
+                            order.paymentMethod === 'VIETQR' 
+                              ? 'bg-[#003B75]/10 text-[#003B75] border border-[#003B75]/20 font-sans' 
+                              : 'bg-[#1F3E35]/10 text-brand-forest border border-[#1F3E35]/20'
+                          }`}>
+                            {order.paymentMethod === 'VIETQR' ? 'VietQR' : 'COD'}
+                          </span>
+                        </div>
+                        <div>
+                          <select
+                            value={order.paymentStatus || 'unpaid'}
+                            onChange={e => handlePaymentStatusUpdate(order.id, e.target.value)}
+                            className={`text-[9px] border px-1.5 py-0.5 focus:outline-none cursor-pointer font-bold uppercase tracking-wider ${
+                              order.paymentStatus === 'paid' ? 'bg-green-50 text-green-700 border-green-200 font-extrabold shadow-xs' :
+                              order.paymentStatus === 'pending_verification' ? 'bg-blue-50 text-blue-700 border-blue-200 animate-pulse font-bold' :
+                              order.paymentStatus === 'failed' ? 'bg-red-50 text-red-700 border-red-200 font-bold' : 'bg-gray-50 text-gray-600 border-brand-sand/50'
+                            }`}
+                          >
+                            <option value="unpaid">Chưa thu tiền</option>
+                            <option value="pending_verification">Đang đối soát</option>
+                            <option value="paid">Đã nhận tiền</option>
+                            <option value="failed">Lỗi thanh toán</option>
+                          </select>
+                        </div>
+                      </div>
+                    </td>
                     <td className="py-3 px-4">
                       {updatingId === order.id ? (
                         <Loader2 size={14} className="animate-spin text-brand-slate" />
@@ -164,15 +215,70 @@ export default function OrdersTab({ fetchWithAuth }) {
                   </tr>
                   {expandedId === order.id && (
                     <tr key={`${order.id}-expanded`} className="bg-brand-cream/20">
-                      <td colSpan={6} className="px-6 py-4">
+                      <td colSpan={7} className="px-6 py-4">
                         <div className="space-y-2">
                           <p className="text-[10px] uppercase tracking-widest font-bold text-brand-sage">Chi tiết đơn hàng</p>
-                          {/* Thông tin giao hàng COD */}
-                          <div className="bg-white border border-brand-sand p-3 space-y-1 text-brand-charcoal">
-                            <p className="text-[10px] uppercase tracking-widest font-bold text-brand-clay mb-1">Thông Tin Giao Hàng</p>
+                          {/* Thông tin giao hàng & phương thức thanh toán */}
+                          <div className="bg-white border border-brand-sand p-3 space-y-1.5 text-brand-charcoal">
+                            <p className="text-[10px] uppercase tracking-widest font-bold text-brand-clay mb-1">Thông Tin Giao Hàng & Thanh Toán</p>
+                            <div className="flex items-center flex-wrap gap-2 text-xs">
+                              <span>Mã đơn hàng đầy đủ:</span>
+                              <span className="font-mono font-bold text-brand-charcoal select-all">{order.id}</span>
+                              <button 
+                                type="button" 
+                                onClick={() => {
+                                  navigator.clipboard.writeText(order.id);
+                                  showToast('Đã sao chép mã đơn hàng đầy đủ!', 'success');
+                                }}
+                                className="text-[8px] bg-brand-sand/30 hover:bg-brand-sand text-brand-forest px-1.5 py-0.5 font-bold uppercase tracking-widest active:scale-95 transition-all cursor-pointer"
+                              >
+                                Sao chép
+                              </button>
+                            </div>
+                            <div className="flex items-center flex-wrap gap-2 text-xs">
+                              <span>Mã chuyển khoản (đối soát):</span>
+                              <span className="font-mono font-bold text-brand-clay select-all">TS-{order.id.substring(0, 8).toUpperCase()}</span>
+                              <button 
+                                type="button" 
+                                onClick={() => {
+                                  navigator.clipboard.writeText(`TS-${order.id.substring(0, 8).toUpperCase()}`);
+                                  showToast('Đã sao chép mã chuyển khoản đối soát!', 'success');
+                                }}
+                                className="text-[8px] bg-brand-sand/30 hover:bg-brand-sand text-brand-forest px-1.5 py-0.5 font-bold uppercase tracking-widest active:scale-95 transition-all cursor-pointer"
+                              >
+                                Sao chép
+                              </button>
+                            </div>
                             <p>Số điện thoại: <span className="font-bold text-brand-forest">{order.phone || 'N/A'}</span></p>
                             <p>Địa chỉ nhận: <span className="font-semibold">{order.address || 'N/A'}, {order.district || 'N/A'}, {order.city || 'N/A'}</span></p>
+                            <p>Phương thức thanh toán: <span className="font-bold text-brand-forest uppercase tracking-wider">{order.paymentMethod === 'VIETQR' ? 'Chuyển khoản VietQR' : 'Thanh toán khi nhận hàng (COD)'}</span></p>
                           </div>
+
+                          {order.vatRequested && (
+                            <div className="bg-red-50/50 border border-red-200 p-4 space-y-2 text-brand-charcoal text-xs">
+                              <p className="text-[10px] uppercase tracking-widest font-bold text-red-700 mb-1 flex items-center gap-1.5">
+                                📋 YÊU CẦU XUẤT HÓA ĐƠN VAT (GTGT)
+                              </p>
+                              <p>Tên công ty/đơn vị: <span className="font-bold text-brand-forest uppercase select-all">{order.vatCompanyName || 'N/A'}</span></p>
+                              <p>Mã số thuế (MST): <span className="font-mono font-bold text-brand-clay text-sm select-all">{order.vatTaxCode || 'N/A'}</span></p>
+                              <p>Địa chỉ đăng ký thuế: <span className="font-semibold select-all">{order.vatCompanyAddr || 'N/A'}</span></p>
+                              <p>Email nhận hóa đơn: <span className="font-bold text-brand-forest select-all">{order.vatEmail || 'N/A'}</span></p>
+                              
+                              <div className="pt-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const info = `Công ty: ${order.vatCompanyName}\nMST: ${order.vatTaxCode}\nĐịa chỉ: ${order.vatCompanyAddr}\nEmail: ${order.vatEmail}`;
+                                    navigator.clipboard.writeText(info);
+                                    showToast('Đã sao chép toàn bộ thông tin VAT!', 'success');
+                                  }}
+                                  className="inline-flex items-center gap-1.5 bg-red-100 hover:bg-red-200 text-red-800 border border-red-300 px-2.5 py-1.5 text-[9px] font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-xs active:scale-95"
+                                >
+                                  📋 Sao chép toàn bộ thông tin VAT
+                                </button>
+                              </div>
+                            </div>
+                          )}
                           <div className="space-y-2">
                             {(order.items || []).map(item => (
                               <div key={item.id} className="flex items-center gap-3 bg-white border border-brand-sand p-3">
@@ -181,13 +287,13 @@ export default function OrdersTab({ fetchWithAuth }) {
                                   <p className="text-xs font-bold text-brand-forest">{item.product?.name}</p>
                                   <p className="text-[10px] text-[#888]">Chậu: {item.potStyle} · Màu: {item.potColor} · SL: {item.quantity}</p>
                                 </div>
-                                <span className="text-xs font-bold">${(item.price * item.quantity).toFixed(2)}</span>
+                                <span className="text-xs font-bold">{formatVND(item.price * item.quantity)}</span>
                               </div>
                             ))}
                           </div>
-                          {order.discount > 0 && <div className="text-xs text-brand-clay font-semibold">Giảm giá: -${order.discount?.toFixed(2)}</div>}
-                          {order.shippingCost > 0 && <div className="text-xs text-[#666]">Phí vận chuyển: ${order.shippingCost?.toFixed(2)}</div>}
-                          <div className="text-xs font-bold text-brand-forest">Tổng cộng: ${order.totalAmount?.toFixed(2)}</div>
+                          {order.discount > 0 && <div className="text-xs text-brand-clay font-semibold">Giảm giá: -{formatVND(order.discount)}</div>}
+                          {order.shippingCost > 0 && <div className="text-xs text-[#666]">Phí vận chuyển: {formatVND(order.shippingCost)}</div>}
+                          <div className="text-xs font-bold text-brand-forest">Tổng cộng: {formatVND(order.totalAmount)}</div>
                         </div>
                       </td>
                     </tr>

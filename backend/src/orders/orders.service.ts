@@ -62,6 +62,12 @@ export class OrdersService {
           discount,
           shippingCost,
           status: 'pending',
+          paymentMethod: dto.paymentMethod || 'COD',
+          vatRequested: dto.vatRequested ?? false,
+          vatCompanyName: dto.vatCompanyName || null,
+          vatTaxCode: dto.vatTaxCode || null,
+          vatCompanyAddr: dto.vatCompanyAddr || null,
+          vatEmail: dto.vatEmail || null,
           items: {
             create: itemsToCreate,
           },
@@ -131,10 +137,18 @@ export class OrdersService {
       where.status = status;
     }
     if (search) {
+      const trimmedSearch = search.trim();
+      let cleanSearch = trimmedSearch;
+      
+      // Tự động cắt bỏ tiền tố TS- (hoặc ts-) nếu admin copy nguyên mã chuyển khoản vào
+      if (trimmedSearch.toLowerCase().startsWith('ts-')) {
+        cleanSearch = trimmedSearch.substring(3);
+      }
+
       where.OR = [
-        { customerName: { contains: search, mode: 'insensitive' } },
-        { customerEmail: { contains: search, mode: 'insensitive' } },
-        { id: { contains: search, mode: 'insensitive' } },
+        { customerName: { contains: trimmedSearch, mode: 'insensitive' } },
+        { customerEmail: { contains: trimmedSearch, mode: 'insensitive' } },
+        { id: { contains: cleanSearch, mode: 'insensitive' } },
       ];
     }
 
@@ -237,5 +251,50 @@ export class OrdersService {
 
     await this.prisma.order.delete({ where: { id } });
     return { success: true, message: `Order "${id}" successfully deleted` };
+  }
+
+  /**
+   * Khách hàng xác nhận đã chuyển khoản
+   */
+  async confirmPaymentByUser(id: string, userId?: string) {
+    const order = await this.prisma.order.findUnique({ where: { id } });
+    if (!order) {
+      throw new NotFoundException(`Order with ID "${id}" not found`);
+    }
+
+    if (userId && order.userId !== userId) {
+      throw new BadRequestException('You do not have access to confirm payment for this order');
+    }
+
+    return this.prisma.order.update({
+      where: { id },
+      data: { paymentStatus: 'pending_verification' },
+      include: {
+        items: { include: { product: true } },
+      },
+    });
+  }
+
+  /**
+   * [Admin] Cập nhật trạng thái thanh toán của đơn hàng
+   */
+  async updatePaymentStatusByAdmin(id: string, paymentStatus: string) {
+    const validStatuses = ['unpaid', 'pending_verification', 'paid', 'failed'];
+    if (!validStatuses.includes(paymentStatus)) {
+      throw new BadRequestException(`Invalid payment status. Must be one of: ${validStatuses.join(', ')}`);
+    }
+
+    const order = await this.prisma.order.findUnique({ where: { id } });
+    if (!order) {
+      throw new NotFoundException(`Order with ID "${id}" not found`);
+    }
+
+    return this.prisma.order.update({
+      where: { id },
+      data: { paymentStatus },
+      include: {
+        items: { include: { product: true } },
+      },
+    });
   }
 }

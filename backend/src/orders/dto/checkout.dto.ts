@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsEmail, IsArray, ValidateNested, IsNumber, Min, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsEmail, IsArray, ValidateNested, IsNumber, Min, IsOptional, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class OrderItemDto {
@@ -73,6 +73,37 @@ export class CheckoutDto {
   @IsNumber()
   @Min(0)
   shippingCost?: number = 0;
+
+  @ApiPropertyOptional({ description: 'Payment method chosen by customer', example: 'COD' })
+  @IsOptional()
+  @IsString()
+  paymentMethod?: string = 'COD';
+
+  @ApiPropertyOptional({ description: 'Indicates if customer requested VAT invoice', example: false })
+  @IsOptional()
+  @IsBoolean()
+  vatRequested?: boolean = false;
+
+  @ApiPropertyOptional({ description: 'VAT company name', example: 'Example Company' })
+  @IsOptional()
+  @IsString()
+  vatCompanyName?: string;
+
+  @ApiPropertyOptional({ description: 'VAT company tax code', example: '0102030405' })
+  @IsOptional()
+  @IsString()
+  vatTaxCode?: string;
+
+  @ApiPropertyOptional({ description: 'VAT company registered address', example: '123 Company St' })
+  @IsOptional()
+  @IsString()
+  vatCompanyAddr?: string;
+
+  @ApiPropertyOptional({ description: 'VAT delivery email', example: 'invoice@company.com' })
+  @IsOptional()
+  @IsString()
+  @IsEmail()
+  vatEmail?: string;
 }
 
 export class UpdateOrderStatusDto {

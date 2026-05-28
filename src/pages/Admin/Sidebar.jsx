@@ -1,14 +1,21 @@
 import { memo } from 'react';
 import {
-  LayoutDashboard, Package, ShoppingCart, Users, LogOut
+  LayoutDashboard, Package, ShoppingCart, Users, LogOut, Home, Images, ListOrdered, Menu, FolderOpen
 } from 'lucide-react';
 
 export const Sidebar = memo(({ activeTab, setActiveTab, onLogout, isOpen, onClose }) => {
   const navItems = [
-    { id: 'dashboard', label: 'Tổng quan', icon: LayoutDashboard },
-    { id: 'products',  label: 'Sản phẩm',  icon: Package },
-    { id: 'orders',    label: 'Đơn hàng',  icon: ShoppingCart },
-    { id: 'users',     label: 'Người dùng',icon: Users },
+    { id: 'dashboard', label: 'Tổng quan',      icon: LayoutDashboard },
+    { id: 'homepage',  label: 'Trang chủ',      icon: Home },
+    { id: 'menu',      label: 'Cấu hình Menu',  icon: Menu },
+    { id: 'media',     label: 'Thư viện ảnh',   icon: Images },
+    { id: 'products',  label: 'Sản phẩm',       icon: Package },
+    { id: 'categories', label: 'Danh mục',      icon: FolderOpen },
+    { id: 'indoorplants', label: 'Cây Trong Nhà (Slots)', icon: ListOrdered },
+    { id: 'largeplants', label: 'Cây Cỡ Lớn (Slots)', icon: ListOrdered },
+    { id: 'outdoorplants', label: 'Cây Ngoài Trời (Slots)', icon: ListOrdered },
+    { id: 'orders',    label: 'Đơn hàng',       icon: ShoppingCart },
+    { id: 'users',     label: 'Người dùng',     icon: Users },
   ];
 
   return (

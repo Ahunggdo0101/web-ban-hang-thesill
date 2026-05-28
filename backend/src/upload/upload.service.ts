@@ -107,4 +107,45 @@ export class UploadService {
       return { success: true, message: 'Delete request processed with general warning' };
     }
   }
+
+  /**
+   * Xóa ảnh trên Cloudinary bằng public_id trực tiếp (chính xác hơn deleteImage).
+   * Dùng khi đã có sẵn public_id lưu trong DB.
+   */
+  async deleteByPublicId(publicId: string): Promise<{ success: boolean; message: string }> {
+    try {
+      if (!publicId) {
+        this.logger.warn('deleteByPublicId called with empty publicId, skipping');
+        return { success: true, message: 'Empty publicId, skipped' };
+      }
+      this.logger.log(`Deleting Cloudinary asset by publicId: ${publicId}`);
+      const result = await cloudinary.uploader.destroy(publicId);
+      this.logger.log(`Cloudinary destroy result for ${publicId}: ${JSON.stringify(result)}`);
+      return { success: true, message: 'Deleted from Cloudinary' };
+    } catch (err) {
+      this.logger.warn(`Cloudinary deleteByPublicId error for ${publicId}: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      return { success: true, message: 'Delete attempted with warning' };
+    }
+  }
+
+  /**
+   * Lấy danh sách tài nguyên (ảnh) từ tài khoản Cloudinary
+   */
+  async listResources(limit = 100, nextCursor?: string): Promise<any> {
+    try {
+      this.logger.log(`Listing resources from Cloudinary (limit: ${limit}, nextCursor: ${nextCursor || 'none'})...`);
+      const options: any = {
+        type: 'upload',
+        max_results: limit,
+      };
+      if (nextCursor) {
+        options.next_cursor = nextCursor;
+      }
+      return await cloudinary.api.resources(options);
+    } catch (err) {
+      this.logger.error(`Cloudinary listResources error: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      throw new BadGatewayException(`Không thể lấy danh sách ảnh từ Cloudinary: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
+  }
 }
+

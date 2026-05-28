@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { API_BASE_URL } from '../config';
 import { Clock, Loader2, CheckCircle2, XCircle, AlertCircle, ShoppingBag, AlertTriangle, ArrowRight } from 'lucide-react';
 import { optimizeUnsplashImage } from '../utils/image';
+import { formatVND } from '../utils/translation';
 
 // Thành phần hiển thị trạng thái đơn hàng (tương tự trang Admin)
 const StatusBadge = ({ status }) => {
@@ -23,9 +24,34 @@ const StatusBadge = ({ status }) => {
   );
 };
 
+const PaymentStatusBadge = ({ status, method }) => {
+  const map = {
+    unpaid: { label: 'Chưa thanh toán', cls: 'bg-red-50 text-red-700 border-red-200' },
+    pending_verification: { label: 'Đang xác thực giao dịch...', cls: 'bg-blue-50 text-blue-700 border-blue-200 animate-pulse font-bold' },
+    paid: { label: 'Đã thanh toán', cls: 'bg-green-50 text-green-700 border-green-200 font-extrabold shadow-xs' },
+    failed: { label: 'Chưa nhận tiền / Giao dịch lỗi', cls: 'bg-red-50 text-red-700 border-red-200 font-bold' }
+  };
+  
+  if (method === 'COD' && status === 'unpaid') {
+    return (
+      <span className="inline-flex items-center gap-1 border px-2 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-wider bg-[#1F3E35]/5 text-brand-forest border-[#1F3E35]/15">
+        💵 Thanh toán khi giao hàng (COD)
+      </span>
+    );
+  }
+  
+  const cfg = map[status] || { label: status, cls: 'bg-gray-50 text-gray-600 border-gray-200' };
+  
+  return (
+    <span className={`inline-flex items-center gap-1 border px-2 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-wider ${cfg.cls}`}>
+      {cfg.label}
+    </span>
+  );
+};
+
 export default function MyOrders() {
   const navigate = useNavigate();
-  const { fetchWithAuth, user } = useAuth();
+  const { fetchWithAuth, user, loading: authLoading, setIsAuthModalOpen } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -54,10 +80,14 @@ export default function MyOrders() {
   }, [fetchWithAuth]);
 
   useEffect(() => {
-    if (user) {
-      fetchOrders();
+    if (!authLoading) {
+      if (user) {
+        fetchOrders();
+      } else {
+        setLoading(false);
+      }
     }
-  }, [user, fetchOrders]);
+  }, [user, authLoading, fetchOrders]);
 
   // Định dạng ngày hiển thị theo chuẩn Việt Nam
   const formatDate = (dateString) => {
@@ -75,12 +105,45 @@ export default function MyOrders() {
     }
   };
 
-  // Định dạng giá tiền bằng đô la ($)
+  // Định dạng giá tiền bằng VNĐ
   const formatPrice = (price) => {
-    return typeof price === 'number' ? `$${price.toFixed(2)}` : `$${price}`;
+    return formatVND(price);
   };
 
-  // Trạng thái đang tải dữ liệu
+  // Trạng thái đang tải xác thực tài khoản
+  if (authLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col items-center justify-center min-h-[50vh]">
+        <Loader2 className="animate-spin text-brand-forest mb-4" size={36} />
+        <p className="text-xs uppercase tracking-widest text-[#666] font-bold">Đang xác thực tài khoản...</p>
+      </div>
+    );
+  }
+
+  // Trạng thái chưa đăng nhập
+  if (!user) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 min-h-[60vh] flex items-center justify-center bg-brand-cream animate-fade-in">
+        <div className="text-center bg-white border border-brand-sand p-8 sm:p-12 max-w-md mx-auto space-y-6 shadow-sm">
+          <span className="text-4xl">🔐</span>
+          <div className="space-y-2">
+            <h3 className="font-serif text-xl text-brand-forest">Yêu cầu đăng nhập</h3>
+            <p className="text-xs text-brand-slate leading-relaxed font-medium">
+              Vui lòng đăng nhập để xem lịch sử đơn hàng của bạn. Nếu bạn đặt hàng với tư cách khách (guest), thông tin chi tiết đã được gửi tới hòm thư email của bạn.
+            </p>
+          </div>
+          <button
+            onClick={() => setIsAuthModalOpen(true)}
+            className="w-full bg-brand-forest text-brand-cream text-[10px] font-bold uppercase tracking-widest py-3.5 hover:bg-brand-green transition-all cursor-pointer shadow-xs active:scale-95"
+          >
+            Đăng Nhập Ngay
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Trạng thái đang tải dữ liệu đơn hàng
   if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col items-center justify-center min-h-[50vh]">
@@ -157,12 +220,20 @@ export default function MyOrders() {
                     <span className="font-mono text-xs font-semibold text-brand-charcoal select-all">
                       #{order.id.slice(-8).toUpperCase()}
                     </span>
+                    <span className={`text-[8px] font-extrabold uppercase tracking-widest px-1.5 py-0.5 rounded-sm ml-2 ${
+                      order.paymentMethod === 'VIETQR' 
+                        ? 'bg-[#003B75]/10 text-[#003B75] border border-[#003B75]/20 font-sans' 
+                        : 'bg-[#1F3E35]/10 text-brand-forest border border-[#1F3E35]/20'
+                    }`}>
+                      {order.paymentMethod === 'VIETQR' ? 'VietQR (MB)' : 'COD'}
+                    </span>
                   </div>
                   <p className="text-xs text-brand-slate font-medium">
                     Đặt ngày {formatDate(order.createdAt)}
                   </p>
                 </div>
-                <div className="flex items-center">
+                <div className="flex flex-wrap items-center gap-2">
+                  <PaymentStatusBadge status={order.paymentStatus || 'unpaid'} method={order.paymentMethod} />
                   <StatusBadge status={order.status} />
                 </div>
               </div>

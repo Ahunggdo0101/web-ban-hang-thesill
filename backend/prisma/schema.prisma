@@ -62,6 +62,13 @@ model Order {
   discount      Float       @default(0)
   shippingCost  Float       @default(0)
   status        String      @default("pending") // "pending" | "processing" | "completed" | "cancelled"
+  paymentMethod String      @default("COD")     // "COD" | "VIETQR"
+  paymentStatus String      @default("unpaid")  // "unpaid" | "pending_verification" | "paid" | "failed"
+  vatRequested   Boolean     @default(false)
+  vatCompanyName String?
+  vatTaxCode     String?
+  vatCompanyAddr String?
+  vatEmail       String?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   items         OrderItem[]
@@ -96,4 +103,53 @@ model Wishlist {
   @@unique([userId, productId])
   @@index([userId])
 }
+
+// Bảng cấu hình trang chủ — luôn chỉ có đúng 1 bản ghi (id = 1)
+// Admin cập nhật qua Dashboard, khách hàng đọc qua API public
+model HomepageConfig {
+  id        Int      @id @default(1)
+  data      Json     // Toàn bộ cấu hình trang chủ dạng JSON
+  updatedAt DateTime @updatedAt
+}
+
+// Thư viện ảnh — Admin upload lên Cloudinary và đặt tên nhãn gợi nhớ
+model Media {
+  id        String   @id @default(uuid())
+  url       String   @unique  // Secure URL từ Cloudinary
+  publicId  String   @unique  // public_id để xoá ảnh trên Cloudinary
+  title     String            // Tên nhãn do admin đặt (ví dụ: "Banner mùa hè 2026")
+  bytes     Int?              // Dung lượng file (bytes)
+  format    String?           // Định dạng ảnh (jpg, png, webp)
+  width     Int?              // Chiều rộng ảnh (px)
+  height    Int?              // Chiều cao ảnh (px)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([title])
+}
+
+// Bảng lưu trữ cấu hình sắp xếp slots cho các bộ sưu tập đặc thù (e.g. Cây cỡ lớn)
+model CollectionConfig {
+  id        String   @id // e.g. "large-plants"
+  slots     Json     // Mảng các Product ID hoặc null đại diện cho lỗ trống: ["prod-1", null, "prod-2"]
+  trending  Json?    // Cấu hình section trending ở dưới phân trang
+  updatedAt DateTime @updatedAt
+}
+
+// Bảng cấu hình Menu chính (MegaMenu) — Admin có thể tự do tùy biến các tab và link/ảnh con
+model MenuConfig {
+  id        String   @id // Ví dụ: "main-menu"
+  data      Json     // Cấu hình mảng các tab và nội dung con
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id          String   @id // e.g. "large-plants", "indoor-plants", "outdoor-plants"
+  name        String
+  description String?
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 

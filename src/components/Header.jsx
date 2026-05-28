@@ -1,25 +1,77 @@
-import { useState, useCallback, memo } from 'react';
-import { useNavigate, useLocation, Link, NavLink } from 'react-router-dom';
-import { Search, X, ShoppingBag, Menu, User, Heart, Leaf, Sun, Moon } from 'lucide-react';
+import { useState, useCallback, memo, useRef, useEffect } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { Search, X, Menu, Heart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useTheme } from '../context/ThemeContext';
-import MegaMenu from './MegaMenu';
-import { NAVIGATION_DATA } from '../data/navigation';
 
-// React.memo: header chỉ re-render khi searchQuery hoặc auth thay đổi
+// Import các subcomponents đã được chia tách để tối ưu hóa bảo trì và re-render
+import AnnouncementBanner from './Header/AnnouncementBanner';
+import UserDropdown from './Header/UserDropdown';
+import MobileDrawer from './Header/MobileDrawer';
+import DesktopNav from './Header/DesktopNav';
+
+// Header được ghi nhớ bằng React.memo, chỉ re-render khi các tham chiếu prop thay đổi
 const Header = memo(function Header({ onSearch, searchQuery }) {
   const { theme, toggleTheme } = useTheme();
   const { cartCount, setIsCartOpen } = useCart();
   const { user, logout, setIsAuthModalOpen } = useAuth();
   const { wishlistCount } = useWishlist();
+  
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  
   const navigate = useNavigate();
   const location = useLocation();
+  const headerRef = useRef(null);
 
+  // Lưu trạng thái Mobile Menu vào ref để handler cuộn trang (scroll) đọc trực tiếp, tránh re-render phụ thuộc
+  const isMobileMenuOpenRef = useRef(isMobileMenuOpen);
+  useEffect(() => {
+    isMobileMenuOpenRef.current = isMobileMenuOpen;
+  }, [isMobileMenuOpen]);
+
+  // Hiệu ứng ẩn thanh menu khi cuộn xuống và xuất hiện lại khi cuộn lên (Smart Sticky Header)
+  // Tối ưu hóa: Thay đổi trực tiếp lớp classList của DOM qua ref, hoàn toàn không gọi setState của React
+  // giúp loại bỏ hoàn toàn hiện tượng lag giật khung hình (jank) khi cuộn chuột.
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+    let isVisible = true;
+
+    const handleScroll = () => {
+      // Nếu Mobile Menu đang mở thì không ẩn thanh điều hướng để tránh vỡ giao diện
+      if (isMobileMenuOpenRef.current) return;
+
+      const currentScrollY = window.scrollY;
+      const header = headerRef.current;
+      if (!header) return;
+
+      // Khi cuộn xuống quá 100px -> Ẩn menu
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        if (isVisible) {
+          header.classList.remove('translate-y-0');
+          header.classList.add('-translate-y-full');
+          isVisible = false;
+        }
+      } 
+      // Khi cuộn ngược lên -> Hiện lại menu
+      else if (currentScrollY < lastScrollY) {
+        if (!isVisible) {
+          header.classList.remove('-translate-y-full');
+          header.classList.add('translate-y-0');
+          isVisible = true;
+        }
+      }
+      lastScrollY = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Bọc tất cả hàm xử lý sự kiện trong useCallback để giữ nguyên tham chiếu giữa các lượt render
   const handleSearchToggle = useCallback(() => {
     setShowSearch(prev => {
       if (prev) onSearch('');
@@ -64,94 +116,16 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
     setIsAuthModalOpen(true);
   }, [setIsAuthModalOpen]);
 
-  const renderUserIcon = () => (
-    user ? (
-      <div className="relative flex items-center">
-        <button
-          onClick={handleToggleDropdown}
-          className="w-8 h-8 rounded-full border border-brand-sand overflow-hidden hover:border-brand-forest focus:outline-none transition-colors cursor-pointer"
-          title={user.name}
-          aria-expanded={isDropdownOpen}
-          aria-haspopup="menu"
-        >
-          <img
-            src={user.avatar}
-            alt={user.name}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-        </button>
-        {isDropdownOpen && (
-          <>
-            <div
-              className="fixed inset-0 z-10"
-              onClick={handleCloseDropdown}
-              aria-hidden
-            />
-            <div
-              className="absolute right-0 top-10 w-56 bg-brand-cream border border-brand-sand shadow-xl z-20 py-2 animate-fade-in"
-              role="menu"
-            >
-              <div className="px-4 py-2 border-b border-brand-sand">
-                <p className="text-xs font-bold text-brand-forest truncate">{user.name}</p>
-                <p className="text-[10px] text-[#666] truncate">{user.email}</p>
-              </div>
-              <Link
-                to="/account"
-                role="menuitem"
-                onClick={handleCloseDropdown}
-                className="block w-full text-left px-4 py-2.5 text-xs text-brand-charcoal hover:bg-brand-white hover:text-brand-forest transition-colors cursor-pointer"
-              >
-                Tài khoản của tôi
-              </Link>
-              <button
-                role="menuitem"
-                onClick={() => { handleCloseDropdown(); navigate('/orders'); }}
-                className="w-full text-left px-4 py-2.5 text-xs text-brand-charcoal hover:bg-brand-white hover:text-brand-forest transition-colors cursor-pointer"
-              >
-                Đơn hàng của tôi
-              </button>
-              <button
-                role="menuitem"
-                onClick={() => { handleCloseDropdown(); alert('Tính năng Khu vườn của tôi sẽ sớm ra mắt!'); }}
-                className="w-full text-left px-4 py-2.5 text-xs text-brand-charcoal hover:bg-brand-white hover:text-brand-forest transition-colors cursor-pointer"
-              >
-                Khu vườn của tôi 🌱
-              </button>
-              {user.role === 'admin' && (
-                <button
-                  role="menuitem"
-                  onClick={() => { handleCloseDropdown(); navigate('/admin'); }}
-                  className="w-full text-left px-4 py-2.5 text-xs text-brand-forest font-bold hover:bg-brand-white transition-colors cursor-pointer"
-                >
-                  ⚙️ Trang Quản Trị
-                </button>
-              )}
-              <div className="border-t border-brand-sand my-1" />
-              <button
-                role="menuitem"
-                onClick={handleLogout}
-                className="w-full text-left px-4 py-2.5 text-xs text-brand-clay hover:bg-brand-white transition-colors cursor-pointer font-semibold"
-              >
-                Đăng xuất
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-    ) : (
-      <button
-        onClick={() => setIsAuthModalOpen(true)}
-        className="text-brand-charcoal hover:text-brand-green p-2 cursor-pointer transition-colors"
-        title="Đăng nhập"
-        aria-label="Đăng nhập"
-      >
-        <User size={18} />
-      </button>
-    )
-  );
+  const handleMobileMenuToggle = useCallback(() => {
+    setIsMobileMenuOpen(prev => !prev);
+  }, []);
 
-  const renderWishlistIcon = () => (
+  const handleMobileMenuClose = useCallback(() => {
+    setIsMobileMenuOpen(false);
+  }, []);
+
+  // Các phương thức render icons phụ
+  const renderWishlistIcon = useCallback(() => (
     <Link
       to="/wishlist"
       className="relative text-brand-charcoal hover:text-brand-green p-2 cursor-pointer transition-colors block"
@@ -165,51 +139,45 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
         </span>
       )}
     </Link>
-  );
+  ), [wishlistCount, location.pathname]);
 
-  const renderCartIcon = () => (
+  const renderCartIcon = useCallback(() => (
     <button
       onClick={handleOpenCart}
       className="relative text-brand-charcoal hover:text-brand-green p-2 focus:outline-none cursor-pointer transition-colors"
       title="Giỏ hàng"
       aria-label={`Giỏ hàng ${cartCount > 0 ? `(${cartCount} sản phẩm)` : ''}`}
     >
-      <ShoppingBag size={18} />
-      {cartCount > 0 && (
-        <span className="absolute top-1 right-0.5 bg-brand-clay text-brand-white text-[8px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-0.5 border border-brand-white">
-          {cartCount > 99 ? '99+' : cartCount}
-        </span>
-      )}
+      <ShoppingBagIcon cartCount={cartCount} />
     </button>
-  );
+  ), [handleOpenCart, cartCount]);
 
-  const renderThemeToggle = () => (
+  const renderThemeToggle = useCallback(() => (
     <button
       onClick={toggleTheme}
       className="text-brand-charcoal hover:text-brand-green p-2 cursor-pointer transition-colors focus:outline-none"
       title={theme === 'light' ? 'Chuyển sang Dark Mode' : 'Chuyển sang Light Mode'}
       aria-label="Chuyển đổi giao diện"
     >
-      {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+      <ThemeIcon theme={theme} />
     </button>
-  );
+  ), [toggleTheme, theme]);
 
   return (
-    <header className="w-full bg-brand-white border-b border-brand-sand sticky top-0 z-40">
-      {/* Top Announcement Banner */}
-      <div className="w-full bg-brand-forest text-brand-cream text-[10px] py-2.5 px-4 text-center font-semibold tracking-[0.15em] uppercase flex items-center justify-center space-x-2">
-        <Leaf size={10} className="text-brand-clay animate-pulse flex-shrink-0" />
-        <span>Freeship cho đơn từ 150.000đ • Bảo hành cây khỏe mạnh 30 ngày</span>
-      </div>
+    <header 
+      ref={headerRef}
+      className="w-full bg-brand-white border-b border-brand-sand sticky top-0 z-40 transform translate-y-0 transition-transform duration-300 ease-in-out"
+    >
+      {/* 1. Banner thông báo trên cùng */}
+      <AnnouncementBanner />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Mobile Row */}
+        {/* 2. Thanh điều hướng cho Mobile */}
         <div className="flex md:hidden justify-between items-center h-16 px-2 relative border-b border-brand-sand/30">
-          {/* Left Column: Mobile Menu Toggle */}
           <div className="w-10 flex justify-start items-center z-10">
             <button
-              onClick={() => setIsMobileMenuOpen(prev => !prev)}
+              onClick={handleMobileMenuToggle}
               className="text-brand-charcoal hover:text-brand-green p-1.5 focus:outline-none transition-colors"
               aria-label={isMobileMenuOpen ? 'Đóng menu' : 'Mở menu'}
             >
@@ -217,11 +185,10 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
             </button>
           </div>
 
-          {/* Center Column: Logo */}
           <div className="flex-1 flex justify-center items-center px-1">
             <Link
               to="/"
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={handleMobileMenuClose}
               className="flex items-center text-brand-forest focus:outline-none cursor-pointer group text-center"
             >
               <span className="font-serif text-[12px] xs:text-[13px] sm:text-sm font-light tracking-[0.02em] lowercase group-hover:text-brand-clay transition-colors duration-500 truncate max-w-[155px] xs:max-w-[190px] sm:max-w-none block">
@@ -230,9 +197,7 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
             </Link>
           </div>
 
-          {/* Right Column: Actions */}
           <div className="flex items-center space-x-0.5 z-10">
-            {/* Search */}
             <div className="relative flex items-center">
               {showSearch && (
                 <input
@@ -258,13 +223,7 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
                 title={showSearch && searchQuery.trim() ? 'Tìm kiếm' : (showSearch ? 'Đóng tìm kiếm' : 'Tìm kiếm')}
                 aria-label={showSearch && searchQuery.trim() ? 'Tìm kiếm' : (showSearch ? 'Đóng tìm kiếm' : 'Tìm kiếm')}
               >
-                {showSearch && searchQuery.trim() ? (
-                  <Search size={16} />
-                ) : showSearch ? (
-                  <X size={16} />
-                ) : (
-                  <Search size={16} />
-                )}
+                <Search size={16} />
               </button>
             </div>
 
@@ -273,11 +232,10 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
           </div>
         </div>
 
-        {/* Desktop Container (Row 1 + Row 2) */}
+        {/* 3. Container cho Desktop (Gồm Row 1 tên thương hiệu/tìm kiếm + Row 2 MegaMenu) */}
         <div className="hidden md:flex flex-col">
           {/* Row 1 */}
           <div className="flex justify-between items-center h-20 border-b border-brand-sand/30">
-            {/* Logo — Left Aligned */}
             <div className="flex-shrink-0">
               <Link
                 to="/"
@@ -289,7 +247,6 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
               </Link>
             </div>
 
-            {/* Search Bar — Center Aligned, Long */}
             <div className="flex-grow max-w-xl mx-8 relative">
               <input
                 type="text"
@@ -307,147 +264,110 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
               />
             </div>
 
-            {/* Action Icons — Right Aligned */}
             <div className="flex items-center space-x-3 flex-shrink-0">
               {renderThemeToggle()}
-              {renderUserIcon()}
+              <UserDropdown 
+                user={user}
+                isDropdownOpen={isDropdownOpen}
+                handleToggleDropdown={handleToggleDropdown}
+                handleCloseDropdown={handleCloseDropdown}
+                handleLogout={handleLogout}
+                setIsAuthModalOpen={setIsAuthModalOpen}
+              />
               {renderWishlistIcon()}
               {renderCartIcon()}
             </div>
           </div>
 
           {/* Row 2 */}
-          <div className="flex justify-center items-center h-12 relative">
-            <nav className="flex items-center h-full space-x-8" aria-label="Desktop navigation">
-              {NAVIGATION_DATA.map((item, idx) => {
-                if (item.hasMenu) {
-                  return (
-                    <div key={idx} className="group relative h-full flex items-center">
-                      <NavLink
-                        to={item.view === 'home' ? '/' : `/${item.view || 'shop'}`}
-                        className={({ isActive }) => `text-[11px] font-bold tracking-widest uppercase py-2 cursor-pointer transition-colors hover-underline ${
-                          isActive ? 'text-brand-forest' : (item.color || 'text-[#666] hover:text-brand-forest')
-                        }`}
-                        aria-haspopup="true"
-                        aria-expanded="false"
-                      >
-                        {item.title}
-                      </NavLink>
-                      <MegaMenu data={item.menuData} />
-                    </div>
-                  );
-                }
-
-                return (
-                  <NavLink
-                    key={idx}
-                    to={item.view === 'home' ? '/' : `/${item.view || 'shop'}`}
-                    className={({ isActive }) => `text-[11px] font-bold tracking-widest uppercase py-2 cursor-pointer transition-colors hover-underline ${
-                      isActive ? 'text-brand-forest' : (item.color || 'text-[#666] hover:text-brand-forest')
-                    }`}
-                  >
-                    {item.title}
-                  </NavLink>
-                );
-              })}
-            </nav>
-          </div>
+          <DesktopNav />
         </div>
 
       </div>
 
-      {/* Mobile Menu — Animated slide down */}
-      <div
-        className={`md:hidden bg-brand-white border-b border-brand-sand overflow-hidden transition-all duration-300 ease-in-out ${
-          isMobileMenuOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <div className="px-6 py-8 space-y-5">
-          <NavLink
-            to="/shop"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className={({ isActive }) => `block w-full text-left text-xs font-bold tracking-widest uppercase py-1 ${
-              isActive ? 'text-brand-forest border-l-2 border-brand-forest pl-3' : 'text-brand-charcoal pl-3'
-            }`}
-          >
-            Cửa Hàng
-          </NavLink>
-          <NavLink
-            to="/quiz"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className={({ isActive }) => `block w-full text-left text-xs font-bold tracking-widest uppercase py-1 ${
-              isActive ? 'text-brand-forest border-l-2 border-brand-forest pl-3' : 'text-brand-charcoal pl-3'
-            }`}
-          >
-            Trắc Nghiệm Chọn Cây
-          </NavLink>
-          <NavLink
-            to="/wishlist"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className={({ isActive }) => `block w-full text-left text-xs font-bold tracking-widest uppercase py-1 ${
-              isActive ? 'text-brand-forest border-l-2 border-brand-forest pl-3' : 'text-brand-charcoal pl-3'
-            }`}
-          >
-            Sản Phẩm Yêu Thích
-          </NavLink>
-          <a href="#" className="block w-full text-left text-xs font-bold tracking-widest uppercase py-1 text-brand-charcoal pl-3">
-            Chậu Cảnh
-          </a>
-          <a href="#" className="block w-full text-left text-xs font-bold tracking-widest uppercase py-1 text-brand-charcoal pl-3">
-            Cẩm Nang Chăm Sóc
-          </a>
-          {user?.role === 'admin' && (
-            <NavLink
-              to="/admin"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={({ isActive }) => `block w-full text-left text-xs font-bold tracking-widest uppercase py-1 ${
-                isActive ? 'text-brand-forest border-l-2 border-brand-forest pl-3' : 'text-brand-forest pl-3 border-l-2 border-brand-sand'
-              }`}
-            >
-              ⚙️ Trang Quản Trị
-            </NavLink>
-          )}
-
-          <div className="border-t border-brand-sand pt-4">
-            {user ? (
-              <div className="flex items-center space-x-3 pl-3">
-                <Link to="/account" onClick={() => setIsMobileMenuOpen(false)}>
-                  <img
-                    src={user.avatar}
-                    alt={user.name}
-                    className="w-8 h-8 rounded-full object-cover border border-brand-sand flex-shrink-0"
-                    loading="lazy"
-                  />
-                </Link>
-                <div className="flex-1 min-w-0">
-                  <Link
-                    to="/account"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-xs font-bold text-brand-forest truncate hover:text-brand-clay block"
-                  >
-                    {user.name}
-                  </Link>
-                  <button
-                    onClick={handleMobileLogout}
-                    className="text-[10px] text-brand-clay font-bold uppercase tracking-wider hover:underline"
-                  >
-                    Đăng xuất
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                onClick={handleOpenLogin}
-                className="w-full text-left text-xs font-bold tracking-widest uppercase py-1 text-brand-forest pl-3 cursor-pointer"
-              >
-                Đăng Nhập / Đăng Ký
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+      {/* 4. Menu trượt cho Mobile */}
+      <MobileDrawer 
+        isMobileMenuOpen={isMobileMenuOpen}
+        setIsMobileMenuOpen={setIsMobileMenuOpen}
+        user={user}
+        handleMobileLogout={handleMobileLogout}
+        handleOpenLogin={handleOpenLogin}
+      />
     </header>
   );
 });
+
+// Helper components cho Icons để tránh re-render không cần thiết
+const ShoppingBagIcon = memo(({ cartCount }) => (
+  <>
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      width="18" 
+      height="18" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className="lucide lucide-shopping-bag"
+    >
+      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <path d="M16 10a4 4 0 0 1-8 0"></path>
+    </svg>
+    {cartCount > 0 && (
+      <span className="absolute top-1 right-0.5 bg-brand-clay text-brand-white text-[8px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-0.5 border border-brand-white">
+        {cartCount > 99 ? '99+' : cartCount}
+      </span>
+    )}
+  </>
+));
+ShoppingBagIcon.displayName = 'ShoppingBagIcon';
+
+const ThemeIcon = memo(({ theme }) => (
+  theme === 'light' ? (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      width="18" 
+      height="18" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className="lucide lucide-moon"
+    >
+      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+    </svg>
+  ) : (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      width="18" 
+      height="18" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className="lucide lucide-sun"
+    >
+      <circle cx="12" cy="12" r="4"></circle>
+      <path d="M12 2v2"></path>
+      <path d="M12 20v2"></path>
+      <path d="M4.93 4.93l1.41 1.41"></path>
+      <path d="M17.66 17.66l1.41 1.41"></path>
+      <path d="M2 12h2"></path>
+      <path d="M20 12h2"></path>
+      <path d="M6.34 17.66l-1.41 1.41"></path>
+      <path d="M19.07 4.93l-1.41 1.41"></path>
+    </svg>
+  )
+));
+ThemeIcon.displayName = 'ThemeIcon';
+
+Header.displayName = 'Header';
 
 export default Header;

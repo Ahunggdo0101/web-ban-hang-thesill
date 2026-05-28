@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Star, ShoppingBag } from 'lucide-react';
 import { optimizeUnsplashImage } from '../utils/image';
+import { translatePotColor, formatVND } from '../utils/translation';
 
 // Render static potColorsInfo outside to avoid array recreation on every render
 const DEFAULT_POT_COLORS = [
@@ -23,10 +24,10 @@ const ProductCard = React.memo(({ plant, activeColor, onColorChange, addToCart, 
   return (
     <Link
       to={'/product/' + plant.id}
-      className="group cursor-pointer flex flex-col space-y-4 relative w-full max-w-[360px] mx-auto text-left"
+      className="group cursor-pointer flex flex-col relative w-full text-left bg-brand-white"
     >
       {/* Image Container */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-white border border-brand-sand shadow-xs">
+      <div className="relative aspect-[4/5] w-full overflow-hidden bg-brand-white">
         <img
           src={optimizeUnsplashImage(displayImage, 400)}
           alt={plant.name}
@@ -36,7 +37,7 @@ const ProductCard = React.memo(({ plant, activeColor, onColorChange, addToCart, 
 
         {plant.petFriendly && (
           <span className="absolute top-2.5 left-2.5 bg-brand-cream/95 border border-brand-sand text-[#1F3E35] text-[7px] uppercase font-extrabold tracking-widest px-2 py-0.5 shadow-xs">
-            Pet Friendly
+            An toàn thú cưng
           </span>
         )}
 
@@ -65,17 +66,17 @@ const ProductCard = React.memo(({ plant, activeColor, onColorChange, addToCart, 
         </div>
       </div>
 
-      {/* Metadata */}
-      <div className="space-y-1 text-center">
-        <h3 className="font-serif text-sm font-medium text-brand-forest group-hover:text-brand-clay transition-colors leading-tight truncate">
+      {/* Metadata - CSS Peeper matched: p-2.5, text-left */}
+      <div className="p-2.5 space-y-1 text-left">
+        <h3 className="font-serif text-[18px] font-normal text-[#2A2D24] group-hover:text-brand-forest transition-colors leading-[1.8] tracking-[0.02em] truncate">
           {plant.name}
         </h3>
-        <p className="text-[11px] text-brand-slate italic font-serif truncate">
+        <p className="text-[12px] text-brand-slate italic font-sans truncate">
           {plant.botanicalName}
         </p>
 
         {/* Ratings stars */}
-        <div className="flex items-center justify-center space-x-1 pt-1">
+        <div className="flex items-center justify-start space-x-1 pt-1">
           <Star size={9} className="text-amber-500 fill-amber-500" />
           <span className="text-[9px] font-semibold text-brand-slate uppercase tracking-wider">
             {plant.rating} ({plant.reviewsCount})
@@ -84,7 +85,7 @@ const ProductCard = React.memo(({ plant, activeColor, onColorChange, addToCart, 
 
         {/* Interactive swatches */}
         <div
-          className="flex justify-center items-center space-x-1.5 pt-2 pb-0.5"
+          className="flex justify-start items-center space-x-1.5 pt-2 pb-0.5"
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
@@ -103,19 +104,19 @@ const ProductCard = React.memo(({ plant, activeColor, onColorChange, addToCart, 
                   : 'border-brand-sand hover:scale-110'
                 }`}
               style={{ backgroundColor: col.value }}
-              title={`Màu chậu ${col.name}`}
+              title={`Màu chậu ${translatePotColor(col.name)}`}
             />
           ))}
         </div>
 
-        <p className="text-xs font-bold pt-1 text-center">
+        <p className="text-xs font-bold pt-1 text-left">
           {plant.originalPrice ? (
-            <span className="inline-flex items-center gap-1.5 justify-center">
-              <span className="text-red-600 font-bold">${plant.price}</span>
-              <span className="text-[#888] line-through text-[10px] font-normal">${plant.originalPrice}</span>
+            <span className="inline-flex items-center gap-1.5 justify-start">
+              <span className="text-red-600 font-bold">{formatVND(plant.price)}</span>
+              <span className="text-[#888] line-through text-[10px] font-normal">{formatVND(plant.originalPrice)}</span>
             </span>
           ) : (
-            <span className="text-brand-charcoal">${plant.price}</span>
+            <span className="text-brand-charcoal">{formatVND(plant.price)}</span>
           )}
         </p>
       </div>

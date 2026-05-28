@@ -2,9 +2,9 @@ import React from 'react';
 
 export default function SkeletonProductCard() {
   return (
-    <div className="flex flex-col space-y-4 w-full max-w-[360px] mx-auto text-left">
+    <div className="flex flex-col space-y-4 w-full text-left">
       {/* Image Container Placeholder */}
-      <div className="relative aspect-[3/4] w-full bg-brand-sand/30 animate-pulse rounded border border-brand-sand/20 shadow-xs" />
+      <div className="relative aspect-[4/5] w-full bg-brand-sand/30 animate-pulse" />
 
       {/* Metadata Placeholders */}
       <div className="space-y-2 text-center flex flex-col items-center">

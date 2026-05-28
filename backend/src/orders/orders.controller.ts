@@ -101,6 +101,29 @@ export class OrdersController {
     return this.ordersService.removeOrder(id);
   }
 
+  @Patch('admin/:id/payment-status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '[Admin] Update order payment status' })
+  async adminUpdatePaymentStatus(
+    @Param('id') id: string,
+    @Body('paymentStatus') paymentStatus: string,
+  ) {
+    return this.ordersService.updatePaymentStatusByAdmin(id, paymentStatus);
+  }
+
+  @Patch(':id/confirm-payment')
+  @UseGuards(OptionalJwtAuthGuard)
+  @ApiOperation({ summary: 'Customer confirms they have transferred money' })
+  async customerConfirmPayment(
+    @Param('id') id: string,
+    @GetUser() user: RequestUser | null,
+  ) {
+    const userId = user ? user.id : undefined;
+    return this.ordersService.confirmPaymentByUser(id, userId);
+  }
+
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()

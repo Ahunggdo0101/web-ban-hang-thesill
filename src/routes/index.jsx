@@ -17,6 +17,10 @@ const JournalPage = lazy(() => import('../pages/JournalPage'));
 const SearchPage = lazy(() => import('../pages/SearchPage'));
 const PolicyPage = lazy(() => import('../pages/PolicyPage'));
 const SalePage = lazy(() => import('../pages/SalePage'));
+const LargePlantsPage = lazy(() => import('../pages/LargePlantsPage'));
+const IndoorPlantsPage = lazy(() => import('../pages/IndoorPlantsPage'));
+const OutdoorPlantsPage = lazy(() => import('../pages/OutdoorPlantsPage'));
+
 
 // Import các layout và trang lỗi toàn cục
 import RootLayout from '../layouts/RootLayout';
@@ -48,6 +52,18 @@ const router = createBrowserRouter([
             element: <SalePage />,
           },
           {
+            path: 'collections/large-plants',
+            element: <LargePlantsPage />,
+          },
+          {
+            path: 'collections/indoor-plants',
+            element: <IndoorPlantsPage />,
+          },
+          {
+            path: 'collections/outdoor-plants',
+            element: <OutdoorPlantsPage />,
+          },
+          {
             path: 'quiz',
             element: <QuizPage />,
           },
@@ -61,6 +77,10 @@ const router = createBrowserRouter([
           },
           {
             path: 'product/:id',
+            element: <ProductDetailPage />,
+          },
+          {
+            path: 'products/:id',
             element: <ProductDetailPage />,
           },
           {

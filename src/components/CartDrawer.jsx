@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
 import { API_BASE_URL } from '../config';
 import { optimizeUnsplashImage } from '../utils/image';
+import { translatePotColor, translatePotStyleShort, formatVND } from '../utils/translation';
 
 export default function CartDrawer() {
   const {
@@ -149,7 +150,7 @@ export default function CartDrawer() {
             
             {/* Header */}
             <div className="px-6 py-5 border-b border-brand-sand flex justify-between items-center bg-brand-white">
-              <span className="font-serif text-lg font-light tracking-wider lowercase">nghệ nhân đỗ xuân hùng cart</span>
+              <span className="font-serif text-lg font-light tracking-wider lowercase">Giỏ hàng của Nghệ Nhân Đỗ Xuân Hùng</span>
               <button
                 onClick={() => setIsCartOpen(false)}
                 disabled={isCheckingOut || checkoutSuccess}
@@ -211,9 +212,9 @@ export default function CartDrawer() {
                     <div className="flex items-center space-x-2 text-[9px] font-bold text-brand-forest uppercase tracking-widest mb-2.5">
                       <Gift size={12} className="text-brand-clay" />
                       {amountNeededForFreeShipping > 0 ? (
-                        <span>Mua thêm <strong className="text-brand-clay font-extrabold">${amountNeededForFreeShipping}</strong> để được FREESHIP</span>
+                        <span>Mua thêm <strong className="text-brand-clay font-extrabold">{formatVND(amountNeededForFreeShipping)}</strong> để được miễn phí giao hàng</span>
                       ) : (
-                        <span className="text-[#1F3E35] font-extrabold">Đơn hàng của bạn đã được FREESHIP!</span>
+                        <span className="text-[#1F3E35] font-extrabold">Đơn hàng của bạn đã được miễn phí giao hàng!</span>
                       )}
                     </div>
                     <div className="w-full bg-brand-cream h-1.5 border border-brand-sand relative overflow-hidden">
@@ -240,14 +241,14 @@ export default function CartDrawer() {
                                 {item.product.name}
                               </h4>
                               <span className="text-xs font-bold text-brand-charcoal ml-2">
-                                ${item.product.price * item.quantity}
+                                {formatVND(item.product.price * item.quantity)}
                               </span>
                             </div>
                             
                             {/* Selected Options Badges */}
                             <div className="flex items-center flex-wrap gap-x-2 gap-y-1 mt-2">
                               <span className="text-[9px] border border-brand-sand bg-brand-white text-brand-slate px-2 py-0.5 font-bold uppercase tracking-wider">
-                                {item.potStyle.split(' ')[0]}
+                                {translatePotStyleShort(item.potStyle)}
                               </span>
                               <span className="text-[9px] border border-brand-sand bg-brand-white text-brand-slate px-2 py-0.5 font-bold uppercase tracking-wider flex items-center">
                                 <span
@@ -260,7 +261,7 @@ export default function CartDrawer() {
                                       item.potColor === 'Charcoal' ? '#3E3E3E' : '#222'
                                   }}
                                 />
-                                {item.potColor}
+                                {translatePotColor(item.potColor)}
                               </span>
                             </div>
                           </div>
@@ -338,7 +339,7 @@ export default function CartDrawer() {
                   {promoError && <p className="text-[9px] text-red-600 font-bold tracking-widest uppercase">{promoError}</p>}
                   {discount > 0 && (
                     <p className="text-[9px] text-[#1F3E35] font-extrabold tracking-widest uppercase animate-pulse">
-                      Mã WELCOME10 đã giảm 10% (-${discount.toFixed(2)})
+                      Mã WELCOME10 đã giảm 10% (-{formatVND(discount)})
                     </p>
                   )}
 
@@ -346,27 +347,27 @@ export default function CartDrawer() {
                   <div className="space-y-2 text-xs text-brand-slate font-medium">
                     <div className="flex justify-between">
                       <span>Tạm tính:</span>
-                      <span className="font-bold text-brand-charcoal">${cartTotal.toFixed(2)}</span>
+                      <span className="font-bold text-brand-charcoal">{formatVND(cartTotal)}</span>
                     </div>
                     {discount > 0 && (
                       <div className="flex justify-between text-[#1F3E35]">
                         <span>Khuyến mãi (10%):</span>
-                        <span className="font-bold">-${discount.toFixed(2)}</span>
+                        <span className="font-bold">-{formatVND(discount)}</span>
                       </div>
                     )}
                     <div className="flex justify-between">
                       <span>Phí giao hàng:</span>
                       <span className="font-bold text-brand-charcoal">
                         {shippingCost === 0 ? (
-                          <span className="text-[#1F3E35] font-bold uppercase tracking-wider">Freeship</span>
+                          <span className="text-[#1F3E35] font-bold uppercase tracking-wider">Miễn phí</span>
                         ) : (
-                          `$${shippingCost.toFixed(2)}`
+                          formatVND(shippingCost)
                         )}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm font-bold text-brand-forest border-t border-brand-sand pt-3.5 mt-2.5">
                       <span className="uppercase tracking-widest text-xs">Tổng cộng:</span>
-                      <span>${(cartTotal - discount + shippingCost).toFixed(2)}</span>
+                      <span>{formatVND(cartTotal - discount + shippingCost)}</span>
                     </div>
                   </div>
 

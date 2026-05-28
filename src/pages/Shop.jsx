@@ -437,30 +437,31 @@ export default function Shop({ searchQuery }) {
               </div>
 
               {/* Pagination UI */}
-              {totalPages > 1 && (
-                <div className="flex justify-center items-center space-x-2 pt-10 border-t border-brand-sand mt-10">
-                  <button
-                    onClick={() => currentPage > 1 && updateFilter('page', (currentPage - 1).toString())}
-                    disabled={currentPage === 1}
-                    className={`px-4 py-2.5 border border-brand-sand text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer ${
-                      currentPage === 1
-                        ? 'opacity-40 cursor-not-allowed bg-brand-beige text-brand-slate'
-                        : 'bg-brand-white hover:border-brand-forest text-brand-forest hover:bg-brand-beige'
-                    }`}
-                  >
-                    Trang trước
-                  </button>
+              {totalPages >= 1 && (
+                <div className="flex justify-center items-center space-x-12 mt-20 py-3 border-y border-brand-sand/60 w-full">
+                  {/* Nút trang trước (<) */}
+                  {currentPage > 1 && (
+                    <button
+                      onClick={() => updateFilter('page', (currentPage - 1).toString())}
+                      className="text-[13px] pb-1 px-1.5 cursor-pointer transition-colors text-brand-slate/80 hover:text-brand-charcoal font-light font-sans"
+                      title="Trang trước"
+                    >
+                      &lt;
+                    </button>
+                  )}
 
+                  {/* Các số trang */}
                   {[...Array(totalPages)].map((_, idx) => {
                     const pageNumber = idx + 1;
+                    const isActive = currentPage === pageNumber;
                     return (
                       <button
                         key={pageNumber}
                         onClick={() => updateFilter('page', pageNumber.toString())}
-                        className={`w-9 h-9 border text-[10px] font-bold transition-all cursor-pointer ${
-                          currentPage === pageNumber
-                            ? 'bg-brand-forest border-brand-forest text-brand-white'
-                            : 'border-brand-sand bg-brand-white hover:border-brand-forest text-brand-forest hover:bg-brand-beige'
+                        className={`text-[13px] px-1.5 pb-1 transition-all cursor-pointer font-sans ${
+                          isActive
+                            ? 'border-b-[1.5px] border-brand-charcoal text-brand-charcoal font-medium'
+                            : 'text-brand-slate/80 hover:text-brand-charcoal font-light border-b-[1.5px] border-transparent'
                         }`}
                       >
                         {pageNumber}
@@ -468,17 +469,16 @@ export default function Shop({ searchQuery }) {
                     );
                   })}
 
-                  <button
-                    onClick={() => currentPage < totalPages && updateFilter('page', (currentPage + 1).toString())}
-                    disabled={currentPage === totalPages}
-                    className={`px-4 py-2.5 border border-brand-sand text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer ${
-                      currentPage === totalPages
-                        ? 'opacity-40 cursor-not-allowed bg-brand-beige text-brand-slate'
-                        : 'bg-brand-white hover:border-brand-forest text-brand-forest hover:bg-brand-beige'
-                    }`}
-                  >
-                    Trang sau
-                  </button>
+                  {/* Nút trang sau (>) */}
+                  {currentPage < totalPages && (
+                    <button
+                      onClick={() => updateFilter('page', (currentPage + 1).toString())}
+                      className="text-[13px] pb-1 px-1.5 cursor-pointer transition-colors text-brand-slate/80 hover:text-brand-charcoal font-light font-sans"
+                      title="Trang sau"
+                    >
+                      &gt;
+                    </button>
+                  )}
                 </div>
               )}
             </div>

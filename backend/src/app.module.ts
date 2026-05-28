@@ -12,6 +12,12 @@ import { OrdersModule } from './orders/orders.module';
 import { UsersModule } from './users/users.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 import { UploadModule } from './upload/upload.module';
+import { HomepageConfigModule } from './homepage-config/homepage-config.module';
+import { MediaModule } from './media/media.module';
+import { CollectionConfigModule } from './collection-config/collection-config.module';
+import { MenuConfigModule } from './menu-config/menu-config.module';
+import { CategoryModule } from './category/category.module';
+
 import * as Joi from 'joi';
 
 @Module({
@@ -49,6 +55,11 @@ import * as Joi from 'joi';
     UsersModule,
     WishlistModule,
     UploadModule,
+    HomepageConfigModule,
+    MediaModule,
+    CollectionConfigModule,
+    MenuConfigModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [
