@@ -42,6 +42,24 @@ export class OrdersController {
 
   // ─── Admin-only endpoints ───────────────────────────────────────────────────
 
+  @Get('admin/db-migrate')
+  @ApiOperation({ summary: '[Admin] Run database migrations remotely' })
+  async adminRunDbMigrate() {
+    try {
+      const { execSync } = require('child_process');
+      // Chạy prisma migrate deploy trực tiếp từ trong NestJS
+      const output = execSync('npx prisma migrate deploy').toString();
+      return { status: 'success', message: 'Database migrated successfully!', output };
+    } catch (e) {
+      return { 
+        status: 'error', 
+        message: 'Migration failed', 
+        error: e.message, 
+        stderr: e.stderr ? e.stderr.toString() : '' 
+      };
+    }
+  }
+
   @Get('admin/all')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
