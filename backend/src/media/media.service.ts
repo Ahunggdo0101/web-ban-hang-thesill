@@ -101,13 +101,7 @@ export class MediaService {
         });
 
         if (!existing) {
-          // Trích xuất tiêu đề thân thiện từ publicId (vd: "the_sill_products/cay-la-han" -> "cay-la-han")
-          const parts = resource.public_id.split('/');
-          const filename = parts[parts.length - 1];
-          // Chuyển dấu gạch nối/dưới thành dấu cách
-          const titleWithSpaces = filename.replace(/[-_]/g, ' ');
-          // Viết hoa chữ cái đầu
-          const friendlyTitle = titleWithSpaces.charAt(0).toUpperCase() + titleWithSpaces.slice(1);
+          const friendlyTitle = this.generateFriendlyTitle(resource.public_id, resource.filename);
 
           await this.prisma.media.create({
             data: {
@@ -145,10 +139,7 @@ export class MediaService {
       const result = await this.uploadService.listResources(limit, nextCursor);
       
       const resources = (result.resources || []).map((resource: any) => {
-        const parts = resource.public_id.split('/');
-        const filename = parts[parts.length - 1];
-        const titleWithSpaces = filename.replace(/[-_]/g, ' ');
-        const friendlyTitle = titleWithSpaces.charAt(0).toUpperCase() + titleWithSpaces.slice(1);
+        const friendlyTitle = this.generateFriendlyTitle(resource.public_id, resource.filename);
 
         return {
           id: resource.asset_id || resource.public_id,
@@ -203,6 +194,44 @@ export class MediaService {
       this.logger.error(`Failed to delete raw Cloudinary resource ${publicId}: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw new Error(`Không thể xóa ảnh trên Cloudinary: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
+  }
+
+  private generateFriendlyTitle(publicId: string, resourceFilename?: string): string {
+    // 1. Lấy phần thô của tên file (ưu tiên resourceFilename hoặc cắt từ publicId)
+    let baseName = resourceFilename;
+    if (!baseName) {
+      const parts = publicId.split('/');
+      baseName = parts[parts.length - 1];
+    }
+
+    // 2. Làm sạch các mã hash ngẫu nhiên hoặc timestamp mà Cloudinary hoặc hệ thống sinh ra
+    // Ví dụ xóa timestamp số ở cuối (dạng _1779354221 hoặc -1779354221)
+    baseName = baseName.replace(/[-_]\d{9,13}$/, '');
+
+    // Xóa các mã hash ngắn ngẫu nhiên alpha-numeric 6-10 ký tự ở cuối (ví dụ: -cuxy7z, _a1b2c3d4)
+    baseName = baseName.replace(/[-_][a-zA-Z0-9]{6,10}$/, (match) => {
+      // Chỉ xóa nếu chứa cả số lẫn chữ hoặc chỉ toàn chữ số (thường là mã hash ngẫu nhiên)
+      if (/[0-9]/.test(match)) {
+        return '';
+      }
+      return match;
+    });
+
+    // 3. Thay thế các ký tự gạch nối và gạch dưới thành dấu cách
+    let title = baseName.replace(/[-_]/g, ' ').trim();
+
+    // 4. Viết hoa chữ cái đầu của mỗi từ (Title Case)
+    title = title
+      .split(/\s+/)
+      .map(word => {
+        if (!word) return '';
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      })
+      .filter(Boolean)
+      .join(' ');
+
+    // 5. Nếu kết quả trống, trả về tên mặc định đẹp đẽ
+    return title || 'Hình ảnh thư viện';
   }
 }
 
