@@ -162,7 +162,7 @@ export default function ProductInfoSection({ product }) {
         <div className="col-span-12 md:col-span-7 flex flex-col md:flex-row gap-5 items-start md:sticky md:top-10">
           {/* Cột dọc thumbnail bên trái */}
           {galleryItems.length > 0 && (
-            <div className="flex md:flex-col gap-2.5 overflow-x-auto md:overflow-y-auto max-h-[75vh] shrink-0 w-full md:w-[92px] order-2 md:order-1 pb-2 md:pb-0 scrollbar-thin">
+            <div className="flex md:flex-col gap-2.5 overflow-x-auto md:overflow-y-auto max-h-[75vh] shrink-0 w-full md:w-[92px] order-2 md:order-1 pb-2 md:pb-0 no-scrollbar scroll-smooth touch-pan-y">
               {galleryItems.map((imgUrl, i) => (
                 <button
                   key={i}

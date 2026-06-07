@@ -94,6 +94,7 @@ export class MediaService {
       this.logger.log(`Found ${resources.length} resources on Cloudinary for synchronization`);
 
       let createdCount = 0;
+      let updatedCount = 0;
       for (const resource of resources) {
         // Kiểm tra xem publicId đã tồn tại trong DB chưa
         const existing = await this.prisma.media.findUnique({
@@ -115,14 +116,28 @@ export class MediaService {
             },
           });
           createdCount++;
+        } else {
+          // Nếu đã tồn tại nhưng tiêu đề hiện tại là mã hash ngẫu nhiên vô nghĩa, hãy làm sạch nó
+          const currentTitle = existing.title || '';
+          const isOldTitleHash = /^[a-zA-Z0-9]{12,}$/.test(currentTitle) && /[0-9]/.test(currentTitle) && /[a-zA-Z]/.test(currentTitle);
+          
+          if (isOldTitleHash) {
+            const friendlyTitle = this.generateFriendlyTitle(resource.public_id, resource.filename);
+            await this.prisma.media.update({
+              where: { id: existing.id },
+              data: { title: friendlyTitle },
+            });
+            updatedCount++;
+          }
         }
       }
 
-      this.logger.log(`Synchronization completed. Created ${createdCount} new media records.`);
+      this.logger.log(`Synchronization completed. Created ${createdCount} new, updated ${updatedCount} old media records.`);
       return {
         success: true,
-        message: `Đồng bộ thành công! Đã thêm ${createdCount} hình ảnh mới từ Cloudinary vào thư viện.`,
+        message: `Đồng bộ thành công! Đã thêm ${createdCount} hình ảnh mới và làm sạch tên của ${updatedCount} hình ảnh cũ có mã hash tào lao.`,
         addedCount: createdCount,
+        updatedCount: updatedCount,
       };
     } catch (error) {
       this.logger.error(`Failed to sync from Cloudinary: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -208,8 +223,8 @@ export class MediaService {
     // Ví dụ xóa timestamp số ở cuối (dạng _1779354221 hoặc -1779354221)
     baseName = baseName.replace(/[-_]\d{9,13}$/, '');
 
-    // Xóa các mã hash ngắn ngẫu nhiên alpha-numeric 6-10 ký tự ở cuối (ví dụ: -cuxy7z, _a1b2c3d4)
-    baseName = baseName.replace(/[-_][a-zA-Z0-9]{6,10}$/, (match) => {
+    // Xóa các mã hash ngắn ngẫu nhiên alpha-numeric 4-10 ký tự ở cuối (ví dụ: -a1b2, -cuxy7z, _a1b2c3d4)
+    baseName = baseName.replace(/[-_][a-zA-Z0-9]{4,10}$/, (match) => {
       // Chỉ xóa nếu chứa cả số lẫn chữ hoặc chỉ toàn chữ số (thường là mã hash ngẫu nhiên)
       if (/[0-9]/.test(match)) {
         return '';
@@ -220,17 +235,25 @@ export class MediaService {
     // 3. Thay thế các ký tự gạch nối và gạch dưới thành dấu cách
     let title = baseName.replace(/[-_]/g, ' ').trim();
 
-    // 4. Viết hoa chữ cái đầu của mỗi từ (Title Case)
-    title = title
-      .split(/\s+/)
-      .map(word => {
-        if (!word) return '';
-        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-      })
-      .filter(Boolean)
-      .join(' ');
+    // 4. Kiểm tra xem tiêu đề có phải là một mã hash ngẫu nhiên vô nghĩa dài không
+    // Định nghĩa mã hash vô nghĩa: dài >= 12 ký tự, chỉ gồm 1 từ duy nhất không có dấu cách, chứa cả chữ và số
+    const isRandomHash = /^[a-zA-Z0-9]{12,}$/.test(title) && /[0-9]/.test(title) && /[a-zA-Z]/.test(title);
+    
+    if (isRandomHash) {
+      title = 'Ảnh Tải Lên';
+    } else {
+      // 5. Viết hoa chữ cái đầu của mỗi từ (Title Case)
+      title = title
+        .split(/\s+/)
+        .map(word => {
+          if (!word) return '';
+          return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+        })
+        .filter(Boolean)
+        .join(' ');
+    }
 
-    // 5. Nếu kết quả trống, trả về tên mặc định đẹp đẽ
+    // 6. Nếu kết quả trống, trả về tên mặc định đẹp đẽ
     return title || 'Hình ảnh thư viện';
   }
 }

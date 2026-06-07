@@ -8,11 +8,11 @@ export default function HeroSection() {
         
         <div className="md:col-span-6 space-y-8 text-left">
           <span className="text-[10px] uppercase tracking-[0.2em] text-brand-clay font-bold block">
-            NGHỆ NHÂN CÂY CẢNH ĐỖ XUÂN HÙNG • NAM ĐỊNH
+            CÂY CẢNH NAM ĐIỀN • NAM ĐỊNH
           </span>
           <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl text-brand-forest font-light leading-[1.08] tracking-tight">
-            Nghệ nhân cây cảnh <br />
-            <span className="italic text-brand-clay font-normal">Đỗ Xuân Hùng</span>
+            Cây cảnh <br />
+            <span className="italic text-brand-clay font-normal">Nam Điền</span>
           </h1>
           <p className="text-xs sm:text-sm text-[#555] leading-relaxed max-w-md font-medium">
             Kiến tạo tổ ấm xanh mát với các loài cây dễ chăm sóc được chọn lọc kỹ lưỡng, kết hợp cùng các dòng chậu gốm thủ công tinh xảo. Đóng gói chuyên nghiệp và vận chuyển trực tiếp đến cửa nhà bạn.

@@ -48,7 +48,10 @@ async function bootstrap() {
       // Cho phép requests không có origin (như curl hoặc mobile apps, Postman)
       if (!origin) return callback(null, true);
       
-      if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+      // Tư duy hệ thống: Tự động cho phép mọi kết nối từ localhost hoặc 127.0.0.1 với bất kỳ cổng động nào
+      const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+      
+      if (isLocalhost || allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
         callback(null, true);
       } else {
         logger.warn(`Origin blocked by CORS: ${origin}`);
@@ -64,8 +67,8 @@ async function bootstrap() {
 
   // Thiết lập Swagger UI để phát triển và test API
   const config = new DocumentBuilder()
-    .setTitle('Nghệ Nhân Cây Cảnh Đỗ Xuân Hùng API')
-    .setDescription('Premium eCommerce store backend designed for high scalability (1M users) - Nghệ Nhân Cây Cảnh Đỗ Xuân Hùng')
+    .setTitle('Cây Cảnh Nam Điền API')
+    .setDescription('Premium eCommerce store backend designed for high scalability (1M users) - Cây Cảnh Nam Điền')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

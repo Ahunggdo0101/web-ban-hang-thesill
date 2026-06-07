@@ -90,7 +90,7 @@ const filterLabels = {
 };
 
 export default function OutdoorPlantsPage() {
-  useDocumentTitle('Cây trồng ngoài trời | Nghệ Nhân Cây Cảnh Đỗ Xuân Hùng');
+  useDocumentTitle('Cây trồng ngoài trời | Cây Cảnh Nam Điền');
   const { addToCart } = useCart();
   const [products, setProducts] = useState([]);
   const [slots, setSlots] = useState([]);

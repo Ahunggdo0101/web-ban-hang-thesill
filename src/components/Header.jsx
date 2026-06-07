@@ -192,7 +192,7 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
               className="flex items-center text-brand-forest focus:outline-none cursor-pointer group text-center"
             >
               <span className="font-serif text-[12px] xs:text-[13px] sm:text-sm font-light tracking-[0.02em] lowercase group-hover:text-brand-clay transition-colors duration-500 truncate max-w-[155px] xs:max-w-[190px] sm:max-w-none block">
-                nghệ nhân đỗ xuân hùng
+                cây cảnh nam điền
               </span>
             </Link>
           </div>
@@ -242,7 +242,7 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
                 className="flex items-center text-brand-forest focus:outline-none cursor-pointer group"
               >
                 <span className="font-serif text-3xl font-light tracking-[0.05em] lowercase group-hover:text-brand-clay transition-colors duration-500">
-                  nghệ nhân đỗ xuân hùng
+                  cây cảnh nam điền
                 </span>
               </Link>
             </div>

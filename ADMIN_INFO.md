@@ -1,6 +1,6 @@
 # THÔNG TIN QUẢN TRỊ WEBSITE - CÂY CẢNH NAM ĐIỀN
 
-Tài liệu này lưu trữ các tài khoản quản trị quan trọng của website để anh Đỗ Xuân Hùng tra cứu khi quên.
+Tài liệu này lưu trữ các tài khoản quản trị quan trọng của website để ban quản trị Cây Cảnh Nam Điền tra cứu khi quên.
 
 ---
 

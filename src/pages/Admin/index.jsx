@@ -13,6 +13,7 @@ import MenuTab from './MenuTab';
 import IndoorPlantsTab from './IndoorPlantsTab';
 import OutdoorPlantsTab from './OutdoorPlantsTab';
 import CategoriesTab from './CategoriesTab';
+import ProductGalleryTab from './ProductGalleryTab';
 
 
 export default function Admin({ refreshProducts }) {
@@ -48,7 +49,7 @@ export default function Admin({ refreshProducts }) {
             <div>
               <p className="text-[10px] uppercase tracking-widest text-brand-slate font-bold">Admin Dashboard</p>
                <h1 className="font-serif text-lg text-brand-forest font-light capitalize">
-                {activeTab === 'dashboard' ? 'Tổng quan' : activeTab === 'products' ? 'Sản phẩm' : activeTab === 'categories' ? 'Danh mục' : activeTab === 'indoorplants' ? 'Cây Trong Nhà (Slots)' : activeTab === 'largeplants' ? 'Cây Cỡ Lớn (Slots)' : activeTab === 'outdoorplants' ? 'Cây Ngoài Trời (Slots)' : activeTab === 'orders' ? 'Đơn hàng' : activeTab === 'users' ? 'Người dùng' : activeTab === 'media' ? 'Thư viện ảnh' : activeTab === 'menu' ? 'Cấu hình Menu' : 'Trang chủ'}
+                {activeTab === 'dashboard' ? 'Tổng quan' : activeTab === 'products' ? 'Sản phẩm' : activeTab === 'product-gallery' ? 'Kho ảnh sản phẩm' : activeTab === 'categories' ? 'Danh mục' : activeTab === 'indoorplants' ? 'Cây Trong Nhà (Slots)' : activeTab === 'largeplants' ? 'Cây Cỡ Lớn (Slots)' : activeTab === 'outdoorplants' ? 'Cây Ngoài Trời (Slots)' : activeTab === 'orders' ? 'Đơn hàng' : activeTab === 'users' ? 'Người dùng' : activeTab === 'media' ? 'Thư viện ảnh' : activeTab === 'menu' ? 'Cấu hình Menu' : 'Trang chủ'}
               </h1>
             </div>
           </div>
@@ -70,6 +71,7 @@ export default function Admin({ refreshProducts }) {
           {activeTab === 'menu'       && <MenuTab fetchWithAuth={fetchWithAuth} />}
           {activeTab === 'media'      && <MediaTab fetchWithAuth={fetchWithAuth} />}
           {activeTab === 'products'   && <ProductsTab fetchWithAuth={fetchWithAuth} refreshProducts={refreshProducts} />}
+          {activeTab === 'product-gallery' && <ProductGalleryTab fetchWithAuth={fetchWithAuth} />}
           {activeTab === 'categories' && <CategoriesTab fetchWithAuth={fetchWithAuth} />}
           {activeTab === 'indoorplants'&& <IndoorPlantsTab fetchWithAuth={fetchWithAuth} />}
           {activeTab === 'largeplants'&& <LargePlantsTab fetchWithAuth={fetchWithAuth} />}

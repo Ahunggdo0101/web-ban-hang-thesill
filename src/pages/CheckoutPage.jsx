@@ -755,7 +755,7 @@ export default function CheckoutPage() {
                   {/* Cột trái: QR Code */}
                   <div className="bg-white p-3 border border-brand-sand/40 rounded-xl shadow-xs flex-shrink-0 flex items-center justify-center">
                     <img
-                      src={`https://img.vietqr.io/image/MB-0966337492-compact2.png?amount=${Math.round(createdOrder.totalAmount * 1000)}&addInfo=TS-${createdOrder.id.substring(0, 8).toUpperCase()}&accountName=DO%20XUAN%20HUNG`}
+                      src={`https://img.vietqr.io/image/MB-0966337492-compact2.png?amount=${Math.round(createdOrder.totalAmount * 1000)}&addInfo=TS-${createdOrder.id.substring(0, 8).toUpperCase()}&accountName=CAY%20CANH%20NAM%20DIEN`}
                       alt="VietQR MB Bank"
                       className="w-48 h-48 sm:w-56 sm:h-56 object-contain"
                     />
@@ -785,7 +785,7 @@ export default function CheckoutPage() {
                     </div>
                     <div className="grid grid-cols-3 border-b border-brand-sand/20 pb-2">
                       <span className="text-brand-slate text-[10px] uppercase font-bold tracking-wider">Chủ tài khoản</span>
-                      <span className="col-span-2 font-bold uppercase">DO XUAN HUNG</span>
+                      <span className="col-span-2 font-bold uppercase">CAY CANH NAM DIEN</span>
                     </div>
                     <div className="grid grid-cols-3 border-b border-brand-sand/20 pb-2">
                       <span className="text-brand-slate text-[10px] uppercase font-bold tracking-wider">Số tiền</span>
@@ -851,7 +851,7 @@ export default function CheckoutPage() {
                 <h4 className="font-serif text-sm font-semibold text-brand-forest">Thanh toán khi nhận hàng (COD)</h4>
                 <p className="text-[11px] text-brand-slate leading-relaxed max-w-xs mx-auto">
                   Bạn sẽ thanh toán tiền mặt trực tiếp cho người giao hàng sau khi kiểm tra đầy đủ sản phẩm.
-                  Nhân viên chăm sóc của Nghệ Nhân Đỗ Xuân Hùng sẽ sớm gọi điện thoại để xác nhận đơn hàng với bạn.
+                  Nhân viên chăm sóc của Cây cảnh Nam Điền sẽ sớm gọi điện thoại để xác nhận đơn hàng với bạn.
                 </p>
                 <div className="pt-2 text-[10px] text-brand-slate font-medium animate-pulse">
                   Đang chuyển hướng về trang chủ sau 3 giây...

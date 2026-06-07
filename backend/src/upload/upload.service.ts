@@ -18,11 +18,18 @@ export class UploadService {
   async uploadImage(file: Express.Multer.File): Promise<UploadApiResponse> {
     try {
       this.logger.log(`Starting upload for file: ${file.originalname} (${file.size} bytes)`);
+      
+      const cleanName = this.cleanFilename(file.originalname);
+      // Thêm hậu tố ngẫu nhiên ngắn 4 ký tự để tránh trùng lặp
+      const suffix = Math.random().toString(36).substring(2, 6);
+      const publicId = `${cleanName}-${suffix}`;
+
       return await new Promise<UploadApiResponse>((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
             folder: 'the_sill_products',
             resource_type: 'image',
+            public_id: publicId,
           },
           (error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
             if (error) {
@@ -33,7 +40,7 @@ export class UploadService {
               this.logger.error('Cloudinary upload stream returned empty result');
               return reject(new BadGatewayException('Cloudinary upload failed: empty response'));
             }
-            this.logger.log(`Cloudinary upload success: ${result.secure_url}`);
+            this.logger.log(`Cloudinary upload success: ${result.secure_url} (publicId: ${result.public_id})`);
             resolve(result);
           }
         );
@@ -146,6 +153,28 @@ export class UploadService {
       this.logger.error(`Cloudinary listResources error: ${err instanceof Error ? err.message : 'Unknown error'}`);
       throw new BadGatewayException(`Không thể lấy danh sách ảnh từ Cloudinary: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
+  }
+
+  private cleanFilename(filename: string): string {
+    let clean = filename.toLowerCase().trim();
+    // Loại bỏ phần mở rộng file (extension) nếu có
+    clean = clean.replace(/\.[^/.]+$/, "");
+    
+    // Thay thế ký tự tiếng Việt có dấu
+    clean = clean.replace(/[áàảãạăắằẳẵặâấầẩẫậ]/g, 'a');
+    clean = clean.replace(/[éèẻẽẹêếềểễệ]/g, 'e');
+    clean = clean.replace(/[íìỉĩị]/g, 'i');
+    clean = clean.replace(/[óòỏõọôốồổỗộơớờởỡợ]/g, 'o');
+    clean = clean.replace(/[úùủũụưứừửữự]/g, 'u');
+    clean = clean.replace(/[ýỳỷỹỵ]/g, 'y');
+    clean = clean.replace(/đ/g, 'd');
+    
+    // Thay thế các ký tự không phải chữ cái/số thành dấu gạch ngang
+    clean = clean.replace(/[^a-z0-9 -]/g, '')
+                 .replace(/\s+/g, '-')
+                 .replace(/-+/g, '-');
+                 
+    return clean || 'image';
   }
 }
 

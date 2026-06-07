@@ -7,7 +7,12 @@ import * as bcrypt from 'bcrypt';
 dotenv.config();
 
 const connectionString = process.env.DATABASE_URL;
-const pool = new Pool({ connectionString });
+const pool = new Pool({
+  connectionString,
+  ssl: connectionString && (connectionString.includes('sslmode=require') || connectionString.includes('supabase.co'))
+    ? { rejectUnauthorized: false }
+    : undefined
+});
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
@@ -303,7 +308,7 @@ async function main() {
   await prisma.user.create({
     data: {
       email: 'dohungg0101@gmail.com',
-      name: 'Đỗ Xuân Hùng',
+      name: 'Admin Cây Cảnh Nam Điền',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
       role: 'admin',
       password: adminPasswordHash,
@@ -316,7 +321,7 @@ async function main() {
   await prisma.user.create({
     data: {
       email: 'khachhang@caycanhnamdinh.vn',
-      name: 'Khách hàng Nghệ Nhân Cây Cảnh Đỗ Xuân Hùng',
+      name: 'Khách hàng Cây Cảnh Nam Điền',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
       role: 'user',
       password: customerPasswordHash,

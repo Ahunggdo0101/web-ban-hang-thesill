@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import {
-  LayoutDashboard, Package, ShoppingCart, Users, LogOut, Home, Images, ListOrdered, Menu, FolderOpen
+  LayoutDashboard, Package, ShoppingCart, Users, LogOut, Home, Images, ListOrdered, Menu, FolderOpen, Image as ImageIcon
 } from 'lucide-react';
 
 export const Sidebar = memo(({ activeTab, setActiveTab, onLogout, isOpen, onClose }) => {
@@ -10,6 +10,7 @@ export const Sidebar = memo(({ activeTab, setActiveTab, onLogout, isOpen, onClos
     { id: 'menu',      label: 'Cấu hình Menu',  icon: Menu },
     { id: 'media',     label: 'Thư viện ảnh',   icon: Images },
     { id: 'products',  label: 'Sản phẩm',       icon: Package },
+    { id: 'product-gallery', label: 'Ảnh sản phẩm', icon: ImageIcon },
     { id: 'categories', label: 'Danh mục',      icon: FolderOpen },
     { id: 'indoorplants', label: 'Cây Trong Nhà (Slots)', icon: ListOrdered },
     { id: 'largeplants', label: 'Cây Cỡ Lớn (Slots)', icon: ListOrdered },
@@ -30,7 +31,7 @@ export const Sidebar = memo(({ activeTab, setActiveTab, onLogout, isOpen, onClos
       `}>
         {/* Logo */}
         <div className="px-6 py-6 border-b border-white/10">
-          <h2 className="font-serif text-xl font-light lowercase tracking-wider">nghệ nhân đỗ xuân hùng</h2>
+          <h2 className="font-serif text-xl font-light lowercase tracking-wider">cây cảnh nam điền</h2>
           <p className="text-[9px] uppercase tracking-widest text-brand-clay mt-0.5 font-bold">Admin Dashboard</p>
         </div>
 

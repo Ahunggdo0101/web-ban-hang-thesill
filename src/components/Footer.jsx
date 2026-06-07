@@ -63,7 +63,7 @@ const Footer = memo(function Footer() {
           <div className="lg:col-span-4 space-y-6 text-left">
             <h3 className="font-serif text-3xl font-light text-brand-forest leading-tight">
               Tham gia bản tin <br />
-              <span className="italic font-normal text-brand-clay">Đỗ Xuân Hùng Garden Club</span>
+              <span className="italic font-normal text-brand-clay">Cây Cảnh Nam Điền Garden Club</span>
             </h3>
             <p className="text-xs text-brand-slate leading-relaxed font-semibold">
               Nhận ngay mã giảm giá **10%** cho đơn hàng đầu tiên, cộng với các mẹo chăm sóc cây độc quyền hàng tuần.
@@ -150,7 +150,7 @@ const Footer = memo(function Footer() {
         </div>
 
         <div className="border-t border-brand-sand mt-10 md:mt-20 pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] text-brand-slate/75 font-bold uppercase tracking-widest space-y-4 md:space-y-0">
-          <p>© 2026 Nghệ Nhân Cây Cảnh Đỗ Xuân Hùng. Bảo lưu mọi quyền tạo tác nghệ thuật.</p>
+          <p>© 2026 Cây Cảnh Nam Điền. Bảo lưu mọi quyền tạo tác nghệ thuật.</p>
           <div className="flex space-x-6">
             <Link to="/privacy" className="hover:text-brand-forest transition-colors">Bảo mật</Link>
             <Link to="/shipping" className="hover:text-brand-forest transition-colors">Vận chuyển</Link>

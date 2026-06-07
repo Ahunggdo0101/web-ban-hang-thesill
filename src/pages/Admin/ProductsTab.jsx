@@ -47,7 +47,7 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
   }, []);
 
   function initialForm() {
-    return { id: '', name: '', botanicalName: '', price: '', description: '', category: 'plants', image: '', images: '', light: 'medium', petFriendly: false, difficulty: 'easy', size: 'medium', careDetails: { light: '', water: '', toxicity: '' } };
+    return { id: '', name: '', botanicalName: '', price: '', description: '', category: 'plants', image: '', images: [], light: 'medium', petFriendly: false, difficulty: 'easy', size: 'medium', careDetails: { light: '', water: '', toxicity: '' } };
   }
 
   const showToast = useCallback((message, type = 'success') => {
@@ -96,7 +96,7 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
     setFormData({
       id: p.id, name: p.name, botanicalName: p.botanicalName || '',
       price: p.price, description: p.description || '', category: p.category || 'plants',
-      image: p.image || '', images: Array.isArray(p.images) ? p.images.join(', ') : '',
+      image: p.image || '', images: Array.isArray(p.images) ? p.images : [],
       light: p.light || 'medium', petFriendly: !!p.petFriendly, difficulty: p.difficulty || 'easy',
       size: p.size || 'medium',
       careDetails: { light: p.careDetails?.light || '', water: p.careDetails?.water || '', toxicity: p.careDetails?.toxicity || '' },
@@ -222,7 +222,11 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
       finalId = generateSlug(formData.name);
     }
 
-    const imagesArray = [formData.image.trim()];
+    // Giữ nguyên mảng images phụ đã được cấu hình trước đó khi chỉnh sửa sản phẩm
+    // Nếu tạo mới, gán mặc định chỉ chứa ảnh chính
+    const imagesArray = modalType === 'create'
+      ? [formData.image.trim()]
+      : (Array.isArray(formData.images) ? formData.images : [formData.image.trim()]);
     const payload = { 
       id: finalId, 
       name: formData.name.trim(), 

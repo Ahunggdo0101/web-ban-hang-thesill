@@ -92,7 +92,7 @@ const filterLabels = {
 };
 
 export default function IndoorPlantsPage() {
-  useDocumentTitle('Cây trồng trong nhà | Nghệ Nhân Cây Cảnh Đỗ Xuân Hùng');
+  useDocumentTitle('Cây trồng trong nhà | Cây Cảnh Nam Điền');
   const { addToCart } = useCart();
   const [products, setProducts] = useState([]);
   const [slots, setSlots] = useState([]);

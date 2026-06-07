@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Search, ArrowLeft } from 'lucide-react';
+import { Search, ArrowLeft, X } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import SkeletonProductCard from '../components/SkeletonProductCard';
 import { useCart } from '../context/CartContext';
@@ -98,6 +98,26 @@ export default function SearchPage() {
           {[...Array(4)].map((_, i) => (
             <SkeletonProductCard key={i} />
           ))}
+        </div>
+      ) : error ? (
+        <div className="text-center py-20 bg-brand-white border border-brand-sand shadow-xs max-w-md mx-auto space-y-6 animate-fade-in rounded-sm">
+          <div className="w-16 h-16 bg-red-50 border border-red-200 rounded-full flex items-center justify-center mx-auto text-red-500">
+            <X size={24} className="stroke-1.5" />
+          </div>
+          <div className="space-y-2">
+            <h3 className="font-serif text-xl text-brand-forest font-medium">Lỗi kết nối máy chủ</h3>
+            <p className="text-xs text-brand-slate max-w-xs mx-auto leading-relaxed font-semibold">
+              Rất tiếc, đã xảy ra sự cố khi tải kết quả tìm kiếm: <span className="text-red-500 font-bold">“{error}”</span>. Vui lòng kiểm tra lại kết nối hoặc thử lại sau.
+            </p>
+          </div>
+          <div className="pt-2">
+            <button
+              onClick={() => window.location.reload()}
+              className="inline-block bg-brand-forest text-brand-cream text-[10px] font-bold uppercase tracking-widest px-8 py-4 hover:bg-brand-green transition-colors cursor-pointer"
+            >
+              Thử tải lại trang
+            </button>
+          </div>
         </div>
       ) : filteredProducts.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">

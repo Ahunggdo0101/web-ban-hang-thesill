@@ -302,3 +302,13 @@ select {
   outline: 2px solid var(--color-brand-clay);
   outline-offset: 2px;
 }
+
+/* ─── Hide scrollbars but keep scrolling ─── */
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
