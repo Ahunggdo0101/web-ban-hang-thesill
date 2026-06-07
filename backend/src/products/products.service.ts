@@ -346,5 +346,8 @@ export class ProductsService {
     if (productId) {
       await this.redisService.del(`product:detail:${productId}`);
     }
+
+    // Xóa cache trang chủ để thông tin sản phẩm cập nhật đồng bộ tức thời
+    await this.redisService.del('homepage:config');
   }
 }

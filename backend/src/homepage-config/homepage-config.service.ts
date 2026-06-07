@@ -77,9 +77,51 @@ export class HomepageConfigService {
 
     // 2. Lấy từ DB
     const record = await this.prisma.homepageConfig.findUnique({ where: { id: 1 } });
-    const config = record ? record.data : DEFAULT_HOMEPAGE_CONFIG;
+    const config = record ? JSON.parse(JSON.stringify(record.data)) : JSON.parse(JSON.stringify(DEFAULT_HOMEPAGE_CONFIG));
 
-    // 3. Lưu vào cache
+    // 3. Đồng bộ hóa động thông tin sản phẩm từ CSDL sản phẩm gốc
+    const productIds: string[] = [];
+    const sections = ['popularPlants', 'floorPlants', 'newArrivals'];
+    
+    sections.forEach(sec => {
+      if (Array.isArray(config[sec])) {
+        config[sec].forEach((item: any) => {
+          if (item && item.productId) {
+            productIds.push(item.productId);
+          }
+        });
+      }
+    });
+
+    if (productIds.length > 0) {
+      const products = await this.prisma.product.findMany({
+        where: { id: { in: productIds } },
+      });
+
+      const productMap = new Map(products.map(p => [p.id, p]));
+
+      sections.forEach(sec => {
+        if (Array.isArray(config[sec])) {
+          config[sec].forEach((item: any) => {
+            if (item && item.productId) {
+              const p = productMap.get(item.productId);
+              if (p) {
+                // Cập nhật động theo sản phẩm gốc trong DB
+                item.title = p.name || item.title;
+                item.desc = p.description ? (p.description.length > 80 ? p.description.substring(0, 80) + '...' : p.description) : item.desc;
+                item.price = p.price ? `Từ $${p.price}` : item.price;
+                item.image = p.image || item.image;
+                item.rating = p.rating ? Math.round(p.rating) : item.rating;
+                item.reviewsCount = p.reviewsCount !== undefined ? `${p.reviewsCount} reviews` : item.reviewsCount;
+                item.path = `/product/${p.id}`;
+              }
+            }
+          });
+        }
+      });
+    }
+
+    // 4. Lưu vào cache
     await this.redisService.set(this.CACHE_KEY, JSON.stringify(config), this.CACHE_TTL);
 
     return config;
