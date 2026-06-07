@@ -6,6 +6,7 @@ import { API_BASE_URL } from '../../config';
 import { Toast, ConfirmModal, StatusBadge } from './shared';
 import { optimizeUnsplashImage } from '../../utils/image';
 import { formatVND } from '../../utils/translation';
+import OrderDetailSection from './OrderDetailSection';
 
 const API = API_BASE_URL;
 
@@ -215,86 +216,8 @@ export default function OrdersTab({ fetchWithAuth }) {
                   </tr>
                   {expandedId === order.id && (
                     <tr key={`${order.id}-expanded`} className="bg-brand-cream/20">
-                      <td colSpan={7} className="px-6 py-4">
-                        <div className="space-y-2">
-                          <p className="text-[10px] uppercase tracking-widest font-bold text-brand-sage">Chi tiết đơn hàng</p>
-                          {/* Thông tin giao hàng & phương thức thanh toán */}
-                          <div className="bg-white border border-brand-sand p-3 space-y-1.5 text-brand-charcoal">
-                            <p className="text-[10px] uppercase tracking-widest font-bold text-brand-clay mb-1">Thông Tin Giao Hàng & Thanh Toán</p>
-                            <div className="flex items-center flex-wrap gap-2 text-xs">
-                              <span>Mã đơn hàng đầy đủ:</span>
-                              <span className="font-mono font-bold text-brand-charcoal select-all">{order.id}</span>
-                              <button 
-                                type="button" 
-                                onClick={() => {
-                                  navigator.clipboard.writeText(order.id);
-                                  showToast('Đã sao chép mã đơn hàng đầy đủ!', 'success');
-                                }}
-                                className="text-[8px] bg-brand-sand/30 hover:bg-brand-sand text-brand-forest px-1.5 py-0.5 font-bold uppercase tracking-widest active:scale-95 transition-all cursor-pointer"
-                              >
-                                Sao chép
-                              </button>
-                            </div>
-                            <div className="flex items-center flex-wrap gap-2 text-xs">
-                              <span>Mã chuyển khoản (đối soát):</span>
-                              <span className="font-mono font-bold text-brand-clay select-all">TS-{order.id.substring(0, 8).toUpperCase()}</span>
-                              <button 
-                                type="button" 
-                                onClick={() => {
-                                  navigator.clipboard.writeText(`TS-${order.id.substring(0, 8).toUpperCase()}`);
-                                  showToast('Đã sao chép mã chuyển khoản đối soát!', 'success');
-                                }}
-                                className="text-[8px] bg-brand-sand/30 hover:bg-brand-sand text-brand-forest px-1.5 py-0.5 font-bold uppercase tracking-widest active:scale-95 transition-all cursor-pointer"
-                              >
-                                Sao chép
-                              </button>
-                            </div>
-                            <p>Số điện thoại: <span className="font-bold text-brand-forest">{order.phone || 'N/A'}</span></p>
-                            <p>Địa chỉ nhận: <span className="font-semibold">{order.address || 'N/A'}, {order.district || 'N/A'}, {order.city || 'N/A'}</span></p>
-                            <p>Phương thức thanh toán: <span className="font-bold text-brand-forest uppercase tracking-wider">{order.paymentMethod === 'VIETQR' ? 'Chuyển khoản VietQR' : 'Thanh toán khi nhận hàng (COD)'}</span></p>
-                          </div>
-
-                          {order.vatRequested && (
-                            <div className="bg-red-50/50 border border-red-200 p-4 space-y-2 text-brand-charcoal text-xs">
-                              <p className="text-[10px] uppercase tracking-widest font-bold text-red-700 mb-1 flex items-center gap-1.5">
-                                📋 YÊU CẦU XUẤT HÓA ĐƠN VAT (GTGT)
-                              </p>
-                              <p>Tên công ty/đơn vị: <span className="font-bold text-brand-forest uppercase select-all">{order.vatCompanyName || 'N/A'}</span></p>
-                              <p>Mã số thuế (MST): <span className="font-mono font-bold text-brand-clay text-sm select-all">{order.vatTaxCode || 'N/A'}</span></p>
-                              <p>Địa chỉ đăng ký thuế: <span className="font-semibold select-all">{order.vatCompanyAddr || 'N/A'}</span></p>
-                              <p>Email nhận hóa đơn: <span className="font-bold text-brand-forest select-all">{order.vatEmail || 'N/A'}</span></p>
-                              
-                              <div className="pt-1.5">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const info = `Công ty: ${order.vatCompanyName}\nMST: ${order.vatTaxCode}\nĐịa chỉ: ${order.vatCompanyAddr}\nEmail: ${order.vatEmail}`;
-                                    navigator.clipboard.writeText(info);
-                                    showToast('Đã sao chép toàn bộ thông tin VAT!', 'success');
-                                  }}
-                                  className="inline-flex items-center gap-1.5 bg-red-100 hover:bg-red-200 text-red-800 border border-red-300 px-2.5 py-1.5 text-[9px] font-bold uppercase tracking-wider transition-colors cursor-pointer rounded-xs active:scale-95"
-                                >
-                                  📋 Sao chép toàn bộ thông tin VAT
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                          <div className="space-y-2">
-                            {(order.items || []).map(item => (
-                              <div key={item.id} className="flex items-center gap-3 bg-white border border-brand-sand p-3">
-                                <img src={optimizeUnsplashImage(item.product?.image, 100)} alt={item.product?.name} className="w-10 h-10 object-cover border border-brand-sand" loading="lazy" />
-                                <div className="flex-1">
-                                  <p className="text-xs font-bold text-brand-forest">{item.product?.name}</p>
-                                  <p className="text-[10px] text-[#888]">Chậu: {item.potStyle} · Màu: {item.potColor} · SL: {item.quantity}</p>
-                                </div>
-                                <span className="text-xs font-bold">{formatVND(item.price * item.quantity)}</span>
-                              </div>
-                            ))}
-                          </div>
-                          {order.discount > 0 && <div className="text-xs text-brand-clay font-semibold">Giảm giá: -{formatVND(order.discount)}</div>}
-                          {order.shippingCost > 0 && <div className="text-xs text-[#666]">Phí vận chuyển: {formatVND(order.shippingCost)}</div>}
-                          <div className="text-xs font-bold text-brand-forest">Tổng cộng: {formatVND(order.totalAmount)}</div>
-                        </div>
+                      <td colSpan={7} className="px-6 py-4 border-b border-brand-sand">
+                        <OrderDetailSection order={order} showToast={showToast} />
                       </td>
                     </tr>
                   )}
