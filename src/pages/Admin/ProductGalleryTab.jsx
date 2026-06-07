@@ -21,9 +21,10 @@ export default function ProductGalleryTab({ fetchWithAuth }) {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [tempMainImage, setTempMainImage] = useState(''); // Ảnh đại diện chính tạm thời
   const [tempImages, setTempImages] = useState([]); // Mảng ảnh phụ đang chỉnh sửa tạm thời
+  const [tempColorImages, setTempColorImages] = useState({}); // Object ảnh theo màu chậu tạm thời
   const [manualUrl, setManualUrl] = useState(''); 
   const [pickerOpen, setPickerOpen] = useState(false); 
-  const [pickerType, setPickerType] = useState('gallery'); // 'main' | 'gallery'
+  const [pickerType, setPickerType] = useState('gallery'); // 'main' | 'gallery' | 'color:ColorName'
   const [saving, setSaving] = useState(false); 
   
   // Toast & Modal xác nhận
@@ -76,6 +77,12 @@ export default function ProductGalleryTab({ fetchWithAuth }) {
     setTempMainImage(product.image || '');
     const currentImages = Array.isArray(product.images) ? [...product.images] : [];
     setTempImages(currentImages);
+    
+    // Khởi tạo colorImages tạm thời
+    const origColorImages = product.colorImages
+      ? (typeof product.colorImages === 'string' ? JSON.parse(product.colorImages) : product.colorImages)
+      : {};
+    setTempColorImages(origColorImages);
     setManualUrl('');
   }, [saving]);
 
@@ -91,6 +98,10 @@ export default function ProductGalleryTab({ fetchWithAuth }) {
     if (pickerType === 'main') {
       setTempMainImage(url);
       showToast('Đã thay đổi ảnh đại diện chính!');
+    } else if (pickerType.startsWith('color:')) {
+      const colorName = pickerType.substring(6);
+      setTempColorImages(prev => ({ ...prev, [colorName]: url }));
+      showToast(`Đã chọn ảnh cho chậu màu ${colorName}!`);
     } else {
       if (tempImages.includes(url)) {
         showToast('Ảnh này đã có trong bộ sưu tập sản phẩm.', 'warning');
@@ -151,25 +162,50 @@ export default function ProductGalleryTab({ fetchWithAuth }) {
     showToast('Đã hoán đổi ảnh đại diện chính thành công!');
   }, [tempMainImage, tempImages, showToast]);
 
+  // Cập nhật giá trị ảnh của một màu chậu cụ thể
+  const handleUpdateColorImage = useCallback((color, url) => {
+    setTempColorImages(prev => {
+      const updated = { ...prev };
+      if (!url) {
+        delete updated[color];
+      } else {
+        updated[color] = url;
+      }
+      return updated;
+    });
+  }, []);
+
   // Đặt lại (Reset) các thay đổi chưa lưu
   const handleResetChanges = useCallback(() => {
     if (!selectedProduct) return;
     setTempMainImage(selectedProduct.image || '');
     const currentImages = Array.isArray(selectedProduct.images) ? [...selectedProduct.images] : [];
     setTempImages(currentImages);
+    const origColorImages = selectedProduct.colorImages
+      ? (typeof selectedProduct.colorImages === 'string' ? JSON.parse(selectedProduct.colorImages) : selectedProduct.colorImages)
+      : {};
+    setTempColorImages(origColorImages);
     setConfirmReset(false);
     showToast('Đã khôi phục về trạng thái ban đầu.');
   }, [selectedProduct, showToast]);
 
-  // So sánh xem mảng tempImages hoặc tempMainImage có khác bản gốc không
+  // So sánh xem mảng tempImages, tempMainImage hoặc tempColorImages có khác bản gốc không
   const isChanged = useMemo(() => {
     if (!selectedProduct) return false;
     if (selectedProduct.image !== tempMainImage) return true;
 
     const original = Array.isArray(selectedProduct.images) ? selectedProduct.images : [];
     if (original.length !== tempImages.length) return true;
-    return original.some((img, idx) => img !== tempImages[idx]);
-  }, [selectedProduct, tempMainImage, tempImages]);
+    if (original.some((img, idx) => img !== tempImages[idx])) return true;
+
+    const origColorImages = selectedProduct.colorImages
+      ? (typeof selectedProduct.colorImages === 'string' ? JSON.parse(selectedProduct.colorImages) : selectedProduct.colorImages)
+      : {};
+    const origKeys = Object.keys(origColorImages);
+    const tempKeys = Object.keys(tempColorImages);
+    if (origKeys.length !== tempKeys.length) return true;
+    return origKeys.some(k => origColorImages[k] !== tempColorImages[k]);
+  }, [selectedProduct, tempMainImage, tempImages, tempColorImages]);
 
   // Lưu cấu hình mảng images mới lên server
   const handleSaveGallery = useCallback(async () => {
@@ -182,7 +218,8 @@ export default function ProductGalleryTab({ fetchWithAuth }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           image: tempMainImage,
-          images: tempImages
+          images: tempImages,
+          colorImages: tempColorImages
         })
       });
 
@@ -196,6 +233,10 @@ export default function ProductGalleryTab({ fetchWithAuth }) {
       setSelectedProduct(updatedProduct);
       setTempMainImage(updatedProduct.image || '');
       setTempImages(Array.isArray(updatedProduct.images) ? [...updatedProduct.images] : []);
+      const updatedColorImages = updatedProduct.colorImages
+        ? (typeof updatedProduct.colorImages === 'string' ? JSON.parse(updatedProduct.colorImages) : updatedProduct.colorImages)
+        : {};
+      setTempColorImages(updatedColorImages);
       setProducts(prev => prev.map(p => p.id === updatedProduct.id ? updatedProduct : p));
       
       showToast('Đã lưu cấu hình hình ảnh sản phẩm thành công!');
@@ -204,7 +245,7 @@ export default function ProductGalleryTab({ fetchWithAuth }) {
     } finally {
       setSaving(false);
     }
-  }, [selectedProduct, isChanged, tempMainImage, tempImages, fetchWithAuth, showToast]);
+  }, [selectedProduct, isChanged, tempMainImage, tempImages, tempColorImages, fetchWithAuth, showToast]);
 
   return (
     <div className="space-y-6">
@@ -260,6 +301,7 @@ export default function ProductGalleryTab({ fetchWithAuth }) {
           selectedProduct={selectedProduct}
           tempMainImage={tempMainImage}
           tempImages={tempImages}
+          tempColorImages={tempColorImages}
           manualUrl={manualUrl}
           setManualUrl={setManualUrl}
           isChanged={isChanged}
@@ -269,6 +311,7 @@ export default function ProductGalleryTab({ fetchWithAuth }) {
           onRemoveImage={handleRemoveImage}
           onMoveImage={handleMoveImage}
           onSetAsMain={handleSetAsMain}
+          onUpdateColorImage={handleUpdateColorImage}
           onResetChanges={() => setConfirmReset(true)}
           onSaveGallery={handleSaveGallery}
         />

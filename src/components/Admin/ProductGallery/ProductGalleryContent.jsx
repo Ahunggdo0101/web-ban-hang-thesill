@@ -9,6 +9,7 @@ export const ProductGalleryContent = memo(({
   selectedProduct,
   tempMainImage,
   tempImages,
+  tempColorImages,
   manualUrl,
   setManualUrl,
   isChanged,
@@ -18,6 +19,7 @@ export const ProductGalleryContent = memo(({
   onRemoveImage,
   onMoveImage,
   onSetAsMain,
+  onUpdateColorImage,
   onResetChanges,
   onSaveGallery
 }) => {
@@ -223,6 +225,74 @@ export const ProductGalleryContent = memo(({
               ))}
             </div>
           )}
+        </div>
+
+        {/* Section: Hình ảnh theo màu sắc chậu */}
+        <div className="space-y-3 border-t border-brand-sand pt-6">
+          <h4 className="text-[10px] uppercase tracking-widest font-bold text-brand-forest flex items-center gap-1.5 select-none">
+            🍶 Hình ảnh hiển thị theo màu sắc chậu (Color Images)
+          </h4>
+          <p className="text-[10px] text-brand-slate leading-relaxed">
+            Cấu hình hình ảnh sản phẩm tương ứng khi khách hàng chọn màu chậu. Để trống nếu muốn dùng ảnh chính mặc định.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[
+              { name: 'Charcoal', label: 'Chậu Charcoal (Đá granit)', color: '#4A4A4A' },
+              { name: 'Cream', label: 'Chậu Cream (Kem mịn)', color: '#FDFBF7' },
+              { name: 'Mint', label: 'Chậu Mint (Bạc hà)', color: '#E2ECE9' },
+              { name: 'Terracotta', label: 'Chậu Terracotta (Đất nung)', color: '#C87D65' }
+            ].map((col) => {
+              const url = (tempColorImages && tempColorImages[col.name]) || '';
+              return (
+                <div key={col.name} className="border border-brand-sand/70 p-3 bg-brand-cream/10 rounded-sm flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 shrink-0">
+                    <div className="w-5 h-5 rounded-full border border-brand-sand shadow-xs" style={{ backgroundColor: col.color }} title={col.label} />
+                    <span className="text-[10px] font-bold text-brand-charcoal block">{col.name}</span>
+                  </div>
+                  
+                  <div className="flex-1 min-w-0 flex gap-1.5">
+                    <input
+                      type="text"
+                      value={url}
+                      onChange={(e) => onUpdateColorImage(col.name, e.target.value)}
+                      placeholder="Dán URL ảnh hoặc chọn..."
+                      disabled={saving}
+                      className="w-full bg-white border border-brand-sand px-2 py-1 text-[9px] focus:outline-none focus:border-brand-forest font-mono disabled:opacity-50"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => onOpenPicker(`color:${col.name}`)}
+                      disabled={saving}
+                      className="p-1 bg-white border border-brand-sand text-[#666] hover:text-brand-forest hover:bg-brand-cream/50 cursor-pointer disabled:opacity-50"
+                      title="Chọn từ thư viện ảnh"
+                    >
+                      <ImageIcon size={10} />
+                    </button>
+                    {url && (
+                      <button
+                        type="button"
+                        onClick={() => onUpdateColorImage(col.name, '')}
+                        disabled={saving}
+                        className="p-1 bg-white border border-red-200 text-red-500 hover:bg-red-50 cursor-pointer disabled:opacity-50"
+                        title="Xóa ảnh màu chậu này"
+                      >
+                        <Trash2 size={10} />
+                      </button>
+                    )}
+                  </div>
+                  
+                  <div className="w-8 h-8 border border-brand-sand bg-brand-cream overflow-hidden shrink-0 rounded-xs">
+                    {url ? (
+                      <img src={optimizeUnsplashImage(url, 100)} alt={col.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[8px] text-[#bbb] italic select-none">Trống</div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
       </div>
