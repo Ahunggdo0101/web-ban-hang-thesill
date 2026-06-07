@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import {
-  LayoutDashboard, Package, ShoppingCart, Users, LogOut, Home, Images, ListOrdered, Menu, FolderOpen, Image as ImageIcon
+  LayoutDashboard, Package, ShoppingCart, Users, LogOut, Home, Images, ListOrdered, Menu, FolderOpen, Image as ImageIcon, Ticket
 } from 'lucide-react';
 
 export const Sidebar = memo(({ activeTab, setActiveTab, onLogout, isOpen, onClose }) => {
@@ -12,6 +12,7 @@ export const Sidebar = memo(({ activeTab, setActiveTab, onLogout, isOpen, onClos
     { id: 'products',  label: 'Sản phẩm',       icon: Package },
     { id: 'product-gallery', label: 'Ảnh sản phẩm', icon: ImageIcon },
     { id: 'categories', label: 'Danh mục',      icon: FolderOpen },
+    { id: 'vouchers',   label: 'Mã giảm giá',    icon: Ticket },
     { id: 'indoorplants', label: 'Cây Trong Nhà (Slots)', icon: ListOrdered },
     { id: 'largeplants', label: 'Cây Cỡ Lớn (Slots)', icon: ListOrdered },
     { id: 'outdoorplants', label: 'Cây Ngoài Trời (Slots)', icon: ListOrdered },

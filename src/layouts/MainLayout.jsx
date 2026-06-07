@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import PageLoader from '../components/PageLoader';
 import CartDrawer from '../components/CartDrawer';
 import AuthModal from '../components/AuthModal';
+import SettingsModal from '../components/SettingsModal';
 
 /**
  * MainLayout định hình khung sườn giao diện E-commerce dành cho khách hàng.
@@ -27,6 +28,7 @@ export default function MainLayout() {
       {/* Global Modals & Drawers */}
       <CartDrawer />
       <AuthModal />
+      <SettingsModal />
     </div>
   );
 }

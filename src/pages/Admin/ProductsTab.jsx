@@ -47,8 +47,15 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
   }, []);
 
   function initialForm() {
-    return { id: '', name: '', botanicalName: '', price: '', description: '', category: 'plants', image: '', images: [], light: 'medium', petFriendly: false, difficulty: 'easy', size: 'medium', careDetails: { light: '', water: '', toxicity: '' } };
+    return { id: '', name: '', botanicalName: '', price: '', description: '', category: 'plants', image: '', images: [], light: 'medium', petFriendly: false, difficulty: 'easy', size: 'medium', careDetails: { light: '', water: '', toxicity: '' }, variants: [] };
   }
+
+  const SIZE_OPTIONS = [
+    { value: 'small', label: 'Bé nhỏ', defaultMin: 15, defaultMax: 30 },
+    { value: 'medium', label: 'Trung bình', defaultMin: 30, defaultMax: 60 },
+    { value: 'large', label: 'Lớn', defaultMin: 60, defaultMax: 90 },
+    { value: 'xlarge', label: 'Cỡ cực lớn', defaultMin: 90, defaultMax: 150 },
+  ];
 
   const showToast = useCallback((message, type = 'success') => {
     setToast({ message, type });
@@ -93,6 +100,9 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
     setFormError('');
     setModalType('edit');
     setSelectedId(p.id);
+    const loadedVariants = Array.isArray(p.variants) ? p.variants.map(v => ({
+      size: v.size, heightMin: v.heightMin, heightMax: v.heightMax, price: v.price, stock: v.stock,
+    })) : [];
     setFormData({
       id: p.id, name: p.name, botanicalName: p.botanicalName || '',
       price: p.price, description: p.description || '', category: p.category || 'plants',
@@ -100,6 +110,7 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
       light: p.light || 'medium', petFriendly: !!p.petFriendly, difficulty: p.difficulty || 'easy',
       size: p.size || 'medium',
       careDetails: { light: p.careDetails?.light || '', water: p.careDetails?.water || '', toxicity: p.careDetails?.toxicity || '' },
+      variants: loadedVariants,
     });
     setIsModalOpen(true);
   };
@@ -118,6 +129,29 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
     if (!formData.name) return;
     const slug = formData.name.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
     setFormData(prev => ({ ...prev, id: slug }));
+  };
+
+  // --- Variant handlers ---
+  const isVariantEnabled = (sizeValue) => formData.variants.some(v => v.size === sizeValue);
+
+  const toggleVariant = (sizeOption) => {
+    setFormData(prev => {
+      const exists = prev.variants.find(v => v.size === sizeOption.value);
+      if (exists) {
+        return { ...prev, variants: prev.variants.filter(v => v.size !== sizeOption.value) };
+      } else {
+        return { ...prev, variants: [...prev.variants, { size: sizeOption.value, heightMin: sizeOption.defaultMin, heightMax: sizeOption.defaultMax, price: Number(prev.price) || 0, stock: 0 }] };
+      }
+    });
+  };
+
+  const updateVariant = (sizeValue, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      variants: prev.variants.map(v =>
+        v.size === sizeValue ? { ...v, [field]: Number(value) || 0 } : v
+      ),
+    }));
   };
 
   const handleUploadImage = async (e) => {
@@ -244,7 +278,14 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
         light: formData.careDetails.light.trim(), 
         water: formData.careDetails.water.trim(), 
         toxicity: formData.careDetails.toxicity.trim() 
-      } 
+      },
+      variants: formData.variants.map(v => ({
+        size: v.size,
+        heightMin: Number(v.heightMin),
+        heightMax: Number(v.heightMax),
+        price: Number(v.price),
+        stock: Number(v.stock),
+      })),
     };
     if (modalType !== 'create') {
       delete payload.id;
@@ -368,6 +409,7 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
                 <th className="py-3 px-4">Sản phẩm</th>
                 <th className="py-3 px-4">Danh mục</th>
                 <th className="py-3 px-4">Giá</th>
+                <th className="py-3 px-4">Tồn kho</th>
                 <th className="py-3 px-4">Thông số</th>
                 <th className="py-3 px-4">Vật nuôi</th>
                 <th className="py-3 px-4 text-right">Thao tác</th>
@@ -375,9 +417,9 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
             </thead>
             <tbody className="divide-y divide-brand-sand text-xs text-brand-charcoal">
               {loading ? (
-                <tr><td colSpan={7} className="py-12 text-center"><Loader2 className="animate-spin mx-auto text-brand-forest" size={24} /></td></tr>
+                <tr><td colSpan={8} className="py-12 text-center"><Loader2 className="animate-spin mx-auto text-brand-forest" size={24} /></td></tr>
               ) : products.length === 0 ? (
-                <tr><td colSpan={7} className="py-12 text-center text-[#888] font-serif">Không tìm thấy sản phẩm nào.</td></tr>
+                <tr><td colSpan={8} className="py-12 text-center text-[#888] font-serif">Không tìm thấy sản phẩm nào.</td></tr>
               ) : products.map(p => (
                 <tr key={p.id} className="hover:bg-brand-cream/30 transition-colors">
                   <td className="py-3 px-4">
@@ -396,6 +438,22 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
                     </span>
                   </td>
                   <td className="py-3 px-4 font-bold text-brand-forest">{formatVND(p.price)}</td>
+                  <td className="py-3 px-4">
+                    {Array.isArray(p.variants) && p.variants.length > 0 ? (
+                      <div className="space-y-0.5">
+                        {p.variants.map(v => (
+                          <div key={v.size} className="text-[10px] flex items-center gap-1">
+                            <span className={`inline-block w-1.5 h-1.5 rounded-full ${v.stock > 0 ? 'bg-green-500' : 'bg-red-400'}`} />
+                            <span className="font-semibold capitalize">{v.size}</span>
+                            <span className="text-[#999]">·</span>
+                            <span className={v.stock > 0 ? 'text-green-700' : 'text-red-500 font-bold'}>{v.stock > 0 ? v.stock : 'Hết'}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-[10px] text-[#999] italic">Chưa cấu hình</span>
+                    )}
+                  </td>
                   <td className="py-3 px-4 space-y-0.5">
                     <div className="text-[10px]"><span className="text-[#999]">Nắng: </span><span className="font-semibold capitalize">{p.light}</span></div>
                     <div className="text-[10px]"><span className="text-[#999]">Chăm: </span><span className="font-semibold capitalize">{p.difficulty}</span></div>
@@ -463,12 +521,12 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="space-y-1.5 col-span-1">
-                  <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage" title="Nhập số thô. Ví dụ: 39 nghĩa là 39.000 đ">Giá (x1.000 đ) *</label>
+                  <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage" title="Nhập số tiền đầy đủ. Ví dụ: 39000 nghĩa là 39.000 đ">Giá bán (đ) *</label>
                   <div className="relative">
                     <span className="absolute left-3 top-2.5 text-[#999] text-[10px] font-bold">đ</span>
-                    <input type="number" name="price" required min="0" step="any" disabled={isSubmitting} value={formData.price} onChange={handleInput} placeholder="45" title="Nhập số thô. Ví dụ: 39 nghĩa là 39.000 đ" className="w-full bg-white border border-brand-sand/80 pl-7 pr-3 py-2 text-xs focus:outline-none focus:border-brand-forest font-bold" />
+                    <input type="number" name="price" required min="0" step="any" disabled={isSubmitting} value={formData.price} onChange={handleInput} placeholder="45000" title="Nhập số tiền đầy đủ. Ví dụ: 39000 nghĩa là 39.000 đ" className="w-full bg-white border border-brand-sand/80 pl-7 pr-3 py-2 text-xs focus:outline-none focus:border-brand-forest font-bold" />
                   </div>
-                  <span className="text-[8px] text-brand-slate block mt-0.5">(39 = 39.000 đ)</span>
+                  <span className="text-[8px] text-brand-slate block mt-0.5">(Ví dụ: 39000)</span>
                 </div>
                 <div className="space-y-1.5">
                   <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage">Danh mục *</label>
@@ -585,6 +643,57 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
               <div className="flex items-center gap-2 pt-1">
                 <input type="checkbox" id="petFriendly" name="petFriendly" disabled={isSubmitting} checked={formData.petFriendly} onChange={handleInput} className="accent-brand-forest w-4 h-4 cursor-pointer" />
                 <label htmlFor="petFriendly" className="text-xs font-bold text-brand-sage cursor-pointer select-none">Thân thiện với vật nuôi (Pet Friendly)</label>
+              </div>
+
+              {/* === QUẢN LÝ KÍCH CỠ & TỒN KHO === */}
+              <div className="border-t border-brand-sand/50 pt-4 space-y-3">
+                <h4 className="text-[10px] uppercase tracking-widest font-bold text-brand-forest flex items-center gap-1.5">📐 Kích cỡ & Tồn kho</h4>
+                <p className="text-[9px] text-[#888]">Bật kích cỡ để khách hàng có thể chọn. Kích cỡ không bật sẽ bị mờ trên trang sản phẩm.</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {SIZE_OPTIONS.map(opt => {
+                    const enabled = isVariantEnabled(opt.value);
+                    const variant = formData.variants.find(v => v.size === opt.value);
+                    return (
+                      <div key={opt.value} className={`border transition-all duration-200 ${enabled ? 'border-brand-forest bg-white shadow-sm' : 'border-brand-sand/60 bg-brand-cream/40 opacity-60'}`}>
+                        <button
+                          type="button"
+                          onClick={() => toggleVariant(opt)}
+                          disabled={isSubmitting}
+                          className="w-full flex items-center justify-between px-3 py-2 cursor-pointer"
+                        >
+                          <span className={`text-xs font-bold uppercase tracking-wider ${enabled ? 'text-brand-forest' : 'text-[#999]'}`}>{opt.label}</span>
+                          <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${enabled ? 'border-brand-forest bg-brand-forest text-white' : 'border-[#ccc]'}`}>
+                            {enabled && <Check size={10} />}
+                          </span>
+                        </button>
+                        {enabled && variant && (
+                          <div className="px-3 pb-3 pt-1 border-t border-brand-sand/40 space-y-2">
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <label className="block text-[8px] uppercase tracking-wider font-bold text-[#888] mb-0.5">Cao min (cm)</label>
+                                <input type="number" min="0" value={variant.heightMin} onChange={e => updateVariant(opt.value, 'heightMin', e.target.value)} disabled={isSubmitting} className="w-full bg-brand-cream border border-brand-sand/80 px-2 py-1.5 text-xs focus:outline-none focus:border-brand-forest" />
+                              </div>
+                              <div>
+                                <label className="block text-[8px] uppercase tracking-wider font-bold text-[#888] mb-0.5">Cao max (cm)</label>
+                                <input type="number" min="0" value={variant.heightMax} onChange={e => updateVariant(opt.value, 'heightMax', e.target.value)} disabled={isSubmitting} className="w-full bg-brand-cream border border-brand-sand/80 px-2 py-1.5 text-xs focus:outline-none focus:border-brand-forest" />
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <label className="block text-[8px] uppercase tracking-wider font-bold text-[#888] mb-0.5">Giá bán (đ)</label>
+                                <input type="number" min="0" step="any" value={variant.price} onChange={e => updateVariant(opt.value, 'price', e.target.value)} disabled={isSubmitting} className="w-full bg-brand-cream border border-brand-sand/80 px-2 py-1.5 text-xs focus:outline-none focus:border-brand-forest font-bold" />
+                              </div>
+                              <div>
+                                <label className="block text-[8px] uppercase tracking-wider font-bold text-[#888] mb-0.5">Tồn kho</label>
+                                <input type="number" min="0" value={variant.stock} onChange={e => updateVariant(opt.value, 'stock', e.target.value)} disabled={isSubmitting} className="w-full bg-brand-cream border border-brand-sand/80 px-2 py-1.5 text-xs focus:outline-none focus:border-brand-forest font-bold" />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t border-brand-sand/55 bg-white -mx-6 -mb-6 px-6 py-4">

@@ -36,7 +36,6 @@ export const translatePotStyleShort = (styleName) => {
 export const formatVND = (value) => {
   if (value === undefined || value === null) return '';
   const numValue = Number(value);
-  const vndValue = numValue * 1000;
-  return vndValue.toLocaleString('vi-VN') + ' đ';
+  return numValue.toLocaleString('vi-VN') + ' đ';
 };
 

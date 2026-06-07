@@ -19,6 +19,7 @@ model User {
   updatedAt DateTime @updatedAt
   orders    Order[]
   wishlists Wishlist[]
+  vouchers  Voucher[]
 
   @@index([email])
 }
@@ -36,7 +37,7 @@ model Product {
   light         String      // "low" | "medium" | "bright"
   petFriendly   Boolean
   difficulty    String      // "easy" | "moderate" | "care"
-  size          String      // "small" | "medium" | "large"
+  size          String      // "small" | "medium" | "large" | "xlarge" (default size)
   rating        Float       @default(5.0)
   reviewsCount  Int         @default(0)
   careDetails   Json?       // Details for light, water, toxicity
@@ -44,6 +45,7 @@ model Product {
   updatedAt     DateTime    @updatedAt
   orderItems    OrderItem[]
   wishlists     Wishlist[]
+  variants      ProductVariant[]
 
   @@index([category])
   @@index([price])
@@ -70,6 +72,8 @@ model Order {
   vatTaxCode     String?
   vatCompanyAddr String?
   vatEmail       String?
+  productVoucherCode  String?
+  shippingVoucherCode String?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   items         OrderItem[]
@@ -86,10 +90,28 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
   potStyle  String
   potColor  String
+  size      String?  // Kích cỡ đã chọn: "small" | "medium" | "large" | "xlarge"
   quantity  Int
   price     Float   // Price at the time of purchase
 
   @@index([orderId])
+  @@index([productId])
+}
+
+// Bảng quản lý kích cỡ sản phẩm — mỗi sản phẩm có thể có nhiều kích cỡ với giá và tồn kho riêng
+model ProductVariant {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  size      String   // "small" | "medium" | "large" | "xlarge"
+  heightMin Int      // Chiều cao tối thiểu (cm)
+  heightMax Int      // Chiều cao tối đa (cm)
+  price     Float    // Giá cho kích cỡ này
+  stock     Int      @default(0) // Số lượng tồn kho
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, size]) // Mỗi sản phẩm chỉ có 1 variant cho mỗi size
   @@index([productId])
 }
 
@@ -151,6 +173,28 @@ model Category {
   image       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Voucher {
+  id            String    @id @default(uuid())
+  code          String    @unique
+  type          String    // "product" | "shipping"
+  discountType  String    // "percentage" | "fixed"
+  discountValue Float
+  maxDiscount   Float?    // Số tiền giảm tối đa (áp dụng cho dạng percentage)
+  minOrderValue Float     @default(0) // Giá trị đơn hàng tối thiểu
+  categoryLimit String?   // Giới hạn danh mục sản phẩm áp dụng. Nếu null thì áp dụng toàn giỏ hàng.
+  startDate     DateTime?
+  endDate       DateTime?
+  usageLimit    Int?      // Số lần sử dụng tối đa của mã
+  usedCount     Int       @default(0)
+  isPublic      Boolean   @default(true) // Phát hành toàn hệ thống
+  userId        String?   // Chỉ định cho khách hàng cá nhân
+  user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
 }
 
 

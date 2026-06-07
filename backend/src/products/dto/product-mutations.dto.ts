@@ -1,5 +1,38 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsNumber, IsBoolean, IsArray, IsOptional, IsJSON, Min, Max, IsObject } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, IsBoolean, IsArray, IsOptional, IsJSON, Min, Max, IsObject, ValidateNested, IsIn, IsInt } from 'class-validator';
+import { Type } from 'class-transformer';
+
+export class VariantDto {
+  @ApiProperty({ description: 'Size type', example: 'medium', enum: ['small', 'medium', 'large', 'xlarge'] })
+  @IsNotEmpty()
+  @IsString()
+  @IsIn(['small', 'medium', 'large', 'xlarge'])
+  size: string;
+
+  @ApiProperty({ description: 'Minimum height in cm', example: 30 })
+  @IsNotEmpty()
+  @IsInt()
+  @Min(0)
+  heightMin: number;
+
+  @ApiProperty({ description: 'Maximum height in cm', example: 60 })
+  @IsNotEmpty()
+  @IsInt()
+  @Min(0)
+  heightMax: number;
+
+  @ApiProperty({ description: 'Price for this size', example: 350000 })
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(0)
+  price: number;
+
+  @ApiProperty({ description: 'Stock quantity', example: 10 })
+  @IsNotEmpty()
+  @IsInt()
+  @Min(0)
+  stock: number;
+}
 
 export class CreateProductDto {
   @ApiProperty({ description: 'Unique slug / identifier for the product', example: 'snake-plant-laurentii' })
@@ -92,6 +125,13 @@ export class CreateProductDto {
   @IsOptional()
   @IsObject()
   careDetails?: Record<string, string>;
+
+  @ApiPropertyOptional({ description: 'Product size variants with pricing and stock', type: [VariantDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => VariantDto)
+  variants?: VariantDto[];
 }
 
 export class UpdateProductDto {
@@ -173,4 +213,11 @@ export class UpdateProductDto {
   @IsOptional()
   @IsObject()
   careDetails?: Record<string, any>;
+
+  @ApiPropertyOptional({ description: 'Product size variants with pricing and stock', type: [VariantDto] })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => VariantDto)
+  variants?: VariantDto[];
 }

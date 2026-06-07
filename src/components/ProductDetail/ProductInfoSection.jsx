@@ -32,44 +32,31 @@ const recommendedAddons = [
   }
 ];
 
+const SIZE_ORDER = ['small', 'medium', 'large', 'xlarge'];
+const SIZE_LABELS = {
+  small: 'Bé nhỏ',
+  medium: 'Trung bình',
+  large: 'Lớn',
+  xlarge: 'Cỡ cực lớn',
+};
+
 export default function ProductInfoSection({ product }) {
   const { addToCart } = useCart();
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const { showToast } = useToast();
 
-  const [selectedSize, setSelectedSize] = useState('medium');
+  const [selectedSize, setSelectedSize] = useState(null);
   const [selectedStyle, setSelectedStyle] = useState('Pallas');
   const [selectedColor, setSelectedColor] = useState('Charcoal');
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState('');
   const [imgKey, setImgKey] = useState(0);
 
-  const getPriceMultiplier = (size) => {
-    if (size === 'small') return 0.75;
-    if (size === 'medium') return 1.0;
-    if (size === 'large') return 1.35;
-    if (size === 'xlarge') return 1.75;
-    return 1.0;
-  };
-
-  const displayPrice = product ? Math.round(product.price * getPriceMultiplier(selectedSize)) : 0;
+  const variants = product?.variants || [];
+  const selectedVariant = variants.find((v) => v.size === selectedSize) || null;
+  const displayPrice = selectedVariant ? selectedVariant.price : (product?.price || 0);
   const originalPrice = displayPrice ? Math.round(displayPrice * 1.15) : 0;
-
-  const getSizeLabel = (size) => {
-    if (size === 'small') return 'Bé nhỏ (cao từ 15 đến 30 cm)';
-    if (size === 'medium') return 'Trung bình (cao từ 30 đến 60 cm)';
-    if (size === 'large') return 'Lớn (cao từ 60 đến 90 cm)';
-    if (size === 'xlarge') return 'Cỡ cực lớn (cao từ 90 đến 150 cm)';
-    return size;
-  };
-
-  const getSizeNameVi = (size) => {
-    if (size === 'small') return 'Bé nhỏ';
-    if (size === 'medium') return 'Trung bình';
-    if (size === 'large') return 'Lớn';
-    if (size === 'xlarge') return 'Cỡ cực lớn';
-    return size;
-  };
+  const isAddToCartDisabled = !selectedVariant || selectedVariant.stock === 0;
 
   const getStyleLabel = (style) => {
     if (style === 'Pallas') return 'Pallas (rộng 12 inch)';
@@ -93,7 +80,9 @@ export default function ProductInfoSection({ product }) {
   useEffect(() => {
     if (product) {
       setQuantity(1);
-      setSelectedSize(product.size || 'medium');
+      const pvariants = product.variants || [];
+      const firstAvailable = pvariants.find((v) => v.stock > 0);
+      setSelectedSize(firstAvailable ? firstAvailable.size : (pvariants[0]?.size || 'medium'));
       setSelectedStyle('Pallas');
       setSelectedColor('Charcoal');
       const colorImagesObj = typeof product.colorImages === 'string' ? JSON.parse(product.colorImages) : product.colorImages;
@@ -114,17 +103,17 @@ export default function ProductInfoSection({ product }) {
   }, [selectedColor, product]);
 
   const handleAddToCart = useCallback(() => {
-    if (!product) return;
+    if (!product || isAddToCartDisabled) return;
     
     const customizedProduct = {
       ...product,
       price: displayPrice,
-      name: `${product.name} (${getSizeNameVi(selectedSize)})`
+      name: `${product.name} (${SIZE_LABELS[selectedSize] || selectedSize})`
     };
     
-    addToCart(customizedProduct, quantity, selectedStyle, selectedColor);
+    addToCart(customizedProduct, quantity, selectedStyle, selectedColor, selectedSize);
     showToast('Đã thêm vào giỏ!', 'success');
-  }, [addToCart, product, quantity, selectedStyle, selectedColor, displayPrice, selectedSize, showToast]);
+  }, [addToCart, product, quantity, selectedStyle, selectedColor, displayPrice, selectedSize, showToast, isAddToCartDisabled]);
 
   const handleThumbnailClick = useCallback((imgUrl) => {
     setActiveImage(imgUrl);
@@ -250,52 +239,56 @@ export default function ProductInfoSection({ product }) {
           {/* Size Selector */}
           <div className="space-y-3 pt-2">
             <label className="block text-xs font-bold text-brand-forest uppercase tracking-wider">
-              Chọn kích cỡ: <span className="text-brand-clay font-semibold normal-case ml-1">{getSizeLabel(selectedSize)}</span>
+              Chọn kích cỡ: <span className="text-brand-clay font-semibold normal-case ml-1">
+                {selectedVariant
+                  ? `${SIZE_LABELS[selectedSize]} (cao từ ${selectedVariant.heightMin} đến ${selectedVariant.heightMax} cm)`
+                  : (SIZE_LABELS[selectedSize] || 'Chưa chọn')}
+              </span>
             </label>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="col-span-1"></div>
-              <button
-                type="button"
-                onClick={() => setSelectedSize('large')}
-                className={`border px-3 py-3.5 text-[13px] font-bold uppercase tracking-wider transition-all cursor-pointer rounded-md text-center ${
-                  selectedSize === 'large' ? 'bg-[#e2e0dd] border-[#888] text-brand-forest shadow-xs' : 'bg-white border-brand-sand/80 text-brand-charcoal hover:border-brand-forest'
-                }`}
-              >
-                Lớn
-              </button>
-              <div className="col-span-1"></div>
+            <div className="grid grid-cols-2 gap-2">
+              {SIZE_ORDER.map((size) => {
+                const variant = variants.find((v) => v.size === size);
+                const isSelected = selectedSize === size;
+                const hasVariant = !!variant;
+                const inStock = hasVariant && variant.stock > 0;
+                const isDisabled = !hasVariant || variant.stock === 0;
 
-              <button
-                type="button"
-                onClick={() => setSelectedSize('medium')}
-                className={`border px-3 py-3.5 text-[13px] font-bold uppercase tracking-wider transition-all cursor-pointer rounded-md text-center ${
-                  selectedSize === 'medium' ? 'bg-[#e2e0dd] border-[#888] text-brand-forest shadow-xs' : 'bg-white border-brand-sand/80 text-brand-charcoal hover:border-brand-forest'
-                }`}
-              >
-                Trung bình
-              </button>
-              <div className="col-span-1"></div>
-              <button
-                type="button"
-                onClick={() => setSelectedSize('small')}
-                className={`border px-3 py-3.5 text-[13px] font-bold uppercase tracking-wider transition-all cursor-pointer rounded-md text-center ${
-                  selectedSize === 'small' ? 'bg-[#e2e0dd] border-[#888] text-brand-forest shadow-xs' : 'bg-white border-brand-sand/80 text-brand-charcoal hover:border-brand-forest'
-                }`}
-              >
-                Bé nhỏ
-              </button>
-
-              <div className="col-span-1"></div>
-              <button
-                type="button"
-                onClick={() => setSelectedSize('xlarge')}
-                className={`border px-3 py-3.5 text-[13px] font-bold uppercase tracking-wider transition-all cursor-pointer rounded-md text-center ${
-                  selectedSize === 'xlarge' ? 'bg-[#e2e0dd] border-[#888] text-brand-forest shadow-xs' : 'bg-white border-brand-sand/80 text-brand-charcoal hover:border-brand-forest'
-                }`}
-              >
-                Cỡ cực lớn
-              </button>
-              <div className="col-span-1"></div>
+                return (
+                  <button
+                    key={size}
+                    type="button"
+                    onClick={() => { if (!isDisabled) setSelectedSize(size); }}
+                    disabled={!hasVariant}
+                    className={`border px-3 py-3.5 text-[13px] font-bold uppercase tracking-wider transition-all rounded-md text-center ${
+                      isSelected
+                        ? 'bg-[#e2e0dd] border-[#888] text-brand-forest shadow-xs'
+                        : hasVariant && inStock
+                          ? 'bg-white border-brand-sand/80 text-brand-charcoal hover:border-brand-forest cursor-pointer'
+                          : hasVariant && !inStock
+                            ? 'bg-white border-brand-sand/80 text-brand-charcoal opacity-50 cursor-not-allowed'
+                            : 'bg-gray-100 border-brand-sand/50 text-brand-slate/50 opacity-30 cursor-not-allowed'
+                    }`}
+                  >
+                    <span className="block">{SIZE_LABELS[size]}</span>
+                    {hasVariant ? (
+                      <>
+                        <span className="block text-[10px] font-medium normal-case tracking-normal mt-0.5 text-brand-slate/70">
+                          {variant.heightMin}–{variant.heightMax} cm
+                        </span>
+                        <span className={`block text-[10px] font-semibold normal-case tracking-normal mt-0.5 ${
+                          inStock ? 'text-green-700' : 'text-red-500'
+                        }`}>
+                          {inStock ? `Còn ${variant.stock} cây` : 'Hết hàng'}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="block text-[10px] font-medium normal-case tracking-normal mt-0.5 text-brand-slate/40">
+                        Không có
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -421,9 +414,16 @@ export default function ProductInfoSection({ product }) {
           <div className="pt-2">
             <button
               onClick={handleAddToCart}
-              className="w-full bg-brand-forest hover:bg-brand-green text-brand-cream font-extrabold py-4.5 text-sm uppercase tracking-widest transition-all shadow-sm cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
+              disabled={isAddToCartDisabled}
+              className={`w-full font-extrabold py-4.5 text-sm uppercase tracking-widest transition-all shadow-sm ${
+                isAddToCartDisabled
+                  ? 'bg-brand-forest/50 text-brand-cream/70 cursor-not-allowed'
+                  : 'bg-brand-forest hover:bg-brand-green text-brand-cream cursor-pointer hover:-translate-y-0.5 active:translate-y-0'
+              }`}
             >
-              THÊM VÀO GIỎ HÀNG • {formatVND(displayPrice * quantity)}
+              {isAddToCartDisabled
+                ? 'HẾT HÀNG'
+                : `THÊM VÀO GIỎ HÀNG • ${formatVND(displayPrice * quantity)}`}
             </button>
           </div>
 

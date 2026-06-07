@@ -17,6 +17,7 @@ import { MediaModule } from './media/media.module';
 import { CollectionConfigModule } from './collection-config/collection-config.module';
 import { MenuConfigModule } from './menu-config/menu-config.module';
 import { CategoryModule } from './category/category.module';
+import { VouchersModule } from './vouchers/vouchers.module';
 
 import * as Joi from 'joi';
 
@@ -60,6 +61,7 @@ import * as Joi from 'joi';
     CollectionConfigModule,
     MenuConfigModule,
     CategoryModule,
+    VouchersModule,
   ],
   controllers: [AppController],
   providers: [

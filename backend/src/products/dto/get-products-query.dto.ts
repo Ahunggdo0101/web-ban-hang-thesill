@@ -26,10 +26,10 @@ export class GetProductsQueryDto {
   @IsIn(['easy', 'moderate', 'care'])
   difficulty?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by size (small, medium, large)' })
+  @ApiPropertyOptional({ description: 'Filter by size (small, medium, large, xlarge)' })
   @IsOptional()
   @IsString()
-  @IsIn(['small', 'medium', 'large'])
+  @IsIn(['small', 'medium', 'large', 'xlarge'])
   size?: string;
 
   @ApiPropertyOptional({ description: 'Minimum price filter' })

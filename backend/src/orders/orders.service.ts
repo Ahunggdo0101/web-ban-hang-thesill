@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CheckoutDto } from './dto/checkout.dto';
+import { VouchersService } from '../vouchers/vouchers.service';
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private vouchersService: VouchersService,
+  ) {}
 
   /**
    * Tạo đơn hàng mới trong một Database Transaction để đảm bảo tính toàn vẹn
@@ -18,10 +22,11 @@ export class OrdersService {
       let subtotal = 0;
       const itemsToCreate = [];
 
-      // Truy vấn toàn bộ sản phẩm trong giỏ hàng bằng một câu lệnh duy nhất
+      // Truy vấn toàn bộ sản phẩm cùng các variants trong giỏ hàng bằng một câu lệnh duy nhất
       const productIds = dto.items.map(item => item.productId);
       const products = await tx.product.findMany({
         where: { id: { in: productIds } },
+        include: { variants: true },
       });
 
       const productMap = new Map(products.map(p => [p.id, p]));
@@ -33,21 +38,101 @@ export class OrdersService {
           throw new NotFoundException(`Product with ID "${item.productId}" not found in catalog`);
         }
 
-        const itemPrice = product.price;
+        // Tìm variant tương ứng với size được chọn
+        const variant = product.variants.find(v => v.size === item.size);
+        if (!variant) {
+          throw new BadRequestException(`Kích cỡ "${item.size}" không tồn tại cho sản phẩm "${product.name}".`);
+        }
+
+        // Kiểm tra tồn kho của variant
+        if (variant.stock < item.quantity) {
+          throw new BadRequestException(
+            `Sản phẩm "${product.name}" cỡ "${item.size}" không đủ hàng. Chỉ còn ${variant.stock} sản phẩm.`
+          );
+        }
+
+        // Giảm tồn kho của variant tương ứng
+        await tx.productVariant.update({
+          where: { id: variant.id },
+          data: {
+            stock: {
+              decrement: item.quantity,
+            },
+          },
+        });
+
+        const itemPrice = variant.price;
         subtotal += itemPrice * item.quantity;
 
         itemsToCreate.push({
           productId: item.productId,
           potStyle: item.potStyle,
           potColor: item.potColor,
+          size: item.size,
           quantity: item.quantity,
           price: itemPrice,
         });
       }
 
-      const discount = dto.discount ?? 0;
+      // Tạo danh sách item info phục vụ cho việc validate voucher
+      const cartItemInfos = itemsToCreate.map(item => ({
+        productId: item.productId,
+        price: item.price,
+        quantity: item.quantity,
+        size: item.size,
+      }));
+
+      let calculatedDiscount = 0;
+      let appliedProductVoucherCode: string | null = null;
+      let appliedShippingVoucherCode: string | null = null;
       const shippingCost = dto.shippingCost ?? 0;
-      const totalAmount = Math.max(0, subtotal - discount + shippingCost);
+
+      // 1. Áp dụng mã giảm giá sản phẩm
+      if (dto.productVoucherCode) {
+        const resProduct = await this.vouchersService.validateAndCalculateDiscount(
+          dto.productVoucherCode,
+          userId,
+          cartItemInfos,
+        );
+        if (resProduct.type !== 'product') {
+          throw new BadRequestException(`Mã "${dto.productVoucherCode}" không phải là mã giảm giá sản phẩm.`);
+        }
+        calculatedDiscount += resProduct.discountAmount;
+        appliedProductVoucherCode = resProduct.code;
+      }
+
+      // 2. Áp dụng mã ưu đãi vận chuyển
+      if (dto.shippingVoucherCode) {
+        const resShipping = await this.vouchersService.validateAndCalculateDiscount(
+          dto.shippingVoucherCode,
+          userId,
+          cartItemInfos,
+        );
+        if (resShipping.type !== 'shipping') {
+          throw new BadRequestException(`Mã "${dto.shippingVoucherCode}" không phải là mã ưu đãi vận chuyển.`);
+        }
+        
+        // Mức giảm ship tối đa bằng phí ship thực tế
+        const shippingDiscountAmount = Math.min(resShipping.discountAmount, shippingCost);
+        calculatedDiscount += shippingDiscountAmount;
+        appliedShippingVoucherCode = resShipping.code;
+      }
+
+      // 3. Cập nhật lượt sử dụng của các voucher trong transaction
+      if (appliedProductVoucherCode) {
+        await tx.voucher.update({
+          where: { code: appliedProductVoucherCode },
+          data: { usedCount: { increment: 1 } },
+        });
+      }
+      if (appliedShippingVoucherCode) {
+        await tx.voucher.update({
+          where: { code: appliedShippingVoucherCode },
+          data: { usedCount: { increment: 1 } },
+        });
+      }
+
+      const totalAmount = Math.max(0, subtotal - calculatedDiscount + shippingCost);
 
       const order = await tx.order.create({
         data: {
@@ -59,8 +144,10 @@ export class OrdersService {
           district: dto.district,
           city: dto.city,
           totalAmount,
-          discount,
+          discount: calculatedDiscount,
           shippingCost,
+          productVoucherCode: appliedProductVoucherCode,
+          shippingVoucherCode: appliedShippingVoucherCode,
           status: 'pending',
           paymentMethod: dto.paymentMethod || 'COD',
           vatRequested: dto.vatRequested ?? false,
@@ -226,17 +313,128 @@ export class OrdersService {
       throw new BadRequestException(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
     }
 
-    const order = await this.prisma.order.findUnique({ where: { id } });
-    if (!order) {
-      throw new NotFoundException(`Order with ID "${id}" not found`);
-    }
+    return this.prisma.$transaction(async (tx) => {
+      const order = await tx.order.findUnique({
+        where: { id },
+        include: { items: true },
+      });
+      if (!order) {
+        throw new NotFoundException(`Order with ID "${id}" not found`);
+      }
 
-    return this.prisma.order.update({
-      where: { id },
-      data: { status },
-      include: {
-        items: { include: { product: true } },
-      },
+      // Hoàn kho và hoàn lượt dùng mã giảm giá khi hủy đơn hàng (từ trạng thái khác sang cancelled)
+      if (status === 'cancelled' && order.status !== 'cancelled') {
+        // 1. Hoàn kho sản phẩm
+        for (const item of order.items) {
+          if (!item.size) continue;
+          const variant = await tx.productVariant.findFirst({
+            where: {
+              productId: item.productId,
+              size: item.size,
+            },
+          });
+          if (variant) {
+            await tx.productVariant.update({
+              where: { id: variant.id },
+              data: {
+                stock: {
+                  increment: item.quantity,
+                },
+              },
+            });
+          }
+        }
+
+        // 2. Hoàn lượt dùng mã giảm giá sản phẩm
+        if (order.productVoucherCode) {
+          const pv = await tx.voucher.findUnique({ where: { code: order.productVoucherCode } });
+          if (pv && pv.usedCount > 0) {
+            await tx.voucher.update({
+              where: { code: order.productVoucherCode },
+              data: { usedCount: { decrement: 1 } },
+            });
+          }
+        }
+
+        // 3. Hoàn lượt dùng mã ưu đãi vận chuyển
+        if (order.shippingVoucherCode) {
+          const sv = await tx.voucher.findUnique({ where: { code: order.shippingVoucherCode } });
+          if (sv && sv.usedCount > 0) {
+            await tx.voucher.update({
+              where: { code: order.shippingVoucherCode },
+              data: { usedCount: { decrement: 1 } },
+            });
+          }
+        }
+      }
+      // Trừ kho và trừ lượt dùng mã giảm giá khi khôi phục đơn hàng bị hủy (từ cancelled sang trạng thái khác)
+      else if (order.status === 'cancelled' && status !== 'cancelled') {
+        // 1. Trừ kho sản phẩm (và check hàng)
+        for (const item of order.items) {
+          if (!item.size) continue;
+          const variant = await tx.productVariant.findFirst({
+            where: {
+              productId: item.productId,
+              size: item.size,
+            },
+          });
+          if (variant) {
+            if (variant.stock < item.quantity) {
+              throw new BadRequestException(
+                `Không thể khôi phục đơn hàng. Kích cỡ "${item.size}" của sản phẩm ID "${item.productId}" không đủ tồn kho (chỉ còn ${variant.stock}).`
+              );
+            }
+            await tx.productVariant.update({
+              where: { id: variant.id },
+              data: {
+                stock: {
+                  decrement: item.quantity,
+                },
+              },
+            });
+          }
+        }
+
+        // 2. Trực tiếp kiểm tra và trừ lượt dùng mã giảm sản phẩm
+        if (order.productVoucherCode) {
+          const pv = await tx.voucher.findUnique({ where: { code: order.productVoucherCode } });
+          if (pv) {
+            if (pv.usageLimit !== null && pv.usedCount >= pv.usageLimit) {
+              throw new BadRequestException(
+                `Không thể khôi phục đơn hàng. Mã giảm giá sản phẩm "${order.productVoucherCode}" đã hết lượt sử dụng trên hệ thống.`
+              );
+            }
+            await tx.voucher.update({
+              where: { code: order.productVoucherCode },
+              data: { usedCount: { increment: 1 } },
+            });
+          }
+        }
+
+        // 3. Trực tiếp kiểm tra và trừ lượt dùng mã ưu đãi vận chuyển
+        if (order.shippingVoucherCode) {
+          const sv = await tx.voucher.findUnique({ where: { code: order.shippingVoucherCode } });
+          if (sv) {
+            if (sv.usageLimit !== null && sv.usedCount >= sv.usageLimit) {
+              throw new BadRequestException(
+                `Không thể khôi phục đơn hàng. Mã ưu đãi vận chuyển "${order.shippingVoucherCode}" đã hết lượt sử dụng trên hệ thống.`
+              );
+            }
+            await tx.voucher.update({
+              where: { code: order.shippingVoucherCode },
+              data: { usedCount: { increment: 1 } },
+            });
+          }
+        }
+      }
+
+      return tx.order.update({
+        where: { id },
+        data: { status },
+        include: {
+          items: { include: { product: true } },
+        },
+      });
     });
   }
 

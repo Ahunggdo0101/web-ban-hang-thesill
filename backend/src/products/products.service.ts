@@ -75,7 +75,10 @@ export class ProductsService {
       where.difficulty = difficulty;
     }
     if (size) {
-      where.size = size;
+      // Lọc sản phẩm có variant với kích cỡ này
+      where.variants = {
+        some: { size },
+      };
     }
 
     if (minPrice !== undefined || maxPrice !== undefined) {
@@ -116,6 +119,11 @@ export class ProductsService {
         orderBy,
         skip,
         take: limit,
+        include: {
+          variants: {
+            orderBy: { price: 'asc' }, // Sắp xếp variant theo giá tăng dần
+          },
+        },
       }),
     ]);
 
@@ -153,9 +161,14 @@ export class ProductsService {
       }
     }
 
-    // Query DB
+    // Query DB kèm variants
     const product = await this.prisma.product.findUnique({
       where: { id },
+      include: {
+        variants: {
+          orderBy: { price: 'asc' },
+        },
+      },
     });
 
     if (!product) {
@@ -198,6 +211,23 @@ export class ProductsService {
         rating: dto.rating ?? 5.0,
         reviewsCount: dto.reviewsCount ?? 0,
         careDetails: dto.careDetails as Prisma.InputJsonValue,
+        // Tạo variants nếu có
+        variants: dto.variants && dto.variants.length > 0
+          ? {
+              create: dto.variants.map(v => ({
+                size: v.size,
+                heightMin: v.heightMin,
+                heightMax: v.heightMax,
+                price: v.price,
+                stock: v.stock,
+              })),
+            }
+          : undefined,
+      },
+      include: {
+        variants: {
+          orderBy: { price: 'asc' },
+        },
       },
     });
 
@@ -212,8 +242,12 @@ export class ProductsService {
    */
   async update(id: string, dto: UpdateProductDto) {
     // Check xem có tồn tại không
-    await this.findOne(id);
+    const existing = await this.prisma.product.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`Product with ID "${id}" not found`);
+    }
 
+    // Cập nhật product data
     const updated = await this.prisma.product.update({
       where: { id },
       data: {
@@ -233,7 +267,46 @@ export class ProductsService {
         reviewsCount: dto.reviewsCount,
         careDetails: dto.careDetails as Prisma.InputJsonValue,
       },
+      include: {
+        variants: {
+          orderBy: { price: 'asc' },
+        },
+      },
     });
+
+    // Cập nhật variants nếu có trong DTO
+    if (dto.variants !== undefined) {
+      // Xóa tất cả variants cũ và tạo mới
+      await this.prisma.productVariant.deleteMany({
+        where: { productId: id },
+      });
+
+      if (dto.variants.length > 0) {
+        await this.prisma.productVariant.createMany({
+          data: dto.variants.map(v => ({
+            productId: id,
+            size: v.size,
+            heightMin: v.heightMin,
+            heightMax: v.heightMax,
+            price: v.price,
+            stock: v.stock,
+          })),
+        });
+      }
+
+      // Lấy lại product với variants mới
+      const refreshed = await this.prisma.product.findUnique({
+        where: { id },
+        include: {
+          variants: {
+            orderBy: { price: 'asc' },
+          },
+        },
+      });
+
+      await this.invalidateProductCache(id);
+      return refreshed;
+    }
 
     // Invalidate product cache
     await this.invalidateProductCache(id);
@@ -246,7 +319,10 @@ export class ProductsService {
    */
   async remove(id: string) {
     // Check xem có tồn tại không
-    await this.findOne(id);
+    const existing = await this.prisma.product.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException(`Product with ID "${id}" not found`);
+    }
 
     await this.prisma.product.delete({
       where: { id },

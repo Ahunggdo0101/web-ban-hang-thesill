@@ -25,6 +25,7 @@ export default function CheckoutPage() {
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
   const [district, setDistrict] = useState('');
+  const [savedAddresses, setSavedAddresses] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState('COD');
   const [createdOrder, setCreatedOrder] = useState(null);
   
@@ -37,12 +38,48 @@ export default function CheckoutPage() {
 
   // Tự động điền thông tin nếu đã đăng nhập hoặc đã nhập ở giỏ hàng
   useEffect(() => {
+    // Tải địa chỉ đã lưu của User hoặc Guest
+    const userId = user?.id || 'guest';
+    const key = `thesill_addresses_${userId}`;
+    const saved = localStorage.getItem(key);
+    let parsedAddresses = [];
+    
+    if (saved) {
+      try {
+        parsedAddresses = JSON.parse(saved);
+        setSavedAddresses(parsedAddresses);
+      } catch (e) {
+        console.error('Lỗi parse địa chỉ ở Checkout:', e);
+      }
+    }
+
     if (user) {
       if (!email) setEmail(user.email || '');
       if (!fullName) setFullName(user.name || '');
-    } else if (guestState.guestEmail || guestState.guestName) {
-      if (!email) setEmail(guestState.guestEmail || '');
-      if (!fullName) setFullName(guestState.guestName || '');
+
+      const defaultAddr = parsedAddresses.find(addr => addr.isDefault);
+      if (defaultAddr) {
+        setFullName(defaultAddr.receiver || '');
+        setPhone(defaultAddr.phone || '');
+        setAddress(defaultAddr.address || '');
+        setCity(defaultAddr.province || defaultAddr.city || '');
+        setDistrict(defaultAddr.ward ? `${defaultAddr.ward}, ${defaultAddr.district}` : (defaultAddr.district || ''));
+      }
+    } else {
+      if (guestState.guestEmail || guestState.guestName) {
+        if (!email) setEmail(guestState.guestEmail || '');
+        if (!fullName) setFullName(guestState.guestName || '');
+      }
+      
+      // Khách vãng lai cũng tự động điền nếu đã có địa chỉ mặc định lưu ở local
+      const defaultAddr = parsedAddresses.find(addr => addr.isDefault);
+      if (defaultAddr) {
+        setFullName(defaultAddr.receiver || '');
+        setPhone(defaultAddr.phone || '');
+        setAddress(defaultAddr.address || '');
+        setCity(defaultAddr.province || defaultAddr.city || '');
+        setDistrict(defaultAddr.ward ? `${defaultAddr.ward}, ${defaultAddr.district}` : (defaultAddr.district || ''));
+      }
     }
   }, [user, guestState.guestEmail, guestState.guestName]);
 
@@ -52,43 +89,120 @@ export default function CheckoutPage() {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const [promoInput, setPromoInput] = useState('');
-  const [appliedPromo, setAppliedPromo] = useState('');
+  const [appliedProductVoucher, setAppliedProductVoucher] = useState(null);
+  const [appliedShippingVoucher, setAppliedShippingVoucher] = useState(null);
+  const [isVoucherModalOpen, setIsVoucherModalOpen] = useState(false);
+  const [myVouchers, setMyVouchers] = useState([]);
+  const [loadingVouchers, setLoadingVouchers] = useState(false);
 
-  // Tính toán discount & phí vận chuyển dựa trên Coupon
-  let discount = 0;
-  if (appliedPromo === 'SPRING20') {
-    discount = cartTotal * 0.2;
-  } else if (appliedPromo === 'THESILLNEW') {
-    discount = Math.min(10, cartTotal);
-  }
+  // Phí vận chuyển gốc
+  const shippingFee = cartTotal >= 150000 ? 0 : 15000;
 
-  let shippingFee = cartTotal > 150 ? 0 : 8;
-  if (appliedPromo === 'FREESHIP') {
-    shippingFee = 0;
-  }
+  // Tính toán discount thực tế
+  const productDiscount = appliedProductVoucher ? appliedProductVoucher.discountAmount : 0;
+  const shippingDiscount = appliedShippingVoucher ? Math.min(appliedShippingVoucher.discountAmount, shippingFee) : 0;
+  const totalDiscount = productDiscount + shippingDiscount;
 
-  const grandTotal = Math.max(0, cartTotal - discount + shippingFee);
+  const grandTotal = Math.max(0, cartTotal - productDiscount + Math.max(0, shippingFee - shippingDiscount));
 
-  const handleApplyPromo = () => {
-    const code = promoInput.trim().toUpperCase();
-    if (code === 'SPRING20') {
-      setAppliedPromo('SPRING20');
-      showToast('Đã áp dụng mã giảm giá 20%!', 'success');
-    } else if (code === 'THESILLNEW') {
-      setAppliedPromo('THESILLNEW');
-      showToast('Đã áp dụng mã giảm giá 10.000 đ!', 'success');
-    } else if (code === 'FREESHIP') {
-      setAppliedPromo('FREESHIP');
-      showToast('Đã áp dụng mã miễn phí vận chuyển!', 'success');
-    } else {
-      showToast('Mã giảm giá không hợp lệ hoặc đã hết hạn!', 'error');
+  // Tải danh sách voucher của tôi khi mở modal
+  const loadMyVouchers = async () => {
+    setLoadingVouchers(true);
+    try {
+      const url = `${API_BASE_URL}/vouchers/my-vouchers`;
+      let data;
+      if (user) {
+        const res = await fetchWithAuth(url);
+        if (res.ok) {
+          data = await res.json();
+        } else {
+          data = [];
+        }
+      } else {
+        const response = await fetch(url);
+        if (response.ok) {
+          data = await response.json();
+        } else {
+          data = [];
+        }
+      }
+      if (Array.isArray(data)) {
+        setMyVouchers(data);
+      }
+    } catch (err) {
+      console.error('Lỗi tải vouchers:', err);
+    } finally {
+      setLoadingVouchers(false);
     }
   };
 
-  const handleRemovePromo = () => {
-    setAppliedPromo('');
-    setPromoInput('');
-    showToast('Đã gỡ bỏ mã giảm giá.', 'info');
+  useEffect(() => {
+    if (isVoucherModalOpen) {
+      loadMyVouchers();
+    }
+  }, [isVoucherModalOpen]);
+
+  const handleApplyPromo = async (codeToApply) => {
+    const code = (codeToApply || promoInput).trim().toUpperCase();
+    if (!code) return;
+
+    try {
+      const payload = {
+        code,
+        items: cartItems.map(item => ({
+          productId: item.product.id,
+          price: item.product.price,
+          quantity: item.quantity,
+          size: item.size || 'medium'
+        }))
+      };
+
+      const headers = { 'Content-Type': 'application/json' };
+      let data;
+      let response;
+
+      if (user) {
+        response = await fetchWithAuth(`${API_BASE_URL}/vouchers/apply`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload)
+        });
+      } else {
+        response = await fetch(`${API_BASE_URL}/vouchers/apply`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload)
+        });
+      }
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || 'Mã giảm giá không hợp lệ.');
+      }
+      data = await response.json();
+
+      if (data.type === 'product') {
+        setAppliedProductVoucher(data);
+        showToast(`Đã áp dụng mã giảm giá sản phẩm: Giảm ${data.discountAmount.toLocaleString('vi-VN')} đ!`, 'success');
+      } else if (data.type === 'shipping') {
+        setAppliedShippingVoucher(data);
+        showToast(`Đã áp dụng mã ưu đãi vận chuyển: Giảm ${data.discountAmount.toLocaleString('vi-VN')} đ!`, 'success');
+      }
+      setPromoInput('');
+      setIsVoucherModalOpen(false);
+    } catch (error) {
+      showToast(error.message || 'Mã giảm giá không hợp lệ.', 'error');
+    }
+  };
+
+  const handleRemoveProductVoucher = () => {
+    setAppliedProductVoucher(null);
+    showToast('Đã gỡ mã giảm giá sản phẩm.', 'info');
+  };
+
+  const handleRemoveShippingVoucher = () => {
+    setAppliedShippingVoucher(null);
+    showToast('Đã gỡ mã ưu đãi vận chuyển.', 'info');
   };
 
   // Validate form
@@ -136,7 +250,6 @@ export default function CheckoutPage() {
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
-      // Cuộn lên đầu trang hoặc tìm trường lỗi đầu tiên
       const firstError = Object.keys(errors)[0];
       if (firstError) {
         document.getElementsByName(firstError)[0]?.focus();
@@ -158,9 +271,12 @@ export default function CheckoutPage() {
           productId: item.product.id,
           potStyle: item.potStyle,
           potColor: item.potColor,
+          size: item.size || 'medium',
           quantity: item.quantity,
         })),
-        discount: discount,
+        productVoucherCode: appliedProductVoucher ? appliedProductVoucher.code : null,
+        shippingVoucherCode: appliedShippingVoucher ? appliedShippingVoucher.code : null,
+        discount: totalDiscount,
         shippingCost: shippingFee,
         paymentMethod: paymentMethod,
         vatRequested: vatRequested,
@@ -196,14 +312,13 @@ export default function CheckoutPage() {
           : errorData.message || 'Đã xảy ra lỗi khi đặt hàng. Vui lòng thử lại.';
         throw new Error(errorMessage);
       }
-
       const orderData = await res.json();
+
       setCreatedOrder(orderData);
       showToast('Đặt hàng thành công!', 'success');
       clearCart();
       setIsSuccess(true);
 
-      // Nếu là COD, tự động chuyển hướng về trang chủ sau 3 giây
       if (paymentMethod === 'COD') {
         setTimeout(() => {
           navigate('/');
@@ -289,6 +404,36 @@ export default function CheckoutPage() {
               <span className="w-5 h-5 rounded-full bg-brand-forest text-brand-white flex items-center justify-center text-xs font-serif font-bold">2</span>
               Địa Chỉ Nhận Hàng
             </h2>
+
+            {savedAddresses.length > 0 && (
+              <div className="bg-brand-white border border-brand-sand p-4">
+                <label htmlFor="savedAddressSelect" className="block text-[10px] font-bold uppercase tracking-widest text-brand-forest mb-2">
+                  Chọn từ Địa Chỉ Đã Lưu
+                </label>
+                <select
+                  id="savedAddressSelect"
+                  onChange={(e) => {
+                    const selectedId = Number(e.target.value);
+                    const addr = savedAddresses.find(a => a.id === selectedId);
+                    if (addr) {
+                      setFullName(addr.receiver || '');
+                      setPhone(addr.phone || '');
+                      setAddress(addr.address || '');
+                      setCity(addr.province || addr.city || '');
+                      setDistrict(addr.ward ? `${addr.ward}, ${addr.district}` : (addr.district || ''));
+                    }
+                  }}
+                  className="w-full bg-brand-cream border border-brand-sand/80 text-brand-charcoal text-xs py-2.5 px-3 focus:outline-none focus:border-brand-forest focus:ring-1 focus:ring-brand-forest rounded-none"
+                >
+                  <option value="">-- Sử dụng địa chỉ khác --</option>
+                  {savedAddresses.map(addr => (
+                    <option key={addr.id} value={addr.id}>
+                      {addr.name} ({addr.receiver} - {addr.phone} - {addr.address}, {addr.ward ? `${addr.ward}, ` : ''}{addr.district ? `${addr.district}, ` : ''}{addr.province || addr.city}) {addr.isDefault ? '[Mặc định]' : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -621,6 +766,11 @@ export default function CheckoutPage() {
                 <div className="flex-grow space-y-1">
                   <h4 className="font-serif text-xs font-semibold text-brand-forest line-clamp-1">{item.product.name}</h4>
                   <p className="text-[10px] text-brand-slate uppercase font-bold tracking-wider">
+                    {item.size && `${
+                      item.size === 'small' ? 'Bé nhỏ' :
+                      item.size === 'medium' ? 'Trung bình' :
+                      item.size === 'large' ? 'Lớn' : 'Cỡ cực lớn'
+                    } • `}
                     {translatePotStyleShort(item.potStyle)} • {translatePotColor(item.potColor)}
                   </p>
                   <div className="flex justify-between items-center text-xs pt-1">
@@ -634,36 +784,76 @@ export default function CheckoutPage() {
 
           {/* Mã giảm giá (Promo Code) */}
           <div className="border-b border-brand-sand pb-4 space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-brand-forest">Mã giảm giá</span>
+              <button
+                type="button"
+                onClick={() => setIsVoucherModalOpen(true)}
+                className="text-[10px] text-brand-forest hover:text-brand-clay font-bold uppercase tracking-wider underline cursor-pointer"
+              >
+                🎟️ Chọn mã giảm giá
+              </button>
+            </div>
+            
             <div className="flex gap-2">
               <input
                 type="text"
                 value={promoInput}
                 onChange={(e) => setPromoInput(e.target.value)}
-                placeholder="Mã giảm giá (SPRING20, THESILLNEW...)"
+                placeholder="Nhập mã (ví dụ: CAYCANH10, FREESHIP...)"
                 disabled={isSubmitting}
                 className="flex-grow bg-brand-white border border-brand-sand px-3 py-2.5 text-xs text-brand-charcoal focus:border-brand-forest focus:outline-none transition-colors rounded-none placeholder-brand-sand/50"
               />
               <button
                 type="button"
-                onClick={handleApplyPromo}
+                onClick={() => handleApplyPromo()}
                 disabled={isSubmitting || !promoInput.trim()}
                 className="bg-brand-forest hover:bg-brand-green text-brand-white font-bold px-4 py-2.5 text-xs uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 Áp dụng
               </button>
             </div>
-            {appliedPromo && (
-              <div className="flex justify-between items-center mt-2 bg-brand-white border border-brand-sand p-2 text-xs">
-                <span className="text-[10px] text-brand-forest font-bold uppercase tracking-wider">
-                  Đã áp dụng: <span className="text-brand-clay">{appliedPromo}</span>
-                </span>
-                <button
-                  type="button"
-                  onClick={handleRemovePromo}
-                  className="text-[10px] text-red-500 font-bold hover:underline cursor-pointer"
-                >
-                  Gỡ bỏ
-                </button>
+
+            {(appliedProductVoucher || appliedShippingVoucher) && (
+              <div className="space-y-2 pt-1">
+                {appliedProductVoucher && (
+                  <div className="flex justify-between items-center bg-[#1F3E35]/5 border border-[#1F3E35]/15 p-2 text-xs">
+                    <span className="text-[10px] text-brand-forest font-bold uppercase tracking-wider flex items-center gap-1.5">
+                      🏷️ Sản phẩm: <span className="text-brand-clay">{appliedProductVoucher.code}</span>
+                      <span className="text-[9px] text-brand-slate normal-case font-normal">
+                        (-{appliedProductVoucher.discountType === 'fixed' 
+                          ? formatVND(appliedProductVoucher.discountValue) 
+                          : `${appliedProductVoucher.discountValue}%`})
+                      </span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleRemoveProductVoucher}
+                      className="text-[10px] text-red-500 font-bold hover:underline cursor-pointer"
+                    >
+                      Gỡ
+                    </button>
+                  </div>
+                )}
+                {appliedShippingVoucher && (
+                  <div className="flex justify-between items-center bg-[#1F3E35]/5 border border-[#1F3E35]/15 p-2 text-xs">
+                    <span className="text-[10px] text-brand-forest font-bold uppercase tracking-wider flex items-center gap-1.5">
+                      🚚 Vận chuyển: <span className="text-brand-clay">{appliedShippingVoucher.code}</span>
+                      <span className="text-[9px] text-brand-slate normal-case font-normal">
+                        (-{appliedShippingVoucher.discountType === 'fixed' 
+                          ? formatVND(appliedShippingVoucher.discountValue) 
+                          : `${appliedShippingVoucher.discountValue}%`})
+                      </span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleRemoveShippingVoucher}
+                      className="text-[10px] text-red-500 font-bold hover:underline cursor-pointer"
+                    >
+                      Gỡ
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -674,10 +864,10 @@ export default function CheckoutPage() {
               <span>Tạm tính</span>
               <span className="font-bold">{formatVND(cartTotal)}</span>
             </div>
-            {discount > 0 && (
+            {productDiscount > 0 && (
               <div className="flex justify-between text-brand-clay font-bold">
-                <span>Giảm giá ({appliedPromo})</span>
-                <span>-{formatVND(discount)}</span>
+                <span>Giảm giá sản phẩm ({appliedProductVoucher?.code})</span>
+                <span>-{formatVND(productDiscount)}</span>
               </div>
             )}
             <div className="flex justify-between text-brand-slate items-center">
@@ -691,7 +881,13 @@ export default function CheckoutPage() {
                 {shippingFee === 0 ? 'Miễn phí' : formatVND(shippingFee)}
               </span>
             </div>
-            {shippingFee > 0 && (
+            {shippingDiscount > 0 && (
+              <div className="flex justify-between text-brand-clay font-bold">
+                <span>Giảm phí vận chuyển ({appliedShippingVoucher?.code})</span>
+                <span>-{formatVND(shippingDiscount)}</span>
+              </div>
+            )}
+            {shippingFee > 0 && !appliedShippingVoucher && (
               <p className="text-[9px] text-brand-slate italic font-medium">
                 (Miễn phí vận chuyển cho đơn hàng từ 150.000 đ trở lên hoặc dùng mã FREESHIP)
               </p>
@@ -700,7 +896,7 @@ export default function CheckoutPage() {
 
           <div className="flex justify-between items-center text-brand-forest">
             <span className="text-sm font-bold uppercase tracking-wider">Tổng cộng</span>
-            <span className="text-2xl font-serif font-light text-red-600 font-bold font-sans">{formatVND(grandTotal)}</span>
+            <span className="text-2xl font-serif text-red-600 font-bold font-sans">{formatVND(grandTotal)}</span>
           </div>
 
           {/* Nút đặt hàng */}
@@ -724,6 +920,135 @@ export default function CheckoutPage() {
           </div>
         </div>
       </form>
+      
+      {/* MODAL CHỌN MÃ GIẢM GIÁ KHẢ DỤNG */}
+      {isVoucherModalOpen && (
+        <div className="fixed inset-0 bg-[#0d231a]/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-brand-cream border border-brand-sand p-6 sm:p-8 max-w-lg w-full text-center space-y-6 shadow-2xl animate-scale-up modal-panel my-8 max-h-[85vh] flex flex-col">
+            <div className="flex justify-between items-center border-b border-brand-sand pb-4">
+              <h3 className="font-serif text-lg text-brand-forest font-light flex items-center gap-2">
+                🎟️ Mã giảm giá khả dụng
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsVoucherModalOpen(false)}
+                className="text-brand-slate hover:text-brand-forest font-bold text-lg cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto py-2 space-y-4 pr-1">
+              {loadingVouchers ? (
+                <div className="py-8 text-xs text-brand-slate">Đang tải danh sách mã giảm giá...</div>
+              ) : myVouchers.length === 0 ? (
+                <div className="py-8 text-xs text-brand-slate">Không có mã giảm giá nào khả dụng cho bạn lúc này.</div>
+              ) : (
+                myVouchers.map((voucher) => {
+                  const isApplied = 
+                    (voucher.type === 'product' && appliedProductVoucher?.code === voucher.code) ||
+                    (voucher.type === 'shipping' && appliedShippingVoucher?.code === voucher.code);
+                  
+                  const isMinOrderSatisfied = cartTotal >= voucher.minOrderValue;
+
+                  return (
+                    <div 
+                      key={voucher.id}
+                      className={`border p-4 text-left relative flex flex-col justify-between gap-3 bg-brand-white transition-all ${
+                        isApplied 
+                          ? 'border-brand-forest bg-[#1F3E35]/5' 
+                          : !isMinOrderSatisfied 
+                            ? 'border-brand-sand opacity-60' 
+                            : 'border-brand-sand hover:border-brand-forest/65'
+                      }`}
+                    >
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center">
+                          <span className="inline-block bg-brand-cream border border-brand-sand px-2 py-1 text-xs font-bold text-brand-forest tracking-wider font-sans">
+                            {voucher.code}
+                          </span>
+                          <span className="text-[10px] uppercase tracking-wider font-bold text-brand-clay">
+                            {voucher.type === 'product' ? '📦 Giảm sản phẩm' : '🚚 Ưu đãi ship'}
+                          </span>
+                        </div>
+                        
+                        <p className="text-xs font-bold text-brand-charcoal pt-1">
+                          Giảm {voucher.discountType === 'fixed' 
+                            ? formatVND(voucher.discountValue) 
+                            : `${voucher.discountValue}%`}
+                          {voucher.maxDiscount && ` (Tối đa ${formatVND(voucher.maxDiscount)})`}
+                        </p>
+
+                        {voucher.minOrderValue > 0 && (
+                          <p className="text-[10px] text-brand-slate">
+                            Đơn hàng tối thiểu: <span className="font-semibold">{formatVND(voucher.minOrderValue)}</span>
+                          </p>
+                        )}
+                        
+                        {voucher.categoryLimit && (
+                          <p className="text-[10px] text-brand-slate">
+                            Áp dụng cho danh mục: <span className="font-semibold text-brand-forest">{voucher.categoryLimit === 'plants' ? 'Cây cảnh' : voucher.categoryLimit}</span>
+                          </p>
+                        )}
+
+                        {voucher.endDate && (
+                          <p className="text-[9px] text-brand-slate/80 italic pt-1">
+                            Hạn dùng: {new Date(voucher.endDate).toLocaleDateString('vi-VN')}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex justify-between items-center pt-2 border-t border-brand-sand/30">
+                        {!isMinOrderSatisfied ? (
+                          <span className="text-[9px] text-red-500 font-medium">
+                            Chưa đủ giá trị đơn tối thiểu (Cần thêm {formatVND(voucher.minOrderValue - cartTotal)})
+                          </span>
+                        ) : (
+                          <span className="text-[9px] text-brand-forest font-medium">
+                            Đủ điều kiện áp dụng
+                          </span>
+                        )}
+                        
+                        <button
+                          type="button"
+                          disabled={!isMinOrderSatisfied}
+                          onClick={() => {
+                            if (isApplied) {
+                              if (voucher.type === 'product') handleRemoveProductVoucher();
+                              else handleRemoveShippingVoucher();
+                            } else {
+                              handleApplyPromo(voucher.code);
+                            }
+                          }}
+                          className={`font-bold px-3 py-1.5 text-[10px] uppercase tracking-wider transition-all cursor-pointer ${
+                            isApplied 
+                              ? 'bg-red-600 text-white hover:bg-red-700'
+                              : !isMinOrderSatisfied 
+                                ? 'bg-brand-sand text-brand-slate cursor-not-allowed opacity-50'
+                                : 'bg-brand-forest hover:bg-brand-green text-brand-white'
+                          }`}
+                        >
+                          {isApplied ? 'Hủy áp dụng' : 'Áp dụng'}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+            
+            <div className="border-t border-brand-sand pt-4 text-center">
+              <button
+                type="button"
+                onClick={() => setIsVoucherModalOpen(false)}
+                className="bg-brand-sand hover:bg-[#d0c9bd] text-brand-forest font-bold px-6 py-2.5 text-xs uppercase tracking-wider transition-all cursor-pointer"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* OVERLAY chúc mừng đặt hàng thành công */}
       {isSuccess && (
@@ -755,7 +1080,7 @@ export default function CheckoutPage() {
                   {/* Cột trái: QR Code */}
                   <div className="bg-white p-3 border border-brand-sand/40 rounded-xl shadow-xs flex-shrink-0 flex items-center justify-center">
                     <img
-                      src={`https://img.vietqr.io/image/MB-0966337492-compact2.png?amount=${Math.round(createdOrder.totalAmount * 1000)}&addInfo=TS-${createdOrder.id.substring(0, 8).toUpperCase()}&accountName=CAY%20CANH%20NAM%20DIEN`}
+                      src={`https://img.vietqr.io/image/MB-0966337492-compact2.png?amount=${Math.round(createdOrder.totalAmount)}&addInfo=TS-${createdOrder.id.substring(0, 8).toUpperCase()}&accountName=CAY%20CANH%20NAM%20DIEN`}
                       alt="VietQR MB Bank"
                       className="w-48 h-48 sm:w-56 sm:h-56 object-contain"
                     />

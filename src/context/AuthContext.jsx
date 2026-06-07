@@ -8,6 +8,7 @@ export function AuthProvider({ children }) {
   const [accessToken, setAccessToken] = useState(null); // Access Token lưu trong bộ nhớ RAM (In-Memory)
   const [loading, setLoading] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   // Tự động khôi phục phiên đăng nhập khi reload trang (F5)
   useEffect(() => {
@@ -216,8 +217,10 @@ export function AuthProvider({ children }) {
     logout,
     isAuthModalOpen,
     setIsAuthModalOpen,
+    isSettingsModalOpen,
+    setIsSettingsModalOpen,
     fetchWithAuth,
-  }), [user, loading, login, loginWithPassword, register, logout, isAuthModalOpen, fetchWithAuth]);
+  }), [user, loading, login, loginWithPassword, register, logout, isAuthModalOpen, isSettingsModalOpen, fetchWithAuth]);
 
   return (
     <AuthContext.Provider value={value}>

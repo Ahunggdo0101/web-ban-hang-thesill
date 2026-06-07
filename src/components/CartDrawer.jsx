@@ -30,8 +30,8 @@ export default function CartDrawer() {
   const [guestName, setGuestName] = useState('');
   const [checkoutError, setCheckoutError] = useState('');
 
-  const shippingThreshold = 150;
-  const shippingCost = cartTotal >= shippingThreshold || cartTotal === 0 ? 0 : 15;
+  const shippingThreshold = 150000;
+  const shippingCost = cartTotal >= shippingThreshold || cartTotal === 0 ? 0 : 15000;
   const progressToFreeShipping = Math.min((cartTotal / shippingThreshold) * 100, 100);
   const amountNeededForFreeShipping = Math.max(shippingThreshold - cartTotal, 0);
 
@@ -247,6 +247,16 @@ export default function CartDrawer() {
                             
                             {/* Selected Options Badges */}
                             <div className="flex items-center flex-wrap gap-x-2 gap-y-1 mt-2">
+                              {item.size && (
+                                <span className="text-[9px] border border-brand-sand bg-[#1F3E35]/5 text-brand-forest px-2 py-0.5 font-bold uppercase tracking-wider">
+                                  Cỡ: {
+                                    item.size === 'small' ? 'Bé nhỏ' :
+                                    item.size === 'medium' ? 'Trung bình' :
+                                    item.size === 'large' ? 'Lớn' :
+                                    item.size === 'xlarge' ? 'Cỡ cực lớn' : item.size
+                                  }
+                                </span>
+                              )}
                               <span className="text-[9px] border border-brand-sand bg-brand-white text-brand-slate px-2 py-0.5 font-bold uppercase tracking-wider">
                                 {translatePotStyleShort(item.potStyle)}
                               </span>
@@ -275,6 +285,7 @@ export default function CartDrawer() {
                                     item.product.id,
                                     item.potStyle,
                                     item.potColor,
+                                    item.size,
                                     item.quantity - 1
                                   )
                                 }
@@ -291,6 +302,7 @@ export default function CartDrawer() {
                                     item.product.id,
                                     item.potStyle,
                                     item.potColor,
+                                    item.size,
                                     item.quantity + 1
                                   )
                                 }
@@ -303,7 +315,7 @@ export default function CartDrawer() {
                             {/* Remove Button */}
                             <button
                               onClick={() =>
-                                removeFromCart(item.product.id, item.potStyle, item.potColor)
+                                removeFromCart(item.product.id, item.potStyle, item.potColor, item.size)
                               }
                               className="text-brand-slate hover:text-brand-charcoal p-1 transition-colors cursor-pointer"
                               title="Xóa sản phẩm"

@@ -1,10 +1,11 @@
 import { useState, useCallback, memo, useRef, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Search, X, Menu, Heart } from 'lucide-react';
+import { Search, X, Menu, Heart, Settings } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useTheme } from '../context/ThemeContext';
+import { useToast } from '../context/ToastContext';
 
 // Import các subcomponents đã được chia tách để tối ưu hóa bảo trì và re-render
 import AnnouncementBanner from './Header/AnnouncementBanner';
@@ -16,8 +17,9 @@ import DesktopNav from './Header/DesktopNav';
 const Header = memo(function Header({ onSearch, searchQuery }) {
   const { theme, toggleTheme } = useTheme();
   const { cartCount, setIsCartOpen } = useCart();
-  const { user, logout, setIsAuthModalOpen } = useAuth();
+  const { user, logout, setIsAuthModalOpen, setIsSettingsModalOpen } = useAuth();
   const { wishlistCount } = useWishlist();
+  const { showToast } = useToast();
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -124,6 +126,21 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
     setIsMobileMenuOpen(false);
   }, []);
 
+  const handleSettingsClick = useCallback(() => {
+    setIsSettingsModalOpen(true);
+  }, [setIsSettingsModalOpen]);
+
+  const renderSettingsIcon = useCallback(() => (
+    <button
+      onClick={handleSettingsClick}
+      className="text-brand-charcoal hover:text-brand-green p-2 cursor-pointer transition-colors focus:outline-none"
+      title="Cài đặt tài khoản"
+      aria-label="Cài đặt tài khoản"
+    >
+      <Settings size={18} />
+    </button>
+  ), [handleSettingsClick]);
+
   // Các phương thức render icons phụ
   const renderWishlistIcon = useCallback(() => (
     <Link
@@ -227,6 +244,7 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
               </button>
             </div>
 
+            {renderSettingsIcon()}
             {renderThemeToggle()}
             {renderCartIcon()}
           </div>
@@ -266,6 +284,7 @@ const Header = memo(function Header({ onSearch, searchQuery }) {
 
             <div className="flex items-center space-x-3 flex-shrink-0">
               {renderThemeToggle()}
+              {renderSettingsIcon()}
               <UserDropdown 
                 user={user}
                 isDropdownOpen={isDropdownOpen}

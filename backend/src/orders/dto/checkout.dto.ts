@@ -18,6 +18,11 @@ export class OrderItemDto {
   @IsString()
   potColor: string;
 
+  @ApiProperty({ description: 'The chosen product size', example: 'medium' })
+  @IsNotEmpty()
+  @IsString()
+  size: string;
+
   @ApiProperty({ description: 'Quantity purchased', example: 1 })
   @IsNotEmpty()
   @IsNumber()
@@ -73,6 +78,16 @@ export class CheckoutDto {
   @IsNumber()
   @Min(0)
   shippingCost?: number = 0;
+
+  @ApiPropertyOptional({ description: 'Voucher code applied for product discount', example: 'WELCOME10' })
+  @IsOptional()
+  @IsString()
+  productVoucherCode?: string;
+
+  @ApiPropertyOptional({ description: 'Voucher code applied for shipping discount', example: 'FREESHIP' })
+  @IsOptional()
+  @IsString()
+  shippingVoucherCode?: string;
 
   @ApiPropertyOptional({ description: 'Payment method chosen by customer', example: 'COD' })
   @IsOptional()
