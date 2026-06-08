@@ -170,7 +170,7 @@ export default function OrdersTab({ fetchWithAuth }) {
                     </td>
                     <td className="py-3 px-4">
                       <div className="font-semibold text-brand-forest">{order.phone || 'N/A'}</div>
-                      <div className="text-[10px] text-[#666] leading-relaxed max-w-[240px] truncate" title={`${order.address || ''}, ${order.district || ''}, ${order.city || ''}`}>
+                      <div className="text-[10px] text-[#555] leading-relaxed max-w-[260px] whitespace-normal break-words">
                         {order.address || 'N/A'}, {order.district || 'N/A'}, {order.city || 'N/A'}
                       </div>
                     </td>
