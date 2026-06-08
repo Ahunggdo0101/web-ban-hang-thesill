@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { X, AlertTriangle, Loader2, Sparkles } from 'lucide-react';
 import MediaPickerModal from '../../../pages/Admin/MediaPickerModal';
 import { API_BASE_URL } from '../../../config';
-import { optimizeUnsplashImage } from '../../../utils/image';
+import { optimizeUnsplashImage, compressImage } from '../../../utils/image';
 
 const API = API_BASE_URL;
 
@@ -78,11 +78,14 @@ export default function ProductCreateModal({ category, defaultSize, fetchWithAut
   const handleUploadImage = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const maxSizeBytes = 5 * 1024 * 1024;
+    
+    // Nâng giới hạn tối đa cho ảnh gốc lên 100MB
+    const maxSizeBytes = 100 * 1024 * 1024;
     if (file.size > maxSizeBytes) {
-      showToast('Kích thước ảnh không được vượt quá 5MB', 'error');
+      showToast('Kích thước ảnh gốc không được vượt quá 100MB', 'error');
       return;
     }
+
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
     if (!allowedMimeTypes.includes(file.type)) {
       showToast('Chỉ chấp nhận định dạng ảnh JPEG, PNG và WEBP', 'error');
@@ -90,10 +93,14 @@ export default function ProductCreateModal({ category, defaultSize, fetchWithAut
     }
 
     setIsUploadingImage(true);
-    const uploadFormData = new FormData();
-    uploadFormData.append('image', file);
-
     try {
+      showToast('Đang tối ưu hóa hình ảnh...', 'info');
+      // Nén ảnh bằng Canvas trước khi upload
+      const processedFile = await compressImage(file);
+
+      const uploadFormData = new FormData();
+      uploadFormData.append('image', processedFile);
+
       const res = await fetchWithAuth(`${API}/upload/image`, {
         method: 'POST',
         body: uploadFormData,
@@ -104,7 +111,13 @@ export default function ProductCreateModal({ category, defaultSize, fetchWithAut
       }
       const data = await res.json();
       setFormData(prev => ({ ...prev, image: data.url }));
-      showToast('Tải ảnh lên thành công!');
+      
+      if (processedFile.size < file.size) {
+        const percent = Math.round((1 - processedFile.size / file.size) * 100);
+        showToast(`Tải ảnh lên thành công (Đã tối ưu giảm ${percent}% dung lượng)!`);
+      } else {
+        showToast('Tải ảnh lên thành công!');
+      }
     } catch (err) {
       showToast(err.message || 'Không thể tải ảnh lên', 'error');
     } finally {
@@ -331,7 +344,7 @@ export default function ProductCreateModal({ category, defaultSize, fetchWithAut
                     >
                       🖼️ Chọn từ thư viện ảnh
                     </button>
-                    <span className="text-[8px] text-[#888]">Chấp nhận JPEG, PNG, WEBP tối đa 5MB</span>
+                    <span className="text-[8px] text-[#888]">Chấp nhận JPEG, PNG, WEBP tối đa 100MB (Tự động nén tối ưu)</span>
                   </div>
                 )}
               </div>

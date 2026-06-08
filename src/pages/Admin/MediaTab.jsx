@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { API_BASE_URL } from '../../config';
 import { Toast, ConfirmModal } from './shared';
+import { compressImage } from '../../utils/image';
 
 const API = API_BASE_URL;
 
@@ -89,18 +90,53 @@ export default function MediaTab({ fetchWithAuth }) {
   }, [searchInput]);
 
   // Handle file selection for upload
-  const handleFileSelect = (e) => {
+  const handleFileSelect = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { showToast('Ảnh không được vượt quá 5MB', 'error'); return; }
+    
+    // Nâng giới hạn tối đa cho ảnh gốc lên 100MB
+    const maxSizeBytes = 100 * 1024 * 1024;
+    if (file.size > maxSizeBytes) { 
+      showToast('Kích thước ảnh gốc không được vượt quá 100MB', 'error'); 
+      return; 
+    }
+    
     const allowed = ['image/jpeg', 'image/png', 'image/webp'];
-    if (!allowed.includes(file.type)) { showToast('Chỉ chấp nhận JPEG, PNG, WEBP', 'error'); return; }
-    setUploadFile(file);
-    setUploadPreview(URL.createObjectURL(file));
-    // Auto-suggest tên dựa trên filename
-    const suggested = file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
-    setUploadTitle(suggested);
-    e.target.value = '';
+    if (!allowed.includes(file.type)) { 
+      showToast('Chỉ chấp nhận JPEG, PNG, WEBP', 'error'); 
+      return; 
+    }
+
+    try {
+      setIsUploading(true);
+      // Hiển thị toast info
+      showToast('Đang tối ưu hóa dung lượng hình ảnh...', 'info');
+      
+      // Nén ảnh bằng Canvas ở phía Client
+      const processedFile = await compressImage(file);
+      
+      setUploadFile(processedFile);
+      setUploadPreview(URL.createObjectURL(processedFile));
+      
+      // Auto-suggest tên dựa trên filename gốc
+      const suggested = file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
+      setUploadTitle(suggested);
+      
+      if (processedFile.size < file.size) {
+        const percent = Math.round((1 - processedFile.size / file.size) * 100);
+        showToast(`Đã tối ưu hóa giảm ${percent}% dung lượng ảnh!`);
+      } else {
+        showToast('Ảnh nhỏ, đã nạp file gốc thành công!');
+      }
+    } catch (err) {
+      console.error('Lỗi tối ưu hóa ảnh:', err);
+      showToast('Có lỗi xảy ra khi xử lý ảnh, đang sử dụng ảnh gốc', 'warning');
+      setUploadFile(file);
+      setUploadPreview(URL.createObjectURL(file));
+    } finally {
+      setIsUploading(false);
+      e.target.value = '';
+    }
   };
 
   const handleUpload = async () => {
@@ -364,7 +400,7 @@ export default function MediaTab({ fetchWithAuth }) {
                   <label htmlFor="media-upload-file" className="flex flex-col items-center gap-2 cursor-pointer py-6">
                     <ImageIcon size={28} className="text-[#ccc]" />
                     <span className="text-xs text-[#888] font-medium">Click để chọn ảnh</span>
-                    <span className="text-[9px] text-[#bbb]">JPEG, PNG, WEBP · Tối đa 5MB</span>
+                    <span className="text-[9px] text-[#bbb]">JPEG, PNG, WEBP · Tối đa 100MB (Tự động nén tối ưu)</span>
                   </label>
                 )}
               </div>

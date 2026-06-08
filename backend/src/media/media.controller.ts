@@ -58,9 +58,9 @@ export class MediaController {
       throw new UnsupportedMediaTypeException('Chỉ chấp nhận định dạng JPEG, PNG và WEBP');
     }
 
-    const maxSize = 5 * 1024 * 1024;
+    const maxSize = 100 * 1024 * 1024;
     if (file.size > maxSize) {
-      throw new PayloadTooLargeException('Dung lượng ảnh vượt quá giới hạn 5MB');
+      throw new PayloadTooLargeException('Dung lượng ảnh vượt quá giới hạn 100MB');
     }
 
     return this.mediaService.uploadAndCreate(file, title);

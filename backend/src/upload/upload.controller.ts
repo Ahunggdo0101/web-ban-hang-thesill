@@ -61,11 +61,11 @@ export class UploadController {
         throw new UnsupportedMediaTypeException('Chỉ chấp nhận định dạng ảnh JPEG, PNG và WEBP');
       }
 
-      // 2. Kiểm tra dung lượng tối đa 5MB (5 * 1024 * 1024 bytes)
-      const maxSizeBytes = 5 * 1024 * 1024;
+      // 2. Kiểm tra dung lượng tối đa 100MB (100 * 1024 * 1024 bytes)
+      const maxSizeBytes = 100 * 1024 * 1024;
       if (file.size > maxSizeBytes) {
-        this.logger.warn(`Upload rejected: File size ${file.size} bytes exceeds 5MB limit`);
-        throw new PayloadTooLargeException('Dung lượng ảnh vượt quá giới hạn 5MB');
+        this.logger.warn(`Upload rejected: File size ${file.size} bytes exceeds 100MB limit`);
+        throw new PayloadTooLargeException('Dung lượng ảnh vượt quá giới hạn 100MB');
       }
 
       const result = await this.uploadService.uploadImage(file);

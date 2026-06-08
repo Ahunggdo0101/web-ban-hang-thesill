@@ -6,7 +6,7 @@ import {
 import { API_BASE_URL } from '../../config';
 import { potStyles, potColors } from '../../data/products';
 import { Toast, ConfirmModal } from './shared';
-import { optimizeUnsplashImage } from '../../utils/image';
+import { optimizeUnsplashImage, compressImage } from '../../utils/image';
 import MediaPickerModal from './MediaPickerModal';
 import { formatVND } from '../../utils/translation';
 
@@ -158,14 +158,13 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
     const file = e.target.files[0];
     if (!file) return;
 
-    // 1. Kiểm tra kích thước file (5MB)
-    const maxSizeBytes = 5 * 1024 * 1024;
+    // Nâng giới hạn tối đa cho ảnh gốc lên 100MB
+    const maxSizeBytes = 100 * 1024 * 1024;
     if (file.size > maxSizeBytes) {
-      showToast('Kích thước ảnh không được vượt quá 5MB', 'error');
+      showToast('Kích thước ảnh gốc không được vượt quá 100MB', 'error');
       return;
     }
 
-    // 2. Kiểm tra định dạng file
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
     if (!allowedMimeTypes.includes(file.type)) {
       showToast('Chỉ chấp nhận định dạng ảnh JPEG, PNG và WEBP', 'error');
@@ -173,10 +172,14 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
     }
 
     setIsUploadingImage(true);
-    const uploadFormData = new FormData();
-    uploadFormData.append('image', file);
-
     try {
+      showToast('Đang tối ưu hóa hình ảnh...', 'info');
+      // Nén ảnh bằng Canvas
+      const processedFile = await compressImage(file);
+
+      const uploadFormData = new FormData();
+      uploadFormData.append('image', processedFile);
+
       const res = await fetchWithAuth(`${API}/upload/image`, {
         method: 'POST',
         body: uploadFormData,
@@ -189,7 +192,13 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
 
       const data = await res.json();
       setFormData(prev => ({ ...prev, image: data.url }));
-      showToast('Tải ảnh lên thành công!');
+      
+      if (processedFile.size < file.size) {
+        const percent = Math.round((1 - processedFile.size / file.size) * 100);
+        showToast(`Tải ảnh lên thành công (Đã tối ưu giảm ${percent}% dung lượng)!`);
+      } else {
+        showToast('Tải ảnh lên thành công!');
+      }
     } catch (err) {
       showToast(err.message || 'Không thể tải ảnh lên', 'error');
     } finally {
@@ -610,7 +619,7 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
                         >
                           🖼️ Chọn từ thư viện ảnh
                         </button>
-                        <span className="text-[8px] text-[#888]">Chấp nhận JPEG, PNG, WEBP tối đa 5MB</span>
+                        <span className="text-[8px] text-[#888]">Chấp nhận JPEG, PNG, WEBP tối đa 100MB (Tự động nén tối ưu)</span>
                       </div>
                     )}
                   </div>
