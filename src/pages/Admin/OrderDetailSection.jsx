@@ -70,9 +70,9 @@ export default function OrderDetailSection({ order, showToast }) {
               <span className="text-brand-slate/80">Email liên hệ:</span>
               <span className="font-medium">{order.customerEmail}</span>
             </div>
-            <div className="flex flex-col gap-1 pt-2 border-t border-brand-sand/30">
-              <div className="flex justify-between items-start">
-                <span className="text-brand-slate/80">Địa chỉ nhận hàng:</span>
+            <div className="flex flex-col gap-1.5 pt-2.5 border-t border-brand-sand/30">
+              <div className="flex justify-between items-center">
+                <span className="text-brand-slate/80 font-bold uppercase text-[9px] tracking-wider">Địa chỉ giao hàng chi tiết:</span>
                 <button
                   type="button"
                   onClick={() => {
@@ -84,9 +84,16 @@ export default function OrderDetailSection({ order, showToast }) {
                   (Sao chép địa chỉ)
                 </button>
               </div>
-              <p className="font-medium text-brand-charcoal text-right mt-0.5 leading-relaxed">
-                {order.address || 'N/A'}, {order.district || 'N/A'}, {order.city || 'N/A'}
-              </p>
+              <div className="bg-brand-cream/40 border border-brand-sand/50 p-2.5 rounded-sm space-y-1 mt-0.5">
+                <p className="font-bold text-brand-forest text-xs">{order.customerName}</p>
+                <p className="font-mono text-[11px] text-[#666]">{order.phone || 'N/A'}</p>
+                <p className="font-medium text-brand-charcoal text-xs leading-relaxed">
+                  {order.address || 'N/A'}
+                </p>
+                <p className="text-[11px] text-brand-slate font-medium">
+                  {order.district || 'N/A'}, {order.city || 'N/A'}
+                </p>
+              </div>
             </div>
           </div>
         </div>

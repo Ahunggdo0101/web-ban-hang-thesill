@@ -131,10 +131,11 @@ export default function OrdersTab({ fetchWithAuth }) {
       <div className="bg-white border border-brand-sand shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            <thead>
+             <thead>
               <tr className="bg-brand-cream/80 border-b border-brand-sand text-[10px] uppercase tracking-widest text-[#555] font-bold">
                 <th className="py-3 px-4">Mã đơn</th>
                 <th className="py-3 px-4">Khách hàng</th>
+                <th className="py-3 px-4">Địa chỉ giao hàng</th>
                 <th className="py-3 px-4">Tổng tiền</th>
                 <th className="py-3 px-4">Thanh toán</th>
                 <th className="py-3 px-4">Trạng thái</th>
@@ -144,9 +145,9 @@ export default function OrdersTab({ fetchWithAuth }) {
             </thead>
             <tbody className="divide-y divide-brand-sand text-xs text-brand-charcoal">
               {loading ? (
-                <tr><td colSpan={7} className="py-12 text-center"><Loader2 className="animate-spin mx-auto text-brand-forest" size={24} /></td></tr>
+                <tr><td colSpan={8} className="py-12 text-center"><Loader2 className="animate-spin mx-auto text-brand-forest" size={24} /></td></tr>
               ) : orders.length === 0 ? (
-                <tr><td colSpan={7} className="py-12 text-center text-[#888] font-serif">Không tìm thấy đơn hàng nào.</td></tr>
+                <tr><td colSpan={8} className="py-12 text-center text-[#888] font-serif">Không tìm thấy đơn hàng nào.</td></tr>
               ) : orders.map(order => (
                 <>
                   <tr key={order.id} className="hover:bg-brand-cream/30 transition-colors">
@@ -166,6 +167,12 @@ export default function OrdersTab({ fetchWithAuth }) {
                     <td className="py-3 px-4">
                       <div className="font-semibold text-brand-charcoal">{order.customerName}</div>
                       <div className="text-[10px] text-[#888]">{order.customerEmail}</div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="font-semibold text-brand-forest">{order.phone || 'N/A'}</div>
+                      <div className="text-[10px] text-[#666] leading-relaxed max-w-[240px] truncate" title={`${order.address || ''}, ${order.district || ''}, ${order.city || ''}`}>
+                        {order.address || 'N/A'}, {order.district || 'N/A'}, {order.city || 'N/A'}
+                      </div>
                     </td>
                     <td className="py-3 px-4 font-bold text-brand-forest">{formatVND(order.totalAmount)}</td>
                     <td className="py-3 px-4">
@@ -216,7 +223,7 @@ export default function OrdersTab({ fetchWithAuth }) {
                   </tr>
                   {expandedId === order.id && (
                     <tr key={`${order.id}-expanded`} className="bg-brand-cream/20">
-                      <td colSpan={7} className="px-6 py-4 border-b border-brand-sand">
+                      <td colSpan={8} className="px-6 py-4 border-b border-brand-sand">
                         <OrderDetailSection order={order} showToast={showToast} />
                       </td>
                     </tr>
