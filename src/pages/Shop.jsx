@@ -25,6 +25,26 @@ export default function Shop({ searchQuery }) {
   const sizeFilter = searchParams.get('size') || 'all';
   const petFriendlyOnly = searchParams.get('pet') === 'true';
   const sortOption = searchParams.get('sort') || 'featured';
+  const categoryFilter = searchParams.get('category') || 'all';
+
+  const [categories, setCategories] = useState([]);
+
+  // Tải danh mục thực tế từ API để hiển thị tên động
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/categories`)
+      .then(res => {
+        if (res.ok) return res.json();
+        return [];
+      })
+      .then(data => setCategories(data || []))
+      .catch(err => console.error('Lỗi tải danh mục ở Shop:', err));
+  }, []);
+
+  const activeCategoryName = useMemo(() => {
+    if (categoryFilter === 'all') return null;
+    const found = categories.find(c => c.id === categoryFilter);
+    return found ? found.name : categoryFilter;
+  }, [categoryFilter, categories]);
 
   const fetchProducts = useCallback(async () => {
     setIsLoading(true);
@@ -47,6 +67,9 @@ export default function Shop({ searchQuery }) {
       }
       if (petFriendlyOnly) {
         params.set('petFriendly', 'true');
+      }
+      if (categoryFilter !== 'all') {
+        params.set('category', categoryFilter);
       }
 
       let sortBy = 'newest';
@@ -71,7 +94,7 @@ export default function Shop({ searchQuery }) {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, searchQuery, lightFilter, difficultyFilter, sizeFilter, petFriendlyOnly, sortOption]);
+  }, [currentPage, searchQuery, lightFilter, difficultyFilter, sizeFilter, petFriendlyOnly, sortOption, categoryFilter]);
 
   useEffect(() => {
     fetchProducts();
@@ -154,7 +177,7 @@ export default function Shop({ searchQuery }) {
           Cửa hàng trực tuyến
         </span>
         <h1 className="font-serif text-4xl sm:text-5xl text-brand-forest font-light mt-2">
-          Sưu tập thực vật trong nhà
+          {activeCategoryName ? `Bộ sưu tập: ${activeCategoryName}` : 'Sưu tập thực vật trong nhà'}
         </h1>
         <p className="text-xs sm:text-sm text-brand-slate max-w-xl mt-3 leading-relaxed font-medium">
           Dễ dàng tìm kiếm loài cây hoàn mỹ phù hợp với ánh sáng phòng của bạn. Mỗi chậu cây đều được đội ngũ chuyên gia chọn lọc tỉ mỉ và vận chuyển tận nơi.

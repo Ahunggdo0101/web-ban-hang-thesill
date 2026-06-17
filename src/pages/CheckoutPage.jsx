@@ -14,18 +14,19 @@ export default function CheckoutPage() {
   const { cartItems, cartTotal, clearCart } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, fetchWithAuth } = useAuth();
+  const { user, fetchWithAuth, isSettingsModalOpen, setIsSettingsModalOpen, setSettingsActiveTab } = useAuth();
   const { showToast } = useToast();
   const guestState = location.state || {};
 
   // Form states
   const [email, setEmail] = useState(user?.email || guestState.guestEmail || '');
-  const [fullName, setFullName] = useState(user?.name || guestState.guestName || '');
+  const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
   const [district, setDistrict] = useState('');
   const [savedAddresses, setSavedAddresses] = useState([]);
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('COD');
   const [createdOrder, setCreatedOrder] = useState(null);
   
@@ -36,9 +37,8 @@ export default function CheckoutPage() {
   const [vatCompanyAddr, setVatCompanyAddr] = useState('');
   const [vatEmail, setVatEmail] = useState('');
 
-  // Tự động điền thông tin nếu đã đăng nhập hoặc đã nhập ở giỏ hàng
+  // Tải địa chỉ đã lưu của User hoặc Guest từ localStorage
   useEffect(() => {
-    // Tải địa chỉ đã lưu của User hoặc Guest
     const userId = user?.id || 'guest';
     const key = `thesill_addresses_${userId}`;
     const saved = localStorage.getItem(key);
@@ -47,41 +47,49 @@ export default function CheckoutPage() {
     if (saved) {
       try {
         parsedAddresses = JSON.parse(saved);
-        setSavedAddresses(parsedAddresses);
       } catch (e) {
         console.error('Lỗi parse địa chỉ ở Checkout:', e);
       }
     }
+    
+    setSavedAddresses(parsedAddresses);
 
     if (user) {
       if (!email) setEmail(user.email || '');
-      if (!fullName) setFullName(user.name || '');
-
-      const defaultAddr = parsedAddresses.find(addr => addr.isDefault);
-      if (defaultAddr) {
-        setFullName(defaultAddr.receiver || '');
-        setPhone(defaultAddr.phone || '');
-        setAddress(defaultAddr.address || '');
-        setCity(defaultAddr.province || defaultAddr.city || '');
-        setDistrict(defaultAddr.ward ? `${defaultAddr.ward}, ${defaultAddr.district}` : (defaultAddr.district || ''));
-      }
     } else {
-      if (guestState.guestEmail || guestState.guestName) {
+      if (guestState.guestEmail) {
         if (!email) setEmail(guestState.guestEmail || '');
-        if (!fullName) setFullName(guestState.guestName || '');
-      }
-      
-      // Khách vãng lai cũng tự động điền nếu đã có địa chỉ mặc định lưu ở local
-      const defaultAddr = parsedAddresses.find(addr => addr.isDefault);
-      if (defaultAddr) {
-        setFullName(defaultAddr.receiver || '');
-        setPhone(defaultAddr.phone || '');
-        setAddress(defaultAddr.address || '');
-        setCity(defaultAddr.province || defaultAddr.city || '');
-        setDistrict(defaultAddr.ward ? `${defaultAddr.ward}, ${defaultAddr.district}` : (defaultAddr.district || ''));
       }
     }
-  }, [user, guestState.guestEmail, guestState.guestName]);
+
+    // Tự động chọn địa chỉ mặc định hoặc địa chỉ đầu tiên
+    if (parsedAddresses.length > 0) {
+      const defaultAddr = parsedAddresses.find(addr => addr.isDefault) || parsedAddresses[0];
+      if (defaultAddr) {
+        setSelectedAddressId(defaultAddr.id);
+      }
+    } else {
+      setSelectedAddressId(null);
+    }
+  }, [user, guestState.guestEmail, isSettingsModalOpen]);
+
+  // Đồng bộ hóa thông tin địa chỉ tĩnh lên form để submit API
+  useEffect(() => {
+    const selected = savedAddresses.find(a => String(a.id) === String(selectedAddressId));
+    if (selected) {
+      setFullName(selected.receiver || '');
+      setPhone(selected.phone || '');
+      setAddress(selected.address || '');
+      setCity(selected.province || selected.city || '');
+      setDistrict(selected.ward ? `${selected.ward}, ${selected.district}` : (selected.district || ''));
+    } else {
+      setFullName('');
+      setPhone('');
+      setAddress('');
+      setCity('');
+      setDistrict('');
+    }
+  }, [selectedAddressId, savedAddresses]);
 
   // Error state
   const [errors, setErrors] = useState({});
@@ -217,15 +225,10 @@ export default function CheckoutPage() {
     }
 
     // 2. Shipping Info validation
-    if (!fullName.trim()) newErrors.fullName = 'Vui lòng nhập họ và tên';
-    if (!phone.trim()) {
-      newErrors.phone = 'Vui lòng nhập số điện thoại';
-    } else if (!/^\d{10,11}$/.test(phone.trim().replace(/[\s.-]/g, ''))) {
-      newErrors.phone = 'Số điện thoại phải chứa từ 10-11 chữ số';
+    if (!selectedAddressId) {
+      newErrors.address = 'Vui lòng chọn hoặc cấu hình địa chỉ giao hàng trong Cài đặt';
+      showToast('Vui lòng thiết lập địa chỉ nhận hàng để tiếp tục.', 'error');
     }
-    if (!address.trim()) newErrors.address = 'Vui lòng nhập địa chỉ giao hàng';
-    if (!city.trim()) newErrors.city = 'Vui lòng chọn hoặc nhập Tỉnh/Thành phố';
-    if (!district.trim()) newErrors.district = 'Vui lòng nhập Quận/Huyện/Xã';
 
     // 3. VAT Invoice validation
     if (vatRequested) {
@@ -405,149 +408,107 @@ export default function CheckoutPage() {
               Địa Chỉ Nhận Hàng
             </h2>
 
-            {savedAddresses.length > 0 && (
-              <div className="bg-brand-white border border-brand-sand p-4">
-                <label htmlFor="savedAddressSelect" className="block text-[10px] font-bold uppercase tracking-widest text-brand-forest mb-2">
-                  Chọn từ Địa Chỉ Đã Lưu
-                </label>
-                <select
-                  id="savedAddressSelect"
-                  onChange={(e) => {
-                    const selectedId = Number(e.target.value);
-                    const addr = savedAddresses.find(a => a.id === selectedId);
-                    if (addr) {
-                      setFullName(addr.receiver || '');
-                      setPhone(addr.phone || '');
-                      setAddress(addr.address || '');
-                      setCity(addr.province || addr.city || '');
-                      setDistrict(addr.ward ? `${addr.ward}, ${addr.district}` : (addr.district || ''));
-                    }
+            {savedAddresses.length > 0 ? (
+              <div className="space-y-4">
+                <div className="bg-brand-white border border-brand-sand p-4">
+                  <label htmlFor="savedAddressSelect" className="block text-[10px] font-bold uppercase tracking-widest text-brand-forest mb-2">
+                    Chọn Địa Chỉ Giao Hàng *
+                  </label>
+                  <select
+                    id="savedAddressSelect"
+                    value={selectedAddressId || ''}
+                    onChange={(e) => {
+                      setSelectedAddressId(e.target.value);
+                    }}
+                    className="w-full bg-brand-cream border border-brand-sand/80 text-brand-charcoal text-xs py-2.5 px-3 focus:outline-none focus:border-brand-forest focus:ring-1 focus:ring-brand-forest rounded-none font-medium"
+                  >
+                    {savedAddresses.map(addr => (
+                      <option key={addr.id} value={addr.id}>
+                        {addr.name} ({addr.receiver} - {addr.phone}) {addr.isDefault ? '[Mặc định]' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Hiển thị thông tin địa chỉ tĩnh dạng nhãn vận chuyển cao cấp */}
+                {selectedAddressId && (
+                  <div className="bg-brand-white border border-brand-sand p-5 space-y-4 relative overflow-hidden text-left shadow-xs">
+                    <div className="absolute top-0 right-0 bg-brand-forest text-brand-cream text-[8px] font-extrabold uppercase tracking-widest px-2.5 py-1.5 rounded-bl-xs">
+                      Thông tin vận chuyển
+                    </div>
+                    
+                    <div className="space-y-2 text-xs text-brand-charcoal">
+                      <div className="flex items-center gap-2 border-b border-brand-sand/35 pb-2">
+                        <span className="font-serif text-sm font-semibold text-brand-forest">
+                          📍 {savedAddresses.find(a => String(a.id) === String(selectedAddressId))?.name || 'Nhà riêng'}
+                        </span>
+                        {savedAddresses.find(a => String(a.id) === String(selectedAddressId))?.isDefault && (
+                          <span className="bg-brand-forest/10 text-brand-forest border border-brand-forest/20 text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-sm">
+                            Mặc định
+                          </span>
+                        )}
+                      </div>
+                      
+                      <div className="grid grid-cols-4 pt-1 gap-y-2">
+                        <span className="text-[10px] text-brand-slate uppercase font-bold tracking-wider">Người nhận</span>
+                        <span className="col-span-3 font-semibold text-brand-forest">{fullName || 'Chưa cập nhật'}</span>
+                        
+                        <span className="text-[10px] text-brand-slate uppercase font-bold tracking-wider">Điện thoại</span>
+                        <span className="col-span-3 font-semibold font-sans">{phone || 'Chưa cập nhật'}</span>
+                        
+                        <span className="text-[10px] text-brand-slate uppercase font-bold tracking-wider">Địa chỉ giao</span>
+                        <span className="col-span-3 leading-relaxed font-medium">
+                          {address ? `${address}, ` : ''}
+                          {district ? `${district}, ` : ''}
+                          {city || 'Chưa cập nhật'}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="pt-2 border-t border-brand-sand/30 flex justify-between items-center text-[10px]">
+                      <span className="text-brand-slate italic font-medium">
+                        * Cần thay đổi địa chỉ? Vui lòng cấu hình trong phần cài đặt.
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSettingsActiveTab('addresses');
+                          setIsSettingsModalOpen(true);
+                        }}
+                        className="text-brand-forest hover:text-brand-clay font-bold uppercase tracking-wider underline cursor-pointer"
+                      >
+                        ⚙️ Chỉnh sửa địa chỉ
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Giao diện khi chưa có địa chỉ nào */
+              <div className="bg-brand-white border border-brand-sand p-6 text-center space-y-4">
+                <div className="w-12 h-12 bg-[#1F3E35]/5 rounded-full flex items-center justify-center mx-auto text-brand-forest">
+                  <AlertCircle size={22} />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-brand-forest uppercase tracking-wider">
+                    Chưa có địa chỉ giao hàng
+                  </p>
+                  <p className="text-[11px] text-brand-slate leading-relaxed max-w-sm mx-auto">
+                    Hệ thống không tìm thấy thông tin địa chỉ giao hàng nào của bạn. Vui lòng thêm ít nhất một địa chỉ trong Cài đặt của bạn để tiếp tục đặt hàng.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSettingsActiveTab('addresses');
+                    setIsSettingsModalOpen(true);
                   }}
-                  className="w-full bg-brand-cream border border-brand-sand/80 text-brand-charcoal text-xs py-2.5 px-3 focus:outline-none focus:border-brand-forest focus:ring-1 focus:ring-brand-forest rounded-none"
+                  className="inline-flex items-center gap-2 bg-brand-forest hover:bg-brand-green text-brand-white text-[10px] font-bold uppercase tracking-widest px-5 py-3 transition-all duration-300 shadow-sm cursor-pointer"
                 >
-                  <option value="">-- Sử dụng địa chỉ khác --</option>
-                  {savedAddresses.map(addr => (
-                    <option key={addr.id} value={addr.id}>
-                      {addr.name} ({addr.receiver} - {addr.phone} - {addr.address}, {addr.ward ? `${addr.ward}, ` : ''}{addr.district ? `${addr.district}, ` : ''}{addr.province || addr.city}) {addr.isDefault ? '[Mặc định]' : ''}
-                    </option>
-                  ))}
-                </select>
+                  ⚙️ Thêm địa chỉ giao hàng trong Cài đặt
+                </button>
               </div>
             )}
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="fullName" className="block text-[10px] font-bold uppercase tracking-widest text-brand-forest mb-2">
-                  Họ và Tên
-                </label>
-                <input
-                  id="fullName"
-                  name="fullName"
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Nguyễn Văn A"
-                  className={`w-full bg-brand-white border px-4 py-3 text-xs text-brand-charcoal focus:border-brand-forest focus:outline-none transition-colors rounded-none placeholder-brand-sand/50 ${
-                    errors.fullName ? 'border-red-500' : 'border-brand-sand'
-                  }`}
-                />
-                {errors.fullName && (
-                  <p className="text-red-500 text-[10px] mt-1.5 font-bold tracking-wide flex items-center gap-1">
-                    <AlertCircle size={10} /> {errors.fullName}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="phone" className="block text-[10px] font-bold uppercase tracking-widest text-brand-forest mb-2">
-                  Số Điện Thoại
-                </label>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="0901234567"
-                  className={`w-full bg-brand-white border px-4 py-3 text-xs text-brand-charcoal focus:border-brand-forest focus:outline-none transition-colors rounded-none placeholder-brand-sand/50 ${
-                    errors.phone ? 'border-red-500' : 'border-brand-sand'
-                  }`}
-                />
-                {errors.phone && (
-                  <p className="text-red-500 text-[10px] mt-1.5 font-bold tracking-wide flex items-center gap-1">
-                    <AlertCircle size={10} /> {errors.phone}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="address" className="block text-[10px] font-bold uppercase tracking-widest text-brand-forest mb-2">
-                Địa chỉ chi tiết (Số nhà, tên đường)
-              </label>
-              <input
-                id="address"
-                name="address"
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="123 Đường ABC"
-                className={`w-full bg-brand-white border px-4 py-3 text-xs text-brand-charcoal focus:border-brand-forest focus:outline-none transition-colors rounded-none placeholder-brand-sand/50 ${
-                  errors.address ? 'border-red-500' : 'border-brand-sand'
-                }`}
-              />
-              {errors.address && (
-                <p className="text-red-500 text-[10px] mt-1.5 font-bold tracking-wide flex items-center gap-1">
-                  <AlertCircle size={10} /> {errors.address}
-                </p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="district" className="block text-[10px] font-bold uppercase tracking-widest text-brand-forest mb-2">
-                  Quận / Huyện / Xã
-                </label>
-                <input
-                  id="district"
-                  name="district"
-                  type="text"
-                  value={district}
-                  onChange={(e) => setDistrict(e.target.value)}
-                  placeholder="Quận 1"
-                  className={`w-full bg-brand-white border px-4 py-3 text-xs text-brand-charcoal focus:border-brand-forest focus:outline-none transition-colors rounded-none placeholder-brand-sand/50 ${
-                    errors.district ? 'border-red-500' : 'border-brand-sand'
-                  }`}
-                />
-                {errors.district && (
-                  <p className="text-red-500 text-[10px] mt-1.5 font-bold tracking-wide flex items-center gap-1">
-                    <AlertCircle size={10} /> {errors.district}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="city" className="block text-[10px] font-bold uppercase tracking-widest text-brand-forest mb-2">
-                  Tỉnh / Thành phố
-                </label>
-                <input
-                  id="city"
-                  name="city"
-                  type="text"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  placeholder="TP. Hồ Chí Minh"
-                  className={`w-full bg-brand-white border px-4 py-3 text-xs text-brand-charcoal focus:border-brand-forest focus:outline-none transition-colors rounded-none placeholder-brand-sand/50 ${
-                    errors.city ? 'border-red-500' : 'border-brand-sand'
-                  }`}
-                />
-                {errors.city && (
-                  <p className="text-red-500 text-[10px] mt-1.5 font-bold tracking-wide flex items-center gap-1">
-                    <AlertCircle size={10} /> {errors.city}
-                  </p>
-                )}
-              </div>
-            </div>
           </div>
 
           {/* YÊU CẦU XUẤT HÓA ĐƠN VAT */}
@@ -902,9 +863,11 @@ export default function CheckoutPage() {
           {/* Nút đặt hàng */}
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || savedAddresses.length === 0 || !selectedAddressId}
             className={`w-full bg-brand-forest hover:bg-brand-green text-brand-white font-bold py-4 text-xs uppercase tracking-widest transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer ${
-              isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:-translate-y-0.5 active:translate-y-0'
+              isSubmitting || savedAddresses.length === 0 || !selectedAddressId
+                ? 'opacity-60 cursor-not-allowed'
+                : 'hover:-translate-y-0.5 active:translate-y-0'
             }`}
           >
             {isSubmitting ? (

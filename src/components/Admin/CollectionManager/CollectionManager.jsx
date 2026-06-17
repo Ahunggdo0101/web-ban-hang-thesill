@@ -54,9 +54,9 @@ export default function CollectionManager({ category, defaultSize, title, descri
         const data = await productsRes.json();
         // Lọc các sản phẩm thuộc category được truyền vào hoặc size đối với large-plants để tương thích ngược
         if (category === 'large-plants') {
-          productsList = (data.items || []).filter(p => p.size === 'large' || p.category === 'large-plants');
+          productsList = (data.items || []).filter(p => p.size === 'large' || (Array.isArray(p.categories) ? p.categories.includes('large-plants') : p.category === 'large-plants'));
         } else {
-          productsList = (data.items || []).filter(p => p.category === category);
+          productsList = (data.items || []).filter(p => Array.isArray(p.categories) ? p.categories.includes(category) : p.category === category);
         }
         setProducts(productsList);
       } else {

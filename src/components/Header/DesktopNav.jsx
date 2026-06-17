@@ -2,13 +2,14 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import MegaMenu from '../MegaMenu';
 import { NAVIGATION_DATA } from '../../data/navigation';
+import { API_BASE_URL } from '../../config';
 
 const DesktopNav = React.memo(function DesktopNav() {
   const [navigationData, setNavigationData] = React.useState(NAVIGATION_DATA);
 
   React.useEffect(() => {
     let isMounted = true;
-    fetch('/api/menu-config')
+    fetch(`${API_BASE_URL}/menu-config`)
       .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch menu config');
         return res.json();

@@ -220,7 +220,7 @@ export default function SlotItem({
                     <div className="flex-1 min-w-0">
                       <div className="font-bold text-brand-forest truncate">{p.name}</div>
                       <div className="text-[9px] text-[#999] italic truncate">
-                        {p.botanicalName || 'Không có tên khoa học'} · <span className="font-semibold text-brand-sage uppercase">{p.category}</span>
+                        {p.botanicalName || 'Không có tên khoa học'} · <span className="font-semibold text-brand-sage uppercase">{Array.isArray(p.categories) ? p.categories.join(', ') : p.category}</span>
                       </div>
                     </div>
                     <div className="text-[10px] font-bold text-[#d46d4f] shrink-0">

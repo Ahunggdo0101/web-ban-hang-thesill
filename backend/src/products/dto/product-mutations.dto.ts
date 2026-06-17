@@ -61,10 +61,11 @@ export class CreateProductDto {
   @IsString()
   description: string;
 
-  @ApiProperty({ description: 'Product category (plants, pots, care)', example: 'plants' })
+  @ApiProperty({ description: 'Product categories (plants, pots, care)', example: ['plants'] })
   @IsNotEmpty()
-  @IsString()
-  category: string;
+  @IsArray()
+  @IsString({ each: true })
+  categories: string[];
 
   @ApiProperty({ description: 'Main image URL', example: 'https://images.unsplash.com/photo-1599599810769-bcde5a160d32' })
   @IsNotEmpty()
@@ -86,10 +87,10 @@ export class CreateProductDto {
   @IsString()
   light: string;
 
-  @ApiProperty({ description: 'Is the plant pet friendly?', example: false })
-  @IsNotEmpty()
+  @ApiPropertyOptional({ description: 'Is the plant pet friendly? (Deprecated - managed via Category instead)', example: false })
+  @IsOptional()
   @IsBoolean()
-  petFriendly: boolean;
+  petFriendly?: boolean;
 
   @ApiProperty({ description: 'Difficulty level (easy, moderate, care)', example: 'easy' })
   @IsNotEmpty()
@@ -126,6 +127,12 @@ export class CreateProductDto {
   @IsObject()
   careDetails?: Record<string, string>;
 
+  @ApiPropertyOptional({ description: 'Giới hạn số lượng mua tối đa trên mỗi đơn hàng', example: 5 })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  maxPurchaseLimit?: number;
+
   @ApiPropertyOptional({ description: 'Product size variants with pricing and stock', type: [VariantDto] })
   @IsOptional()
   @IsArray()
@@ -156,10 +163,11 @@ export class UpdateProductDto {
   @IsString()
   description?: string;
 
-  @ApiPropertyOptional({ description: 'Product category' })
+  @ApiPropertyOptional({ description: 'Product categories', example: ['plants'] })
   @IsOptional()
-  @IsString()
-  category?: string;
+  @IsArray()
+  @IsString({ each: true })
+  categories?: string[];
 
   @ApiPropertyOptional({ description: 'Main image URL' })
   @IsOptional()
@@ -213,6 +221,12 @@ export class UpdateProductDto {
   @IsOptional()
   @IsObject()
   careDetails?: Record<string, any>;
+
+  @ApiPropertyOptional({ description: 'Giới hạn số lượng mua tối đa trên mỗi đơn hàng', example: 5 })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  maxPurchaseLimit?: number;
 
   @ApiPropertyOptional({ description: 'Product size variants with pricing and stock', type: [VariantDto] })
   @IsOptional()

@@ -44,7 +44,10 @@ export default function ProductDetailPage() {
         }
 
         // Fetch sản phẩm tương tự cùng danh mục
-        const relatedRes = await fetch(`${API_BASE_URL}/products?category=${productData.category}&limit=5`);
+        const catParam = Array.isArray(productData.categories) && productData.categories.length > 0
+          ? productData.categories[0]
+          : (productData.category || 'plants');
+        const relatedRes = await fetch(`${API_BASE_URL}/products?category=${catParam}&limit=5`);
         if (relatedRes.ok) {
           const relatedData = await relatedRes.json();
           if (isSubscribed) {

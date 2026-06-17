@@ -19,6 +19,22 @@ export class OrdersService {
     }
 
     return this.prisma.$transaction(async (tx) => {
+      // 1. Kiểm tra Chốt chặn 2: Chặn đặt nhiều đơn hàng khi đang có đơn chờ duyệt (pending) của cùng số điện thoại
+      if (dto.phone) {
+        const existingPendingOrder = await tx.order.findFirst({
+          where: {
+            phone: dto.phone,
+            status: 'pending',
+          },
+        });
+
+        if (existingPendingOrder) {
+          throw new BadRequestException(
+            `Số điện thoại ${dto.phone} đang có đơn hàng chờ xử lý trên hệ thống. Vui lòng hoàn tất thanh toán hoặc đợi xác nhận đơn cũ trước khi đặt đơn mới.`
+          );
+        }
+      }
+
       let subtotal = 0;
       const itemsToCreate = [];
 
@@ -31,11 +47,28 @@ export class OrdersService {
 
       const productMap = new Map(products.map(p => [p.id, p]));
 
+      // Tính tổng số lượng của từng sản phẩm được đặt mua trong đơn này để phạt lỗi nếu vượt quá limit (Chốt chặn 1)
+      const productQuantities = new Map<string, number>();
+      for (const item of dto.items) {
+        const currentQty = productQuantities.get(item.productId) || 0;
+        productQuantities.set(item.productId, currentQty + item.quantity);
+      }
+
       for (const item of dto.items) {
         const product = productMap.get(item.productId);
 
         if (!product) {
           throw new NotFoundException(`Product with ID "${item.productId}" not found in catalog`);
+        }
+
+        // Kiểm tra Chốt chặn 1: Giới hạn mua tối đa của sản phẩm
+        const totalQtyForProduct = productQuantities.get(item.productId) || 0;
+        if (product.maxPurchaseLimit !== null && product.maxPurchaseLimit !== undefined && product.maxPurchaseLimit > 0) {
+          if (totalQtyForProduct > product.maxPurchaseLimit) {
+            throw new BadRequestException(
+              `Sản phẩm "${product.name}" bị giới hạn mua tối đa ${product.maxPurchaseLimit} sản phẩm trên mỗi đơn hàng. Bạn đang đặt mua ${totalQtyForProduct} sản phẩm.`
+            );
+          }
         }
 
         // Tìm variant tương ứng với size được chọn

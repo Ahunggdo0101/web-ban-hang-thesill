@@ -30,24 +30,24 @@ model Product {
   botanicalName String
   price         Float
   description   String
-  category      String
+  categories    String[] // Array of category IDs
   image         String
   images        String[] // Array of gallery image URLs
   colorImages   Json?      // Color key to image URL mapping
   light         String      // "low" | "medium" | "bright"
-  petFriendly   Boolean
+  petFriendly   Boolean?    @default(false)
   difficulty    String      // "easy" | "moderate" | "care"
   size          String      // "small" | "medium" | "large" | "xlarge" (default size)
   rating        Float       @default(5.0)
   reviewsCount  Int         @default(0)
   careDetails   Json?       // Details for light, water, toxicity
+  maxPurchaseLimit Int?      // Giới hạn số lượng mua tối đa trên mỗi đơn hàng (null là không giới hạn)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   orderItems    OrderItem[]
   wishlists     Wishlist[]
   variants      ProductVariant[]
 
-  @@index([category])
   @@index([price])
 }
 
@@ -171,6 +171,7 @@ model Category {
   name        String
   description String?
   image       String?
+  petFriendly Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

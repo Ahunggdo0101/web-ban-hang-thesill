@@ -9,6 +9,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [settingsActiveTab, setSettingsActiveTab] = useState('profile');
 
   // Tự động khôi phục phiên đăng nhập khi reload trang (F5)
   useEffect(() => {
@@ -219,8 +220,10 @@ export function AuthProvider({ children }) {
     setIsAuthModalOpen,
     isSettingsModalOpen,
     setIsSettingsModalOpen,
+    settingsActiveTab,
+    setSettingsActiveTab,
     fetchWithAuth,
-  }), [user, loading, login, loginWithPassword, register, logout, isAuthModalOpen, isSettingsModalOpen, fetchWithAuth]);
+  }), [user, loading, login, loginWithPassword, register, logout, isAuthModalOpen, isSettingsModalOpen, settingsActiveTab, fetchWithAuth]);
 
   return (
     <AuthContext.Provider value={value}>

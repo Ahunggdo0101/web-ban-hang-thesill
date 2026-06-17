@@ -61,15 +61,31 @@ export class ProductsService {
 
     // Xây dựng điều kiện truy vấn Prisma
     const where: Prisma.ProductWhereInput = {};
+    const andConditions: Prisma.ProductWhereInput[] = [];
 
     if (category) {
-      where.category = category;
+      andConditions.push({
+        categories: {
+          has: category,
+        },
+      });
     }
     if (light) {
       where.light = light;
     }
-    if (petFriendly !== undefined) {
-      where.petFriendly = petFriendly;
+    if (petFriendly === true || petFriendly === 'true' as any) {
+      // Lấy tất cả danh mục có petFriendly: true
+      const petFriendlyCategories = await this.prisma.category.findMany({
+        where: { petFriendly: true },
+        select: { id: true },
+      });
+      const petFriendlyCategoryIds = petFriendlyCategories.map(c => c.id);
+      
+      andConditions.push({
+        categories: {
+          hasSome: petFriendlyCategoryIds,
+        },
+      });
     }
     if (difficulty) {
       where.difficulty = difficulty;
@@ -79,6 +95,9 @@ export class ProductsService {
       where.variants = {
         some: { size },
       };
+    }
+    if (andConditions.length > 0) {
+      where.AND = andConditions;
     }
 
     if (minPrice !== undefined || maxPrice !== undefined) {
@@ -200,17 +219,18 @@ export class ProductsService {
         botanicalName: dto.botanicalName,
         price: dto.price,
         description: dto.description,
-        category: dto.category,
+        categories: dto.categories || [],
         image: dto.image,
         images: dto.images,
         colorImages: dto.colorImages as Prisma.InputJsonValue,
         light: dto.light,
-        petFriendly: dto.petFriendly,
+        petFriendly: dto.petFriendly ?? false,
         difficulty: dto.difficulty,
         size: dto.size,
         rating: dto.rating ?? 5.0,
         reviewsCount: dto.reviewsCount ?? 0,
         careDetails: dto.careDetails as Prisma.InputJsonValue,
+        maxPurchaseLimit: dto.maxPurchaseLimit,
         // Tạo variants nếu có
         variants: dto.variants && dto.variants.length > 0
           ? {
@@ -255,7 +275,7 @@ export class ProductsService {
         botanicalName: dto.botanicalName,
         price: dto.price,
         description: dto.description,
-        category: dto.category,
+        categories: dto.categories,
         image: dto.image,
         images: dto.images,
         colorImages: dto.colorImages as Prisma.InputJsonValue,
@@ -266,6 +286,7 @@ export class ProductsService {
         rating: dto.rating,
         reviewsCount: dto.reviewsCount,
         careDetails: dto.careDetails as Prisma.InputJsonValue,
+        maxPurchaseLimit: dto.maxPurchaseLimit,
       },
       include: {
         variants: {

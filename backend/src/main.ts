@@ -48,10 +48,10 @@ async function bootstrap() {
       // Cho phép requests không có origin (như curl hoặc mobile apps, Postman)
       if (!origin) return callback(null, true);
       
-      // Tư duy hệ thống: Tự động cho phép mọi kết nối từ localhost hoặc 127.0.0.1 với bất kỳ cổng động nào
-      const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+      // Tư duy hệ thống: Tự động cho phép mọi kết nối từ localhost hoặc các dải IP LAN (192.168.x.x, 10.x.x.x, 172.16-31.x.x) với bất kỳ cổng nào
+      const isLocalhostOrLAN = /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+|.*\.local)(:\d+)?$/.test(origin);
       
-      if (isLocalhost || allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+      if (isLocalhostOrLAN || allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
         callback(null, true);
       } else {
         logger.warn(`Origin blocked by CORS: ${origin}`);

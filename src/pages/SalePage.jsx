@@ -71,6 +71,7 @@ export default function SalePage() {
   // Dropdown menu state
   const [activeDropdown, setActiveDropdown] = useState(null); // 'benefits', 'light', 'growth', 'zone', 'type', 'features', 'sort', or null
   const [cardColors, setCardColors] = useState({});
+  const [categories, setCategories] = useState([]);
 
   // Filter state
   const [selectedFilters, setSelectedFilters] = useState({
@@ -131,9 +132,18 @@ export default function SalePage() {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await fetch(`${API_BASE_URL}/products?limit=50`);
-        if (!res.ok) throw new Error('Không thể lấy danh sách sản phẩm');
-        const data = await res.json();
+        const [productsRes, categoriesRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/products?limit=50`),
+          fetch(`${API_BASE_URL}/categories`)
+        ]);
+
+        if (!productsRes.ok) throw new Error('Không thể lấy danh sách sản phẩm');
+        const data = await productsRes.json();
+        
+        if (categoriesRes.ok) {
+          const catsData = await categoriesRes.json();
+          setCategories(catsData || []);
+        }
         
         // Giả lập giảm giá 20% cho các sản phẩm trang khuyến mãi
         const saleProducts = (data.items || []).map(item => ({
@@ -203,7 +213,13 @@ export default function SalePage() {
     if (selectedFilters.benefits.length > 0) {
       result = result.filter(item => {
         return selectedFilters.benefits.some(filter => {
-          if (filter === 'petFriendly') return item.petFriendly;
+          if (filter === 'petFriendly') {
+            const isCatPetFriendly = Array.isArray(item.categories) && item.categories.some(catId => {
+              const catObj = categories.find(c => c.id === catId);
+              return catObj?.petFriendly;
+            });
+            return isCatPetFriendly || item.petFriendly;
+          }
           if (filter === 'easy') return item.difficulty === 'easy';
           if (filter === 'beginner') return item.difficulty === 'easy';
           // Mock cleanAir and lowLight if fields not direct
@@ -221,7 +237,10 @@ export default function SalePage() {
 
     // Kích thước/growth/zone/type
     if (selectedFilters.type.length > 0) {
-      result = result.filter(item => selectedFilters.type.includes(item.category));
+      result = result.filter(item => {
+        const itemCats = Array.isArray(item.categories) ? item.categories : (item.category ? [item.category] : []);
+        return itemCats.some(cat => selectedFilters.type.includes(cat));
+      });
     }
 
     // 2. Sắp xếp sản phẩm

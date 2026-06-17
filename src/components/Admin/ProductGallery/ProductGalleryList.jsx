@@ -80,7 +80,7 @@ export const ProductGalleryList = memo(({
                   <div className="text-[10px] text-[#888] font-serif italic truncate">{p.botanicalName}</div>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-[8px] uppercase tracking-wider font-bold bg-[#eae6dc] px-1.5 py-0.5 text-brand-charcoal">
-                      {p.category}
+                      {Array.isArray(p.categories) ? p.categories.join(', ') : p.category}
                     </span>
                     <span className="text-[9px] font-medium text-brand-sage font-mono">
                       🖼️ {galleryCount} ảnh phụ

@@ -47,7 +47,7 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
   }, []);
 
   function initialForm() {
-    return { id: '', name: '', botanicalName: '', price: '', description: '', category: 'plants', image: '', images: [], light: 'medium', petFriendly: false, difficulty: 'easy', size: 'medium', careDetails: { light: '', water: '', toxicity: '' }, variants: [] };
+    return { id: '', name: '', botanicalName: '', price: '', description: '', categories: ['plants'], image: '', images: [], light: 'medium', difficulty: 'easy', size: 'medium', careDetails: { light: '', water: '', toxicity: '' }, variants: [], maxPurchaseLimit: '' };
   }
 
   const SIZE_OPTIONS = [
@@ -89,7 +89,7 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
     const defaultCat = categories.length > 0 ? categories[0].id : 'plants';
     setFormData({
       ...initialForm(),
-      category: defaultCat
+      categories: [defaultCat]
     });
     setFormError('');
     setModalType('create');
@@ -105,12 +105,13 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
     })) : [];
     setFormData({
       id: p.id, name: p.name, botanicalName: p.botanicalName || '',
-      price: p.price, description: p.description || '', category: p.category || 'plants',
+      price: p.price, description: p.description || '', categories: Array.isArray(p.categories) ? p.categories : (p.category ? [p.category] : ['plants']),
       image: p.image || '', images: Array.isArray(p.images) ? p.images : [],
-      light: p.light || 'medium', petFriendly: !!p.petFriendly, difficulty: p.difficulty || 'easy',
+      light: p.light || 'medium', difficulty: p.difficulty || 'easy',
       size: p.size || 'medium',
       careDetails: { light: p.careDetails?.light || '', water: p.careDetails?.water || '', toxicity: p.careDetails?.toxicity || '' },
       variants: loadedVariants,
+      maxPurchaseLimit: p.maxPurchaseLimit !== null && p.maxPurchaseLimit !== undefined ? p.maxPurchaseLimit : '',
     });
     setIsModalOpen(true);
   };
@@ -276,11 +277,10 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
       botanicalName: formData.botanicalName.trim(), 
       price: Number(formData.price), 
       description: formData.description.trim(), 
-      category: formData.category, 
+      categories: formData.categories || [], 
       image: formData.image.trim(), 
       images: imagesArray, 
       light: formData.light, 
-      petFriendly: formData.petFriendly, 
       difficulty: formData.difficulty, 
       size: formData.size, 
       careDetails: { 
@@ -295,6 +295,7 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
         price: Number(v.price),
         stock: Number(v.stock),
       })),
+      maxPurchaseLimit: formData.maxPurchaseLimit !== '' ? Number(formData.maxPurchaseLimit) : null,
     };
     if (modalType !== 'create') {
       delete payload.id;
@@ -442,9 +443,11 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
                     <div className="text-[9px] font-mono text-[#999] mt-0.5">{p.id}</div>
                   </td>
                   <td className="py-3 px-4">
-                    <span className="bg-brand-forest/5 border border-brand-forest/15 text-brand-forest text-[9px] px-2 py-0.5 uppercase tracking-wider font-bold">
-                      {categories.find(c => c.id === p.category)?.name || p.category}
-                    </span>
+                    <div className="font-semibold text-brand-forest">
+                      {Array.isArray(p.categories) && p.categories.length > 0 
+                        ? p.categories.map(catId => categories.find(c => c.id === catId)?.name || catId).join(', ')
+                        : (categories.find(c => c.id === p.category)?.name || p.category || 'Không có')}
+                    </div>
                   </td>
                   <td className="py-3 px-4 font-bold text-brand-forest">{formatVND(p.price)}</td>
                   <td className="py-3 px-4">
@@ -468,7 +471,7 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
                     <div className="text-[10px]"><span className="text-[#999]">Chăm: </span><span className="font-semibold capitalize">{p.difficulty}</span></div>
                   </td>
                   <td className="py-3 px-4">
-                    {p.petFriendly ? (
+                    {((Array.isArray(p.categories) && p.categories.some(catId => categories.find(c => c.id === catId)?.petFriendly)) || p.petFriendly) ? (
                       <span className="inline-flex items-center gap-1 text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 text-[9px] font-bold uppercase"><Check size={8} /> an toàn</span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 text-[9px] font-bold uppercase"><X size={8} /> độc tính</span>
@@ -537,13 +540,37 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
                   </div>
                   <span className="text-[8px] text-brand-slate block mt-0.5">(Ví dụ: 39000)</span>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage">Danh mục *</label>
-                  <select name="category" disabled={isSubmitting} value={formData.category} onChange={handleInput} className="w-full bg-white border border-brand-sand/80 px-3 py-2 text-xs focus:outline-none focus:border-brand-forest cursor-pointer">
-                    {categories.map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                  </select>
+                <div className="space-y-1.5 col-span-1">
+                  <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage">Danh mục (Chọn nhiều) *</label>
+                  <div className="bg-white border border-brand-sand/80 p-2 text-xs h-[100px] overflow-y-auto space-y-1.5 rounded-sm">
+                    {categories.map(c => {
+                      const isChecked = (formData.categories || []).includes(c.id);
+                      return (
+                        <label key={c.id} className="flex items-center gap-2 cursor-pointer font-medium text-brand-charcoal hover:text-brand-forest">
+                           <input
+                             type="checkbox"
+                             disabled={isSubmitting}
+                             checked={isChecked}
+                             onChange={(e) => {
+                               const checked = e.target.checked;
+                               setFormData(prev => {
+                                 const currentCats = prev.categories || [];
+                                 let nextCats = [];
+                                 if (checked) {
+                                   nextCats = [...currentCats, c.id];
+                                 } else {
+                                   nextCats = currentCats.filter(id => id !== c.id);
+                                 }
+                                 return { ...prev, categories: nextCats };
+                               });
+                             }}
+                             className="accent-brand-forest w-3.5 h-3.5"
+                           />
+                           <span>{c.name}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
                 </div>
                 <div className="space-y-1.5">
                   <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage">Ánh sáng</label>
@@ -560,6 +587,14 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
                     <option value="moderate">Trung bình</option>
                     <option value="care">Cần kỹ (care)</option>
                   </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5 text-left">
+                  <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage">Giới hạn mua tối đa trên mỗi đơn hàng</label>
+                  <input type="number" name="maxPurchaseLimit" min="1" disabled={isSubmitting} value={formData.maxPurchaseLimit} onChange={handleInput} placeholder="Không giới hạn (Ví dụ: 5)" className="w-full bg-white border border-brand-sand/80 px-3 py-2 text-xs focus:outline-none focus:border-brand-forest" />
+                  <span className="text-[8px] text-brand-slate block mt-0.5">(Để trống hoặc nhập để giới hạn số lượng mua đối với sản phẩm này)</span>
                 </div>
               </div>
 
@@ -649,10 +684,7 @@ export default function ProductsTab({ fetchWithAuth, refreshProducts }) {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 pt-1">
-                <input type="checkbox" id="petFriendly" name="petFriendly" disabled={isSubmitting} checked={formData.petFriendly} onChange={handleInput} className="accent-brand-forest w-4 h-4 cursor-pointer" />
-                <label htmlFor="petFriendly" className="text-xs font-bold text-brand-sage cursor-pointer select-none">Thân thiện với vật nuôi (Pet Friendly)</label>
-              </div>
+              {/* Removed petFriendly checkbox since it is now managed at Category level */}
 
               {/* === QUẢN LÝ KÍCH CỠ & TỒN KHO === */}
               <div className="border-t border-brand-sand/50 pt-4 space-y-3">

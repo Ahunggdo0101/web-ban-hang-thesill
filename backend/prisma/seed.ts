@@ -288,7 +288,7 @@ async function main() {
         botanicalName: product.botanicalName,
         price: product.price,
         description: product.description,
-        category: product.category,
+        categories: product.category ? [product.category] : [],
         image: product.image,
         images: product.images,
         colorImages: product.colorImages,

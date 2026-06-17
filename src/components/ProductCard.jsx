@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Star, ShoppingBag } from 'lucide-react';
 import { optimizeUnsplashImage } from '../utils/image';
 import { translatePotColor, formatVND } from '../utils/translation';
+import { API_BASE_URL } from '../config';
 
 // Render static potColorsInfo outside to avoid array recreation on every render
 const DEFAULT_POT_COLORS = [
@@ -12,6 +13,9 @@ const DEFAULT_POT_COLORS = [
   { name: "Charcoal", value: "#3E3E3E" }
 ];
 
+let categoriesCache = null;
+let categoriesPromise = null;
+
 // Memoized Product Card to prevent unnecessary re-renders of the list items
 const ProductCard = React.memo(({ plant, activeColor, onColorChange, addToCart, potColorsInfo }) => {
   const displayImage = plant.colorImages && plant.colorImages[activeColor]
@@ -20,6 +24,37 @@ const ProductCard = React.memo(({ plant, activeColor, onColorChange, addToCart, 
 
   // Use static default pot colors if not provided, avoiding array recreation inside render loop
   const colors = potColorsInfo || DEFAULT_POT_COLORS;
+
+  const [categories, setCategories] = React.useState(categoriesCache || []);
+
+  React.useEffect(() => {
+    if (categoriesCache) return;
+    if (!categoriesPromise) {
+      categoriesPromise = fetch(`${API_BASE_URL}/categories`)
+        .then(res => res.json())
+        .then(data => {
+          categoriesCache = data;
+          return data;
+        })
+        .catch(err => {
+          console.error('Lỗi tải categories trong ProductCard:', err);
+          categoriesPromise = null;
+        });
+    }
+    categoriesPromise.then(data => {
+      if (Array.isArray(data)) {
+        setCategories(data);
+      }
+    });
+  }, []);
+
+  const isPetFriendly = React.useMemo(() => {
+    const isCatPetFriendly = Array.isArray(plant.categories) && plant.categories.some(catId => {
+      const catObj = categories.find(c => c.id === catId);
+      return catObj?.petFriendly;
+    });
+    return isCatPetFriendly || !!plant.petFriendly;
+  }, [plant, categories]);
 
   return (
     <Link
@@ -35,7 +70,7 @@ const ProductCard = React.memo(({ plant, activeColor, onColorChange, addToCart, 
           loading="lazy"
         />
 
-        {plant.petFriendly && (
+        {isPetFriendly && (
           <span className="absolute top-2.5 left-2.5 bg-brand-cream/95 border border-brand-sand text-[#1F3E35] text-[7px] uppercase font-extrabold tracking-widest px-2 py-0.5 shadow-xs">
             An toàn thú cưng
           </span>

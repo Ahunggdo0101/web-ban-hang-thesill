@@ -160,6 +160,18 @@ export default function HomepageTab({ fetchWithAuth }) {
   const [isSaving, setIsSaving] = useState(false);
   const [toast, setToast] = useState(null);
   const [activeSection, setActiveSection] = useState('slides');
+  const [dbCategories, setDbCategories] = useState([]);
+
+  // Tải danh mục thực tế từ API
+  useEffect(() => {
+    fetch(`${API}/categories`)
+      .then(res => {
+        if (res.ok) return res.json();
+        return [];
+      })
+      .then(data => setDbCategories(data || []))
+      .catch(err => console.error('Lỗi tải danh mục ở HomepageTab:', err));
+  }, []);
 
   // Media picker state
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -442,14 +454,40 @@ export default function HomepageTab({ fetchWithAuth }) {
                           </button>
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[9px] uppercase tracking-wider font-bold text-[#888]">Đường link</label>
-                          <input
-                            type="text"
-                            value={cat.path}
-                            onChange={e => updateCategory(idx, 'path', e.target.value)}
-                            placeholder="/shop?difficulty=easy"
-                            className="w-full bg-white border border-brand-sand/80 px-2 py-1.5 text-xs focus:outline-none focus:border-brand-forest font-mono"
-                          />
+                          <label className="text-[9px] uppercase tracking-wider font-bold text-[#888]">Chọn Danh mục Liên kết</label>
+                          {(() => {
+                            const predefinedOptions = [
+                              { value: '/shop', label: 'Tất cả sản phẩm (Cửa hàng)' }
+                            ];
+                            
+                            // Thêm các danh mục động từ database
+                            dbCategories.forEach(c => {
+                              const pathVal = `/shop?category=${c.id}`;
+                              if (!predefinedOptions.some(opt => opt.value === pathVal)) {
+                                predefinedOptions.push({
+                                  value: pathVal,
+                                  label: `Danh mục: ${c.name}`
+                                });
+                              }
+                            });
+
+                            const isPredefined = predefinedOptions.some(opt => opt.value === cat.path);
+                            const selectValue = isPredefined ? cat.path : '/shop';
+
+                            return (
+                              <select
+                                value={selectValue}
+                                onChange={e => {
+                                  updateCategory(idx, 'path', e.target.value);
+                                }}
+                                className="w-full bg-white border border-brand-sand/80 px-2 py-1.5 text-xs focus:outline-none focus:border-brand-forest cursor-pointer"
+                              >
+                                {predefinedOptions.map(opt => (
+                                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                              </select>
+                            );
+                          })()}
                         </div>
                       </div>
                       {/* Toggle hiển thị */}

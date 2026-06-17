@@ -28,6 +28,18 @@ export function CartProvider({ children }) {
   }, [cartItems]);
 
   const addToCart = useCallback((product, quantity = 1, potStyle = 'Classic Ceramic', potColor = 'Terracotta', size) => {
+    // Check limit
+    const limit = product.maxPurchaseLimit;
+    if (limit && limit > 0) {
+      const currentQtyInCart = cartItems
+        .filter(item => item.product.id === product.id)
+        .reduce((sum, item) => sum + item.quantity, 0);
+      if (currentQtyInCart + quantity > limit) {
+        alert(`Sản phẩm này bị giới hạn mua tối đa ${limit} cây trên mỗi đơn hàng.`);
+        return;
+      }
+    }
+
     setCartItems((prevItems) => {
       // Xác định size thực tế của item
       let finalSize = size;
@@ -61,7 +73,7 @@ export function CartProvider({ children }) {
     
     // Automatically open cart drawer when adding item
     setIsCartOpen(true);
-  }, [setCartItems]);
+  }, [setCartItems, cartItems]);
 
   const removeFromCart = useCallback((productId, potStyle, potColor, size) => {
     setCartItems((prevItems) =>
@@ -81,6 +93,33 @@ export function CartProvider({ children }) {
       return;
     }
 
+    // Check limit
+    const itemToUpdate = cartItems.find(
+      (item) =>
+        item.product.id === productId &&
+        item.potStyle === potStyle &&
+        item.potColor === potColor &&
+        item.size === size
+    );
+    if (itemToUpdate) {
+      const limit = itemToUpdate.product.maxPurchaseLimit;
+      if (limit && limit > 0) {
+        const otherQty = cartItems
+          .filter(
+            (item) =>
+              item.product.id === productId &&
+              !(item.potStyle === potStyle &&
+                item.potColor === potColor &&
+                item.size === size)
+          )
+          .reduce((sum, item) => sum + item.quantity, 0);
+        if (otherQty + newQuantity > limit) {
+          alert(`Sản phẩm này bị giới hạn mua tối đa ${limit} cây trên mỗi đơn hàng.`);
+          return;
+        }
+      }
+    }
+
     setCartItems((prevItems) =>
       prevItems.map((item) =>
         item.product.id === productId &&
@@ -91,7 +130,7 @@ export function CartProvider({ children }) {
           : item
       )
     );
-  }, [setCartItems, removeFromCart]);
+  }, [setCartItems, removeFromCart, cartItems]);
 
   const clearCart = useCallback(() => {
     setCartItems([]);

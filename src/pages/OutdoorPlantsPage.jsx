@@ -97,6 +97,7 @@ export default function OutdoorPlantsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [trendingConfig, setTrendingConfig] = useState(null);
+  const [categories, setCategories] = useState([]);
 
   // Trạng thái menu dropdown đang hoạt động
   const [activeDropdown, setActiveDropdown] = useState(null); // 'benefits', 'light', 'growth', 'type', 'sort' hoặc null
@@ -170,20 +171,28 @@ export default function OutdoorPlantsPage() {
       setIsLoading(true);
       setError(null);
       try {
-        // 1. Gọi lấy danh sách toàn bộ sản phẩm để lọc (category=outdoor-plants)
-        const productsRes = await fetch(`${API_BASE_URL}/products?limit=250`);
+        // 1. Gọi lấy danh sách toàn bộ sản phẩm, cấu hình, và categories
+        const [productsRes, configRes, categoriesRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/products?limit=250`),
+          fetch(`${API_BASE_URL}/collection-config/outdoor-plants`),
+          fetch(`${API_BASE_URL}/categories`)
+        ]);
+        
         if (!productsRes.ok) throw new Error('Không thể tải danh sách sản phẩm');
         const productsData = await productsRes.json();
-        const filteredList = (productsData.items || []).filter(p => p.category === 'outdoor-plants');
+        const filteredList = (productsData.items || []).filter(p => Array.isArray(p.categories) ? p.categories.includes('outdoor-plants') : p.category === 'outdoor-plants');
         
-        // 2. Gọi lấy cấu hình vị trí slots của Cây ngoài trời
-        const configRes = await fetch(`${API_BASE_URL}/collection-config/outdoor-plants`);
         let loadedSlots = [];
         let loadedTrending = null;
         if (configRes.ok) {
           const configData = await configRes.json();
           loadedSlots = configData.slots || [];
           loadedTrending = configData.trending || null;
+        }
+
+        if (categoriesRes.ok) {
+          const catsData = await categoriesRes.json();
+          setCategories(catsData || []);
         }
 
         setProducts(filteredList);
@@ -284,10 +293,16 @@ export default function OutdoorPlantsPage() {
     if (selectedFilters.benefits.length > 0) {
       filteredList = filteredList.filter(item => {
         return selectedFilters.benefits.some(filter => {
-          if (filter === 'petFriendly') return item.petFriendly;
+          if (filter === 'petFriendly') {
+            const isCatPetFriendly = Array.isArray(item.categories) && item.categories.some(catId => {
+              const catObj = categories.find(c => c.id === catId);
+              return catObj?.petFriendly;
+            });
+            return isCatPetFriendly || item.petFriendly;
+          }
           if (filter === 'easy') return item.difficulty === 'easy';
           if (filter === 'beginner') return item.difficulty === 'easy';
-          if (filter === 'cleanAir') return item.category === 'outdoor-plants';
+          if (filter === 'cleanAir') return Array.isArray(item.categories) ? item.categories.includes('outdoor-plants') : item.category === 'outdoor-plants';
           if (filter === 'brightSun') return item.light === 'bright';
           return true;
         });
@@ -301,7 +316,10 @@ export default function OutdoorPlantsPage() {
 
     // Lọc theo type
     if (selectedFilters.type.length > 0) {
-      filteredList = filteredList.filter(item => selectedFilters.type.includes(item.category));
+      filteredList = filteredList.filter(item => {
+        const itemCats = Array.isArray(item.categories) ? item.categories : (item.category ? [item.category] : []);
+        return itemCats.some(cat => selectedFilters.type.includes(cat));
+      });
     }
 
     // 2. Sắp xếp hoặc áp dụng thứ tự slots cấu hình bởi Admin

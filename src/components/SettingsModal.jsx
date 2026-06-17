@@ -23,23 +23,21 @@ const MENU_ITEMS = [
 ];
 
 export default function SettingsModal() {
-  const { isSettingsModalOpen, setIsSettingsModalOpen, user } = useAuth();
+  const { isSettingsModalOpen, setIsSettingsModalOpen, user, settingsActiveTab, setSettingsActiveTab } = useAuth();
   const { showToast } = useToast();
   const { theme, toggleTheme } = useTheme();
 
-  const [activeTab, setActiveTab] = useState('profile');
-
   // Đảm bảo tab được chọn là hợp lệ. Nếu không có user đăng nhập, tab mặc định sẽ rơi vào 'appearance'
   const currentTab = useMemo(() => {
-    if (!user && MENU_ITEMS.find(i => i.id === activeTab)?.requiresUser) {
+    if (!user && MENU_ITEMS.find(i => i.id === settingsActiveTab)?.requiresUser) {
       return 'appearance';
     }
-    return activeTab || 'profile';
-  }, [user, activeTab]);
+    return settingsActiveTab || 'profile';
+  }, [user, settingsActiveTab]);
 
   const handleTabChange = useCallback((id) => {
-    setActiveTab(id);
-  }, []);
+    setSettingsActiveTab(id);
+  }, [setSettingsActiveTab]);
 
   const handleClose = useCallback(() => {
     setIsSettingsModalOpen(false);

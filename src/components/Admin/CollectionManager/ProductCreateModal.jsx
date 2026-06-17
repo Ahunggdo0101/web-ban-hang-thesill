@@ -13,11 +13,10 @@ function initialProductForm(category, defaultSize) {
     botanicalName: '',
     price: '',
     description: '',
-    category: category,
+    categories: category ? [category] : [],
     image: '',
     images: '',
     light: 'medium',
-    petFriendly: false,
     difficulty: 'easy',
     size: defaultSize,
     careDetails: {
@@ -174,6 +173,9 @@ export default function ProductCreateModal({ category, defaultSize, fetchWithAut
     if (isNaN(Number(formData.price)) || Number(formData.price) < 0) {
       return setError('Giá bán phải là số hợp lệ.');
     }
+    if (!formData.categories || formData.categories.length === 0) {
+      return setError('Vui lòng chọn ít nhất một danh mục.');
+    }
     if (!formData.image || !formData.image.trim()) {
       return setError('Vui lòng tải lên ảnh sản phẩm chính.');
     }
@@ -188,11 +190,10 @@ export default function ProductCreateModal({ category, defaultSize, fetchWithAut
       botanicalName: formData.botanicalName.trim(),
       price: Number(formData.price),
       description: formData.description.trim(),
-      category: formData.category,
+      categories: formData.categories,
       image: formData.image.trim(),
       images: imagesArray,
       light: formData.light,
-      petFriendly: formData.petFriendly,
       difficulty: formData.difficulty,
       size: formData.size,
       careDetails: {
@@ -269,8 +270,36 @@ export default function ProductCreateModal({ category, defaultSize, fetchWithAut
               </div>
             </div>
             <div className="space-y-1.5">
-              <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage">Danh mục (Khóa cứng)</label>
-              <input type="text" disabled value={`${getCategoryLabel()} (${category})`} className="w-full bg-gray-100 border border-brand-sand/80 px-3 py-2 text-xs text-[#666] font-bold" />
+              <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage">Danh mục (Chọn nhiều) *</label>
+              <div className="bg-white border border-brand-sand/80 p-2 text-xs h-[100px] overflow-y-auto space-y-1.5 rounded-sm">
+                {categories.map(c => {
+                  const isChecked = (formData.categories || []).includes(c.id);
+                  return (
+                    <label key={c.id} className="flex items-center gap-2 cursor-pointer font-medium text-brand-charcoal hover:text-brand-forest">
+                      <input
+                        type="checkbox"
+                        disabled={isSubmitting}
+                        checked={isChecked}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setFormData(prev => {
+                            const currentCats = prev.categories || [];
+                            let nextCats = [];
+                            if (checked) {
+                              nextCats = [...currentCats, c.id];
+                            } else {
+                              nextCats = currentCats.filter(id => id !== c.id);
+                            }
+                            return { ...prev, categories: nextCats };
+                          });
+                        }}
+                        className="accent-brand-forest w-3.5 h-3.5"
+                      />
+                      <span>{c.name}</span>
+                    </label>
+                  );
+                })}
+              </div>
             </div>
             <div className="space-y-1.5">
               <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage">Ánh sáng</label>
@@ -360,7 +389,7 @@ export default function ProductCreateModal({ category, defaultSize, fetchWithAut
                 </select>
               </div>
               <div className="text-[9px] text-[#999] italic mt-1.5 hidden md:block">
-                * Cây được tạo ở đây sẽ tự động thuộc danh mục: {getCategoryLabel()}.
+                * Cây được tạo ở đây sẽ thuộc các danh mục bạn chọn ở trên.
               </div>
             </div>
           </div>
@@ -386,11 +415,6 @@ export default function ProductCreateModal({ category, defaultSize, fetchWithAut
                 <input type="text" name="careDetails.toxicity" disabled={isSubmitting} value={formData.careDetails.toxicity} onChange={handleInput} placeholder="An toàn với mèo và chó..." className="w-full bg-white border border-brand-sand/80 px-3 py-2 text-xs focus:outline-none focus:border-brand-forest" />
               </div>
             </div>
-          </div>
-
-          <div className="flex items-center gap-2 pt-1">
-            <input type="checkbox" id="modalPetFriendly" name="petFriendly" disabled={isSubmitting} checked={formData.petFriendly} onChange={handleInput} className="accent-brand-forest w-4 h-4 cursor-pointer" />
-            <label htmlFor="modalPetFriendly" className="text-xs font-bold text-brand-sage cursor-pointer select-none">Thân thiện với vật nuôi (Pet Friendly)</label>
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-brand-sand/55 bg-white -mx-6 -mb-6 px-6 py-4">

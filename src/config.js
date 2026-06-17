@@ -4,10 +4,13 @@ const getApiBaseUrl = () => {
     typeof window !== 'undefined' && 
     (window.location.hostname === 'localhost' || 
      window.location.hostname === '127.0.0.1' || 
-     window.location.hostname.startsWith('192.168.'));
+     window.location.hostname.startsWith('192.168.') ||
+     window.location.hostname.startsWith('10.') ||
+     window.location.hostname.startsWith('172.') ||
+     window.location.hostname.endsWith('.local'));
 
   if (isLocalhost) {
-    return 'http://localhost:3005/api';
+    return `http://${window.location.hostname}:3005/api`;
   }
 
   // Sử dụng biến môi trường trên Production (hoặc fallback về Render URL)

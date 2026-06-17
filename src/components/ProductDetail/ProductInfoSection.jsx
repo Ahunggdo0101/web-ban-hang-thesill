@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Minus, Heart, Star } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
@@ -7,6 +7,7 @@ import { useToast } from '../../context/ToastContext';
 import { potColors } from '../../data/products';
 import { optimizeUnsplashImage } from '../../utils/image';
 import { formatVND } from '../../utils/translation';
+import { API_BASE_URL } from '../../config';
 
 const recommendedAddons = [
   {
@@ -44,6 +45,27 @@ export default function ProductInfoSection({ product }) {
   const { addToCart } = useCart();
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const { showToast } = useToast();
+
+  const [categories, setCategories] = useState([]);
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/categories`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setCategories(data);
+        }
+      })
+      .catch(err => console.error('Lỗi tải categories:', err));
+  }, []);
+
+  const isPetFriendly = useMemo(() => {
+    if (!product) return false;
+    const isCatPetFriendly = Array.isArray(product.categories) && product.categories.some(catId => {
+      const catObj = categories.find(c => c.id === catId);
+      return catObj?.petFriendly;
+    });
+    return isCatPetFriendly || !!product.petFriendly;
+  }, [product, categories]);
 
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedStyle, setSelectedStyle] = useState('Pallas');
@@ -105,6 +127,13 @@ export default function ProductInfoSection({ product }) {
   const handleAddToCart = useCallback(() => {
     if (!product || isAddToCartDisabled) return;
     
+    // Check limit
+    const limit = product.maxPurchaseLimit;
+    if (limit && limit > 0 && quantity > limit) {
+      showToast(`Sản phẩm này bị giới hạn mua tối đa ${limit} cây trên mỗi đơn hàng.`, 'error');
+      return;
+    }
+    
     const customizedProduct = {
       ...product,
       price: displayPrice,
@@ -121,7 +150,16 @@ export default function ProductInfoSection({ product }) {
   }, []);
 
   const handleDecrement = useCallback(() => setQuantity(q => Math.max(1, q - 1)), []);
-  const handleIncrement = useCallback(() => setQuantity(q => q + 1), []);
+  const handleIncrement = useCallback(() => {
+    setQuantity(q => {
+      const limit = product?.maxPurchaseLimit;
+      if (limit && limit > 0 && q >= limit) {
+        showToast(`Sản phẩm này bị giới hạn mua tối đa ${limit} cây trên mỗi đơn hàng.`, 'error');
+        return q;
+      }
+      return q + 1;
+    });
+  }, [product, showToast]);
 
   if (!product) return null;
 
@@ -181,7 +219,7 @@ export default function ProductInfoSection({ product }) {
               alt={product.name}
               className="w-full h-full object-cover animate-fade-in transition-opacity duration-500"
             />
-            {product.petFriendly && (
+            {isPetFriendly && (
               <span className="absolute top-4 left-4 bg-brand-forest border border-[#1A372C] text-brand-cream text-[8px] uppercase font-bold tracking-widest px-3 py-1.5 shadow-sm rounded-xs">
                 An toàn thú cưng
               </span>
@@ -220,7 +258,7 @@ export default function ProductInfoSection({ product }) {
               📈 {product.difficulty === 'easy' ? 'Dễ chăm sóc' : product.difficulty === 'moderate' ? 'Tăng trưởng 1 ft/năm' : 'Cần chú ý kỹ'}
             </span>
             <span className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">
-              🐾 {product.petFriendly ? 'An toàn cho thú cưng' : 'Độc tính với thú cưng'}
+              🐾 {isPetFriendly ? 'An toàn cho thú cưng' : 'Độc tính với thú cưng'}
             </span>
           </div>
 

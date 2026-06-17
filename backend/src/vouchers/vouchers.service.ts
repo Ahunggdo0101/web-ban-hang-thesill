@@ -214,10 +214,10 @@ export class VouchersService {
     const productIds = items.map(i => i.productId);
     const products = await this.prisma.product.findMany({
       where: { id: { in: productIds } },
-      select: { id: true, category: true },
+      select: { id: true, categories: true },
     });
 
-    const productCategoryMap = new Map(products.map(p => [p.id, p.category]));
+    const productCategoriesMap = new Map(products.map(p => [p.id, p.categories || []]));
 
     // 5. Tính tổng giá trị đơn hàng (Cart subtotal) hoặc tổng giá trị các sản phẩm được giảm theo danh mục
     let applicableSubtotal = 0;
@@ -227,11 +227,11 @@ export class VouchersService {
       const itemSubtotal = item.price * item.quantity;
       totalCartSubtotal += itemSubtotal;
 
-      const category = productCategoryMap.get(item.productId);
+      const productCategories = productCategoriesMap.get(item.productId) || [];
       
       // Nếu voucher giới hạn danh mục sản phẩm (ví dụ: plants)
       if (voucher.categoryLimit) {
-        if (category === voucher.categoryLimit) {
+        if (productCategories.includes(voucher.categoryLimit)) {
           applicableSubtotal += itemSubtotal;
         }
       } else {

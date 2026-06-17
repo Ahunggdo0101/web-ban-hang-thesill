@@ -89,6 +89,7 @@ export class CategoryService implements OnModuleInit {
         name: dto.name,
         description: dto.description,
         image: dto.image,
+        petFriendly: dto.petFriendly ?? false,
       },
     });
 
@@ -105,6 +106,7 @@ export class CategoryService implements OnModuleInit {
         name: dto.name,
         description: dto.description,
         image: dto.image,
+        petFriendly: dto.petFriendly,
       },
     });
 
@@ -117,7 +119,11 @@ export class CategoryService implements OnModuleInit {
 
     // Kiểm tra xem có sản phẩm nào thuộc danh mục này không
     const productCount = await this.prisma.product.count({
-      where: { category: id },
+      where: {
+        categories: {
+          has: id,
+        },
+      },
     });
 
     if (productCount > 0) {

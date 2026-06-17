@@ -10,12 +10,30 @@ import { optimizeUnsplashImage, compressImage } from '../../utils/image';
 
 const API = API_BASE_URL;
 
+const generateCategorySlug = (name) => {
+  let slug = name.toLowerCase().trim();
+  // Thay thế các ký tự tiếng Việt
+  slug = slug.replace(/[áàảãạăắằẳẵặâấầẩẫậ]/g, 'a');
+  slug = slug.replace(/[éèẻẽẹêếềểễệ]/g, 'e');
+  slug = slug.replace(/[íìỉĩị]/g, 'i');
+  slug = slug.replace(/[óòỏõọôốồổỗộơớờởỡợ]/g, 'o');
+  slug = slug.replace(/[úùủũụưứừửữự]/g, 'u');
+  slug = slug.replace(/[ýỳỷỹỵ]/g, 'y');
+  slug = slug.replace(/đ/g, 'd');
+  // Thay thế ký tự đặc biệt, khoảng trắng thành dấu gạch ngang
+  slug = slug.replace(/[^a-z0-9 -]/g, '')
+             .replace(/\s+/g, '-')
+             .replace(/-+/g, '-');
+  return slug;
+};
+
 function initialCategoryForm() {
   return {
     id: '',
     name: '',
     description: '',
-    image: ''
+    image: '',
+    petFriendly: false
   };
 }
 
@@ -33,6 +51,7 @@ export default function CategoriesTab({ fetchWithAuth }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('create'); // 'create' | 'edit'
   const [formData, setFormData] = useState(initialCategoryForm());
+  const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -100,6 +119,7 @@ export default function CategoriesTab({ fetchWithAuth }) {
     setFormData(initialCategoryForm());
     setFormError('');
     setModalMode('create');
+    setIsSlugManuallyEdited(false);
     setIsModalOpen(true);
   };
 
@@ -108,7 +128,8 @@ export default function CategoriesTab({ fetchWithAuth }) {
       id: category.id,
       name: category.name,
       description: category.description || '',
-      image: category.image || ''
+      image: category.image || '',
+      petFriendly: !!category.petFriendly
     });
     setFormError('');
     setModalMode('edit');
@@ -117,19 +138,17 @@ export default function CategoriesTab({ fetchWithAuth }) {
 
   const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  }, []);
-
-  const handleGenerateSlug = () => {
-    if (!formData.name) return;
-    const slug = formData.name
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/[\s_-]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-    setFormData(prev => ({ ...prev, id: slug }));
-  };
+    setFormData(prev => {
+      const next = { ...prev, [name]: value };
+      if (modalMode === 'create' && name === 'name' && !isSlugManuallyEdited) {
+        next.id = generateCategorySlug(value);
+      }
+      if (modalMode === 'create' && name === 'id') {
+        setIsSlugManuallyEdited(true);
+      }
+      return next;
+    });
+  }, [modalMode, isSlugManuallyEdited]);
 
   const handleUploadImage = async (e) => {
     const file = e.target.files[0];
@@ -205,27 +224,38 @@ export default function CategoriesTab({ fetchWithAuth }) {
     }
   };
 
+  // Xóa các dòng code chứa generateCategorySlug trùng lặp đã đưa lên đầu file
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
 
-    if (!formData.id.trim()) return setFormError('Mã danh mục (slug/ID) không được rỗng');
     if (!formData.name.trim()) return setFormError('Tên danh mục không được rỗng');
+
+    const generatedId = modalMode === 'create' ? generateCategorySlug(formData.name) : formData.id;
+
+    if (!generatedId) return setFormError('Mã danh mục không hợp lệ từ tên danh mục');
 
     setIsSubmitting(true);
     try {
       const url = modalMode === 'create' ? `${API}/categories` : `${API}/categories/${formData.id}`;
       const method = modalMode === 'create' ? 'POST' : 'PUT';
 
+      const payload = {
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+        image: formData.image.trim(),
+        petFriendly: formData.petFriendly
+      };
+
+      if (modalMode === 'create') {
+        payload.id = generatedId;
+      }
+
       const response = await fetchWithAuth(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: formData.id.trim(),
-          name: formData.name.trim(),
-          description: formData.description.trim(),
-          image: formData.image.trim()
-        })
+        body: JSON.stringify(payload)
       });
 
       if (response.ok) {
@@ -331,7 +361,6 @@ export default function CategoriesTab({ fetchWithAuth }) {
               <thead>
                 <tr className="bg-brand-cream/80 border-b border-brand-sand text-[10px] uppercase tracking-widest text-[#555] font-bold">
                   <th className="py-3 px-4 w-16">Ảnh</th>
-                  <th className="py-3 px-4 w-32">Mã ID (Slug)</th>
                   <th className="py-3 px-4 w-48">Tên danh mục</th>
                   <th className="py-3 px-4">Mô tả</th>
                   <th className="py-3 px-4 w-28 text-right">Thao tác</th>
@@ -349,8 +378,12 @@ export default function CategoriesTab({ fetchWithAuth }) {
                         )}
                       </div>
                     </td>
-                    <td className="py-3 px-4 font-mono font-bold text-brand-forest break-all">{cat.id}</td>
-                    <td className="py-3 px-4 font-bold text-brand-charcoal">{cat.name}</td>
+                    <td className="py-3 px-4 text-brand-charcoal">
+                      <div className="font-bold text-brand-forest">{cat.name}</div>
+                      <div className="text-[9px] font-mono text-[#888] mt-0.5 lowercase tracking-wider">
+                        Đường dẫn: <span className="font-semibold text-brand-sage">/collections/{cat.id}</span>
+                      </div>
+                    </td>
                     <td className="py-3 px-4 text-[#666] line-clamp-2 mt-1 border-none">{cat.description || <span className="italic text-[#aaa]">Không có mô tả</span>}</td>
                     <td className="py-3 px-4 text-right whitespace-nowrap">
                       <div className="inline-flex gap-1.5">
@@ -438,31 +471,6 @@ export default function CategoriesTab({ fetchWithAuth }) {
               )}
 
               <div className="space-y-1.5">
-                <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage">Mã ID (Slug) *</label>
-                <div className="flex gap-1.5">
-                  <input
-                    type="text"
-                    name="id"
-                    required
-                    disabled={isSubmitting || modalMode === 'edit'}
-                    value={formData.id}
-                    onChange={handleInputChange}
-                    placeholder="e.g. indoor-plants"
-                    className="flex-grow bg-white border border-brand-sand/80 px-3 py-2 text-xs focus:outline-none focus:border-brand-forest font-mono disabled:bg-gray-100 disabled:text-[#666]"
-                  />
-                  {modalMode === 'create' && (
-                    <button
-                      type="button"
-                      onClick={handleGenerateSlug}
-                      className="text-[9px] bg-brand-cream border border-brand-sand px-3 uppercase tracking-widest font-bold text-brand-forest hover:bg-brand-sand/30 cursor-pointer whitespace-nowrap"
-                    >
-                      Tạo mã tự động
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
                 <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage">Tên danh mục *</label>
                 <input
                   type="text"
@@ -477,6 +485,35 @@ export default function CategoriesTab({ fetchWithAuth }) {
               </div>
 
               <div className="space-y-1.5">
+                <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage">Đường dẫn URL / Mã ID (Slug) *</label>
+                <div className="flex gap-1.5">
+                  <span className="bg-gray-100 border border-brand-sand/80 px-2 py-2 text-xs text-[#888] font-mono shrink-0 select-none">
+                    /collections/
+                  </span>
+                  <input
+                    type="text"
+                    name="id"
+                    required
+                    disabled={isSubmitting || modalMode === 'edit'}
+                    value={formData.id}
+                    onChange={handleInputChange}
+                    placeholder="e.g. indoor-plants"
+                    className="flex-grow bg-white border border-brand-sand/80 px-3 py-2 text-xs focus:outline-none focus:border-brand-forest font-mono disabled:bg-gray-100 disabled:text-[#888]"
+                  />
+                </div>
+                {modalMode === 'create' && (
+                  <span className="text-[9px] text-[#999] block mt-0.5">
+                    * Tự động sinh ra khi bạn gõ tên. Có thể sửa trước khi lưu.
+                  </span>
+                )}
+                {modalMode === 'edit' && (
+                  <span className="text-[9px] text-[#999] block mt-0.5">
+                    * Không thể sửa đường dẫn sau khi đã tạo để tránh hỏng liên kết sản phẩm.
+                  </span>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
                 <label className="block text-[10px] uppercase tracking-wider font-bold text-brand-sage">Mô tả chi tiết</label>
                 <textarea
                   name="description"
@@ -487,6 +524,21 @@ export default function CategoriesTab({ fetchWithAuth }) {
                   placeholder="Giới thiệu về danh mục này..."
                   className="w-full bg-white border border-brand-sand/80 px-3 py-2 text-xs focus:outline-none focus:border-brand-forest resize-y"
                 />
+              </div>
+
+              <div className="flex items-center pt-2">
+                <label className="relative inline-flex items-center cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={formData.petFriendly}
+                    onChange={(e) => setFormData(prev => ({ ...prev, petFriendly: e.target.checked }))}
+                    className="sr-only peer"
+                  />
+                  <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-forest"></div>
+                  <span className="ml-3 text-[11px] text-brand-moss font-semibold">
+                    Danh mục này thân thiện với thú cưng (Pet Friendly)
+                  </span>
+                </label>
               </div>
 
               <div className="space-y-1.5">

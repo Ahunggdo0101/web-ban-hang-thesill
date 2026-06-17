@@ -1,15 +1,29 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { products as staticProducts } from '../data/products';
 import { Sun, ShieldAlert, Award, ArrowLeft, RefreshCw, Star, Heart, ChevronRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import ProductCard from './ProductCard';
+import { API_BASE_URL } from '../config';
 
 export default function PlantQuiz({ products: propProducts } = {}) {
   const navigate = useNavigate();
   const products = propProducts && propProducts.length > 0 ? propProducts : staticProducts;
   const { addToCart } = useCart();
   const [step, setStep] = useState(0); // 0: Start, 1: Light, 2: Pets, 3: Skill, 4: Results
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/categories`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setCategories(data);
+        }
+      })
+      .catch(err => console.error('Lỗi tải danh mục trong PlantQuiz:', err));
+  }, []);
+
   const [answers, setAnswers] = useState({
     light: '',
     hasPets: null,
@@ -52,8 +66,13 @@ export default function PlantQuiz({ products: propProducts } = {}) {
         return false;
       }
       // 2. Pet filter
-      if (answers.hasPets === true && !product.petFriendly) {
-        return false;
+      if (answers.hasPets === true) {
+        const isCatPetFriendly = Array.isArray(product.categories) && product.categories.some(catId => {
+          const catObj = categories.find(c => c.id === catId);
+          return catObj?.petFriendly;
+        });
+        const isPetFriendly = isCatPetFriendly || !!product.petFriendly;
+        if (!isPetFriendly) return false;
       }
       // 3. Skill filter
       if (answers.skill === 'easy' && product.difficulty !== 'easy') {
